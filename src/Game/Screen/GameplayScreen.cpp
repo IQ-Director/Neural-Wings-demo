@@ -32,6 +32,7 @@ void GameplayScreen::Update(float deltaTime) {
     }
     
     // m_scriptingSystem->Update(*m_world, deltaTime);
+    m_world->DestroyWaitingObjects();
 }
 
 void GameplayScreen::Draw() {

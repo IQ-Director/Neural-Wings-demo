@@ -63,7 +63,7 @@
                 "http.server",
                 "8000",
                 "--directory",
-                "build"
+                "build_web"
             ],
             "isBackground": true,
             "dependsOn": "Web Build",
@@ -85,7 +85,7 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "build"
+                "build_web"
             ],
             "group": "build",
             "dependsOn": "Web Configure",
@@ -98,7 +98,7 @@
             "args": [
                 "cmake",
                 "-B",
-                "build",
+                "build_web",
                 "-DPLATFORM=Web",
                 "-DCMAKE_BUILD_TYPE=Release",
                 "-G",
@@ -115,7 +115,7 @@
             "command": "powershell",
             "args": [
                 "-Command",
-                "Remove-Item -Path '${workspaceFolder}/build' -Recurse -Force"
+                "Remove-Item -Path '${workspaceFolder}/build_web' -Recurse -Force"
             ],
             "problemMatcher": "$msCompile"
         }
