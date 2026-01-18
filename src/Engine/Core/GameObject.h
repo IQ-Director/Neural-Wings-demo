@@ -3,6 +3,7 @@
 #include <vector>
 #include <memory>
 #include <typeindex>
+#include <stdexcept>
 class GameObject
 {
 public:
