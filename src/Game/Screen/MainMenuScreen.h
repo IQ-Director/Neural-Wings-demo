@@ -1,5 +1,5 @@
 #pragma once
-#include "Engine/System/Screen/GameScreen.h" /
+#include "Engine/System/Screen/GameScreen.h"
 #include "ScreenState.h"
 class MainMenuScreen : public GameScreen {
 public:
@@ -13,7 +13,7 @@ public:
     void Draw() override;
     void OnExit() override;
     int GetNextScreenState() const override;
-
+    int GetScreenState() const override;
 private:
     int m_nextScreenState;
 };

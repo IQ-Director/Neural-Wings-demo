@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.11)
 project(Neural_Wings-demo)
 
 
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 if (MSVC)
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Od /Zi /EHsc")
     set(CMAKE_CXX_FLAGS_RELEASE "/MD /O2 /DNDEBUG /EHsc")
@@ -53,6 +57,7 @@ include_directories(${CMAKE_SOURCE_DIR}/src)
 if (EMSCRIPTEN)
     set(PLATFORM "Web")
     add_definitions(-DPLATFORM_WEB)
+    
 else()
     set(PLATFORM "Desktop")
     add_definitions(-DPLATFORM_DESKTOP)

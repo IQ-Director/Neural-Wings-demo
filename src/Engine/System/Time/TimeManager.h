@@ -2,9 +2,9 @@
 
 class TimeManager {
 public:
-    TimeManager();
+    TimeManager(float targetFPS = 60.0f);
     void Tick();
-
+    void setFPS(float targetFPS);
     // 获取可变的 delta time (用于渲染和非物理逻辑)
     float GetDeltaTime() const;
 
@@ -14,5 +14,5 @@ public:
 private:
     double m_lastFrameTime;
     float m_deltaTime;
-    const float m_fixedDeltaTime;
+    float m_fixedDeltaTime;
 };

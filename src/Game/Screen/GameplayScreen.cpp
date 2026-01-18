@@ -49,3 +49,6 @@ void GameplayScreen::Draw() {
 int GameplayScreen::GetNextScreenState() const {
     return m_nextScreenState;
 }
+int GameplayScreen::GetScreenState() const {
+    return static_cast<int>(ScreenStateID::GAMEPlAY);
+}

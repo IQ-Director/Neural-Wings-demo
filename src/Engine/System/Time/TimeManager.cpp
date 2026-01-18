@@ -1,10 +1,10 @@
 #include "TimeManager.h"
 #include "raylib.h" 
 
-TimeManager::TimeManager()
+TimeManager::TimeManager(float targetFPS)
     : m_lastFrameTime(GetTime()),
       m_deltaTime(0.0f),
-      m_fixedDeltaTime(1.0f / 60.0f) { // 固定每秒更新 60 次
+      m_fixedDeltaTime(1.0f / targetFPS) { // 固定每秒更新 60 次
 }
 
 void TimeManager::Tick() {
@@ -12,7 +12,9 @@ void TimeManager::Tick() {
     m_deltaTime = static_cast<float>(currentTime - m_lastFrameTime);
     m_lastFrameTime = currentTime;
 }
-
+void TimeManager::setFPS(float targetFPS) {
+    m_fixedDeltaTime = (1.0f / targetFPS);
+}
 float TimeManager::GetDeltaTime() const {
     return m_deltaTime;
 }

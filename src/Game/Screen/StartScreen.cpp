@@ -64,3 +64,6 @@ void StartScreen::OnExit() {
 int StartScreen::GetNextScreenState() const {
     return m_nextScreenState;
 }
+int StartScreen::GetScreenState() const {
+    return static_cast<int>(ScreenStateID::START);
+}

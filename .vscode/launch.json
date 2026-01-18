@@ -30,7 +30,7 @@
             "type": "chrome", 
             "request": "launch",
             "url": "http://localhost:8000/Neural_Wings-demo.html", 
-            "webRoot": "${workspaceFolder}/src",
+            "webRoot": "${workspaceFolder}",
             "userDataDir": true,
             "preLaunchTask": "Start Web Server"
         }

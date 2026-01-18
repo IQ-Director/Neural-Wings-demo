@@ -12,7 +12,7 @@ public:
     void Draw() override;
     void OnExit() override;
     int GetNextScreenState() const override;
-
+    int GetScreenState() const override;
 private:
     int m_nextScreenState;
 

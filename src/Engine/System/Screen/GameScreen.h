@@ -28,4 +28,5 @@ public:
 
     // 状态
     virtual int GetNextScreenState() const = 0;
+    virtual int GetScreenState() const = 0;
 };

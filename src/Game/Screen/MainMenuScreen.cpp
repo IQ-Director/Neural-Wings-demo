@@ -65,3 +65,6 @@ void MainMenuScreen::Draw() {
 int MainMenuScreen::GetNextScreenState() const {
     return m_nextScreenState;
 }
+int MainMenuScreen::GetScreenState() const {
+    return static_cast<int>(ScreenStateID::MAIN_MENU);
+}
