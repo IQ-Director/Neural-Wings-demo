@@ -76,6 +76,7 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "valarray": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "complex": "cpp"
     }
 }
