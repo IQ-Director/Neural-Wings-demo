@@ -141,3 +141,8 @@ Complex Complex::I()
 {
     return Complex(0.0f, 1.0f);
 }
+
+Complex operator*(float scalar, const Complex &c)
+{
+    return Complex(c.real * scalar, c.imag * scalar);
+}

@@ -1,27 +1,28 @@
 #pragma once
 
-struct Complex {
+struct Complex
+{
     float real = 0.0f;
     float imag = 0.0f;
 
     Complex() = default;
     Complex(float real, float imag);
 
-    Complex operator+(const Complex& other) const;
-    Complex operator-(const Complex& other) const;
-    Complex operator*(const Complex& other) const;
-    Complex operator/(const Complex& other) const;
+    Complex operator+(const Complex &other) const;
+    Complex operator-(const Complex &other) const;
+    Complex operator*(const Complex &other) const;
+    Complex operator/(const Complex &other) const;
 
-    Complex& operator+=(const Complex& other);
-    Complex& operator-=(const Complex& other);
-    Complex& operator*=(const Complex& other);
-    Complex& operator/=(const Complex& other);
+    Complex &operator+=(const Complex &other);
+    Complex &operator-=(const Complex &other);
+    Complex &operator*=(const Complex &other);
+    Complex &operator/=(const Complex &other);
 
     Complex operator*(float scalar) const;
     Complex operator/(float scalar) const;
 
-    Complex& operator*=(float scalar);
-    Complex& operator/=(float scalar);
+    Complex &operator*=(float scalar);
+    Complex &operator/=(float scalar);
 
     float Magnitude() const;
     float Abs() const;
@@ -36,3 +37,5 @@ struct Complex {
     static Complex One();
     static Complex I();
 };
+
+Complex operator*(float scalar, const Complex &c);
