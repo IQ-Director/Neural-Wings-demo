@@ -6,6 +6,8 @@ constexpr int SCREEN_STATE_NONE = -2;
 constexpr int SCREEN_STATE_EXIT = -3;
 constexpr int SCREEN_STATE_ERROR = -4;
 
+class ScreenManager;
+
 class GameScreen
 {
 public:
@@ -29,4 +31,6 @@ public:
     // 状态
     virtual int GetNextScreenState() const = 0;
     virtual int GetScreenState() const = 0;
+
+    ScreenManager* screenManager = nullptr;
 };

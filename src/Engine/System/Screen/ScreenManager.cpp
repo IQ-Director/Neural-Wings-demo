@@ -9,13 +9,47 @@ ScreenManager::ScreenManager(const EngineConfig& config, std::unique_ptr<ScreenF
     m_timeManager = TimeManager(static_cast<float>(config.targetFPS));
     m_accumulator = 0.0f;
     SetExitKey(KEY_NULL);
-    m_currentScreen = m_factory->Create(config.initialScreen);
+    m_currentScreen = m_factory->Create(config.initialScreen,this);
     m_currentScreen->OnEnter();
    
 }
 
 ScreenManager::~ScreenManager() {
     Shutdown();
+}
+#if defined(PLATFORM_WEB)
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h> 
+#endif
+
+void ScreenManager::ApplySettings(const EngineConfig& newConfig) {
+#if defined(PLATFORM_WEB)
+    if (newConfig.fullScreen) {
+        EmscriptenFullscreenStrategy strategy = {
+            EMSCRIPTEN_FULLSCREEN_SCALE_DEFAULT,
+            EMSCRIPTEN_FULLSCREEN_CANVAS_SCALE_NONE,
+            EMSCRIPTEN_FULLSCREEN_FILTERING_DEFAULT
+        };
+        emscripten_request_fullscreen_strategy("#canvas", EM_TRUE, &strategy);
+    } else {
+        emscripten_exit_fullscreen();
+    }
+#else
+    if (IsWindowFullscreen() != newConfig.fullScreen) {
+        ToggleFullscreen();
+    }
+    if (!IsWindowFullscreen()) {
+         if (GetScreenWidth() != newConfig.screenWidth || GetScreenHeight() != newConfig.screenHeight) {
+            SetWindowSize(newConfig.screenWidth, newConfig.screenHeight);
+            int monitor = GetCurrentMonitor();
+            SetWindowPosition(
+                (GetMonitorWidth(monitor) - newConfig.screenWidth) / 2,
+                (GetMonitorHeight(monitor) - newConfig.screenHeight) / 2
+            );
+        }
+    }
+#endif
+    SetTargetFPS(newConfig.targetFPS);
 }
 
 bool ScreenManager::UpdateFrame() {
@@ -101,13 +135,13 @@ void ScreenManager::ChangeScreen(int newState) {
         m_currentScreen.reset();
     }
     // 2. 使用工厂创建一个新的屏幕实例
-    m_currentScreen = m_factory->Create(newState);
+    m_currentScreen = m_factory->Create(newState,this);
 
     // 3. 如果新屏幕创建成功，则通知它进入
     if (m_currentScreen) {
         m_currentScreen->OnEnter();
     } else {
-        m_currentScreen = m_factory->Create(SCREEN_STATE_ERROR);
+        m_currentScreen = m_factory->Create(SCREEN_STATE_ERROR,this);
         if(m_currentScreen) m_currentScreen->OnEnter();
     }
 }

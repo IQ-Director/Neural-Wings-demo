@@ -1,11 +1,11 @@
 {
+    "performance": {
+        "targetFPS": 94.16666412353516
+    },
     "window": {
-        "width": 1600,
+        "fullscreen": false,
         "height": 900,
         "title": "Neural Wings",
-        "fullscreen": false
-    },
-    "performance": {
-        "targetFPS": 144
+        "width": 1600
     }
 }

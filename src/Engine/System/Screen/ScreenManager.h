@@ -11,6 +11,8 @@ public:
     ~ScreenManager();
     //void Run();
     
+    void ApplySettings(const EngineConfig& config);
+
     bool UpdateFrame(); 
     void Shutdown();
 private:

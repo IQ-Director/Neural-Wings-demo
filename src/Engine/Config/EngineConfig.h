@@ -9,10 +9,19 @@ struct EngineConfig : public Config
     int screenHeight = 720;
     std::string windowTitle = "Default Engine Window";
 
-    int targetFPS = 60;
+    float targetFPS = 60.0f;
 
     int initialScreen = SCREEN_STATE_NONE;
 
+    bool fullScreen = false;
+
+    void toJson(json &j) const
+    {
+        j = json{
+            {"window", {{"width", screenWidth}, {"height", screenHeight}, {"title", windowTitle}, {"fullscreen", fullScreen}}},
+            {"performance", {{"targetFPS", targetFPS}}},
+        };
+    }
 protected:
     void ParseJson(const json &configJson) override
     {
@@ -20,6 +29,8 @@ protected:
         this->screenHeight = configJson.at("window").value("height", this->screenHeight);
         this->windowTitle = configJson.at("window").value("title", this->windowTitle);
         this->targetFPS = configJson.at("performance").value("targetFPS", this->targetFPS);
+        this->fullScreen = configJson.at("window").value("fullScreen", this->fullScreen);
         this->initialScreen = SCREEN_STATE_START;
     }
+    
 };
