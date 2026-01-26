@@ -16,7 +16,7 @@ void TestStage::Execute(GameWorld &world, float fixedDeltaTime)
         {
             auto &rb = gameObject->GetComponent<RigidbodyComponent>();
             auto &transform = gameObject->GetComponent<TransformComponent>();
-            auto torque = Vector3f(0.0, 0.0, 1.0);
+            auto torque = Vector3f(0.0, 0.0, 0.0);
             rb.AddTorque(torque);
         }
     }

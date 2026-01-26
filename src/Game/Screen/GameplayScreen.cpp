@@ -60,12 +60,20 @@ void GameplayScreen::OnEnter()
     m_physicsSystem->AddStage(std::make_unique<TestStage>());
     GameObject *Cube = &m_world->CreateGameObject();
 
-    Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 10.0f, 0.0f));
+    TransformComponent* trPtr =&Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 10.0f, 0.0f));
     RigidbodyComponent*  rbPtr=&Cube->AddComponent<RigidbodyComponent>();
+
+    Vector3f size= Vector3f(0.1f, 3.0f, 4.2f);
+    trPtr->scale = size;
+    
     rbPtr->mass=100.0f;
-    rbPtr->drag=0.1f;
+    rbPtr->drag=0.0f;
+    rbPtr->angularDrag=0.000f;
     rbPtr->velocity=Vector3f(0.0f,0.0f,0.0f);
-    rbPtr->angularVelocity=Vector3f(0.0f,0.0f,0.0f);
+    
+    rbPtr->SetBoxInertia(size);
+    rbPtr->SetAnglularVelocity(Vector3f(0.1f,10.1f,0.1f));
+
 
     RenderComponent* rdPtr = &Cube->AddComponent<RenderComponent>();
 
