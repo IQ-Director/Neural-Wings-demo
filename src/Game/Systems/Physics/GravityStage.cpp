@@ -26,71 +26,71 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
             Vector3f corners[8];
             BoundingBox aabb = gameObject->GetWorldBoundingBox(&corners);
             float lowy = aabb.min.y;
-
+            tf.position.print();
+            std::cout<<lowy<<std::endl;
             Vector3f normal = Vector3f(0.0, 1.0, 0.0);
             if (lowy < ground)
             {
                 float penetration = ground - lowy;
-                tf.position.y() += penetration;
-                Vector3f hitPoint = Vector3f::ZERO;
-                int contacts = 0;
+                if(penetration>slop)
+                tf.position.y() += (penetration-slop)*baumgarte;
+                struct Contact
+                {
+                    Vector3f r;
+                    float penetation;
+                };
+                std::vector<Contact> contacts;
                 for (int i = 0; i < 8; i++)
                 {
-                    if (corners[i].y() < ground+0.01f)
+                    if (corners[i].y() < ground + 0.01f)
                     {
-                        hitPoint += corners[i];
-                        contacts++;
+                        contacts.push_back({corners[i] - tf.position, ground - corners[i].y()});
                     }
                 }
-                hitPoint /= contacts;
-
-                Vector3f r = hitPoint - tf.position;
-                Vector3f rV = rb.velocity + (rb.angularVelocity ^ r);
-                float nrV = rV * normal;
-                bool isStaticLower =fabsf(rb.velocity.y())<0.1;
-                if (nrV < -0.01f)
+                int div= contacts.size();
+                for (auto &cp : contacts)
                 {
-                    float invMass = 1.0f / rb.mass;
-                    float e = isStaticLower?0.0f:rb.elasticity * e_ground;
-                    float i = -(1.0 + e) * nrV;
-                    auto raxn = r ^ normal;
-                    auto rot = tf.rotation.toMatrix();
-                    auto worldInverseInertia = rot * rb.inverseInertiaTensor * rot.transposed();
-                    float term = raxn * (worldInverseInertia * raxn);
-                    float j = i / (term + invMass);
-                    auto impulse = j * normal;
-                    rb.AddImpulse(impulse, r);
-
-                    // 摩擦力冲量
-                    Vector3f tangent = rV - (normal * nrV);
-                    if (tangent.LengthSquared() > 0.01f)
+                    Vector3f rV = rb.velocity + (rb.angularVelocity ^ cp.r);
+                    float nrV = rV * normal;
+                    if (nrV < -0.01f)
                     {
-                        tangent.Normalize();
-                        float vt = rV * tangent;
-                        Vector3f raxt = r ^ tangent;
-                        float angularTermT = raxt * (worldInverseInertia * raxt);
-                        float jt = -vt / (invMass + angularTermT);
-                        if (fabsf(jt) > j * mu)
-                            jt = -j * mu;
-                        Vector3f impulseT = jt * tangent;
-                        rb.AddImpulse(impulseT, r);
+                        float invMass = 1.0f / rb.mass;
+                        float e = (fabsf(nrV)<0.2f) ? 0.0f : rb.elasticity * e_ground;
+                        float i = -(1.0 + e) * nrV;
+                        auto raxn = cp.r ^ normal;
+                        auto rot = tf.rotation.toMatrix();
+                        auto worldInverseInertia = rot * rb.inverseInertiaTensor * rot.transposed();
+                        float term = raxn * (worldInverseInertia * raxn);
+                        float j = i / (term + invMass);
+                        auto impulse = j * normal/ div;
+                        rb.AddImpulse(impulse, cp.r);
+
+                        // 摩擦力冲量
+                        Vector3f tangent = rV - (normal * nrV);
+                        if (tangent.LengthSquared() > 0.01f)
+                        {
+                            tangent.Normalize();
+                            float vt = rV * tangent;
+                            Vector3f raxt = cp.r ^ tangent;
+                            float angularTermT = raxt * (worldInverseInertia * raxt);
+                            float jt = -vt / (invMass + angularTermT);
+                            jt=std::max(-j*mu,std::min(j*mu,jt));
+                            
+                            Vector3f impulseT = jt * tangent/ div;
+                            rb.AddImpulse(impulseT,cp.r);
+                        }
                     }
                 }
-
                 // 防止不稳定
-                if(isStaticLower&&fabsf(penetration)<=0.001f)
+                if ( rb.velocity.LengthSquared()<0.1f&&rb.angularVelocity.LengthSquared()<0.1f)
                 {
                     rb.velocity.y() = 0.0f;
-                    rb.AddForce(-m_gravity * rb.mass);
 
-                    if(contacts>=3)
+                    if (contacts.size() >= 3)
                     {
-                        rb.angularMomentum *= friction;
-                        rb.velocity *= friction;
-                        if(rb.velocity.LengthSquared()<0.01f)
-                            rb.velocity = Vector3f::ZERO;
+                        rb.velocity = Vector3f::ZERO;
+                        rb.angularMomentum = Vector3f::ZERO;
                     }
-
                 }
             }
         }

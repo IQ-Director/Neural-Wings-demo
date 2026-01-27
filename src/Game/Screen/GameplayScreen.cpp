@@ -57,25 +57,25 @@ void GameplayScreen::OnEnter()
 {
     DisableCursor();
     // m_physicsSystem->AddStage(std::make_unique<SolarStage>(10.0f));
-    m_physicsSystem->AddStage(std::make_unique<GravityStage>());
+     m_physicsSystem->AddStage(std::make_unique<GravityStage>());
     //m_physicsSystem->AddStage(std::make_unique<TestStage>());
     m_physicsSystem->AddStage(std::make_unique<CollisionStage>());
 
     GameObject *Cube = &m_world->CreateGameObject();
 
-    TransformComponent *trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 5.0f, 0.0f));
+    TransformComponent *trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 6.0f, 0.0f));
     RigidbodyComponent *rbPtr = &Cube->AddComponent<RigidbodyComponent>();
 
-    Vector3f size = Vector3f(.5f, 2.0f, .5f);
+    Vector3f size = Vector3f(1.0f, 5.0f, 1.0f);
     trPtr->scale = size;
 
     rbPtr->mass = 1.0f;
     rbPtr->drag = 0.0f;
-    rbPtr->angularDrag = 0.000f;
-    rbPtr->velocity = Vector3f(1.0f, 1.0f, 0.0f);
+    rbPtr->angularDrag = 0.01f;
+    rbPtr->velocity = Vector3f(0.0f, 0.0f, 0.0f);
 
     rbPtr->SetBox(size);
-    rbPtr->SetAnglularVelocity(Vector3f(3.1f,2.1f,7.1f));
+    // rbPtr->SetAnglularVelocity(Vector3f(0.1f,4.1f,1.1f));
     rbPtr->collisionCallback = [](GameObject *other)
     {
         std::cout << "BLUE " << "Collision!" << std::endl;
@@ -111,13 +111,13 @@ void GameplayScreen::OnEnter()
 
 
     // Cube = &m_world->CreateGameObject();
-    // trPtr=&Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 5.0f, 0.0f));
+    // trPtr=&Cube->AddComponent<TransformComponent>(Vector3f(2.0f, 5.0f, 0.0f));
     // rbPtr=&Cube->AddComponent<RigidbodyComponent>();
-    // size= Vector3f(1.0f, 1.0f, 1.0f);
+    // size= Vector3f(2.0f, 3.0f, 1.0f);
     // trPtr->scale = size;
     // rbPtr->mass=10.0f;
     // rbPtr->drag=0.1f;
-    // rbPtr->velocity=Vector3f(0.0f,0.0f,0.0f);
+    // rbPtr->velocity=Vector3f(0.1f,0.0f,0.0f);
 
     // rbPtr->SetBox(size);
     // // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,-3.1f));
