@@ -1,6 +1,7 @@
 #pragma once
-#include "raylib.h"
-#include "Engine/Engine.h"
+#include "Engine/System/Physics/IPhysicsStage.h"
+#include "Engine/Core/Components/Components.h"
+#include "Engine/Math/Math.h"
 class GameWorld;
 class GravityStage : public IPhysicsStage
 {
@@ -11,7 +12,7 @@ public:
 
 private:
     float ground = 0.0f;
-    float e_ground = 0.6f;
+    float e_ground = 1.0f;
     float mu = 0.1f;
     //强制阻尼
     float friction = 0.5f;

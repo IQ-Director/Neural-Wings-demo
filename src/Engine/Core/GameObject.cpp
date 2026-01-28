@@ -28,15 +28,31 @@ bool GameObject::IsWaitingDestroy() const
 
 #include "Engine/Core/Components/Components.h"
 #include "Engine/Math/Math.h"
-BoundingBox GameObject::GetWorldBoundingBox(Vector3f (*outCorners)[8]) const
+AABB GameObject::GetWorldAABB(Vector3f (*outCorners)[8]) const
 {
-    if (!this->HasComponent<RigidbodyComponent>()||!this->HasComponent<TransformComponent>())
-        return BoundingBox();
-    TransformComponent &tf=this->GetComponent<TransformComponent>();
-    RigidbodyComponent &rb=this->GetComponent<RigidbodyComponent>();
-
-    Vector3f min = rb.localBoundingBox.first;
-    Vector3f max = rb.localBoundingBox.second;
+    if (!this->HasComponent<RigidbodyComponent>() || !this->HasComponent<TransformComponent>())
+        return AABB();
+    TransformComponent &tf = this->GetComponent<TransformComponent>();
+    RigidbodyComponent &rb = this->GetComponent<RigidbodyComponent>();
+    if (rb.colliderType == ColliderType::SPHERE)
+    {
+        Vector3f center = tf.position;
+        float radius = rb.boudingRadius;
+        if (outCorners != nullptr)
+        {
+            (*outCorners)[0] = center + Vector3f(radius, radius, radius);
+            (*outCorners)[1] = center + Vector3f(radius, radius, -radius);
+            (*outCorners)[2] = center + Vector3f(radius, -radius, radius);
+            (*outCorners)[3] = center + Vector3f(radius, -radius, -radius);
+            (*outCorners)[4] = center + Vector3f(-radius, radius, radius);
+            (*outCorners)[5] = center + Vector3f(-radius, radius, -radius);
+            (*outCorners)[6] = center + Vector3f(-radius, -radius, radius);
+            (*outCorners)[7] = center + Vector3f(-radius, -radius, -radius);
+        }
+        return AABB(center - Vector3f(radius, radius, radius), center + Vector3f(radius, radius, radius));
+    }
+    Vector3f min = rb.localAABB.min;
+    Vector3f max = rb.localAABB.max;
     Vector3f corners[8] = {
         Vector3f(min.x(), min.y(), min.z()),
         Vector3f(min.x(), min.y(), max.z()),
@@ -57,10 +73,10 @@ BoundingBox GameObject::GetWorldBoundingBox(Vector3f (*outCorners)[8]) const
         corners[i] = corners[i];
         corners[i].RotateByAxixAngle(axis, angle);
         corners[i] += worldPos;
-        if(outCorners!=nullptr)
+        if (outCorners != nullptr)
             (*outCorners)[i] = corners[i];
         newMin = Vector3f::Min(newMin, corners[i]);
         newMax = Vector3f::Max(newMax, corners[i]);
     }
-    return BoundingBox{newMin, newMax};
+    return AABB{newMin, newMax};
 }

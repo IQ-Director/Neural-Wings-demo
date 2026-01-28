@@ -32,25 +32,23 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
             auto &tf1 = go1->GetComponent<TransformComponent>();
             auto &tf2 = go2->GetComponent<TransformComponent>();
 
-            // Broad Phase
             // TODO:实现更多BoundBox,优化碰撞检测
             bool isColliding = false;
             Vector3f normal;
             Vector3f hitPoint;
             float penetration = 0.0f;
-            if (rb1.colliderType == ColliderType::BOX && rb2.colliderType == ColliderType::BOX)
-            {
-                BoundingBox aabb1 = go1->GetWorldBoundingBox();
-                BoundingBox aabb2 =go2->GetWorldBoundingBox();
-                if (!CheckCollisionBoxes(aabb1, aabb2))
-                    continue;
 
-                // Narrow Phase
-                OBB obb1(tf1, rb1);
-                OBB obb2(tf2, rb2);
+            // Broad Phase
+            AABB aabb1 = go1->GetWorldAABB();
+            AABB aabb2 = go2->GetWorldAABB();
+            if (!AABB::IsCollide(aabb1, aabb2))
+                continue;
+            // Narrow Phase
+            HitBox box1(tf1, rb1);
+            HitBox box2(tf2, rb2);
 
-                isColliding = OBB::GetCollisionInfo(obb1, obb2, normal, penetration, hitPoint);
-            }
+            isColliding = HitBox::GetCollisionInfo(box1, box2, normal, penetration, hitPoint);
+
             if (isColliding)
             {
                 if (rb1.collisionCallback)
@@ -111,8 +109,8 @@ void CollisionStage::ResolveCollision(GameObject *a, GameObject *b, const Vector
     float j = i / (invMassA + invMassB + termA + termB);
 
     Vector3f impulse = j * normal;
-    rbA.AddImpulse(-impulse,rA);
-    rbB.AddImpulse(impulse,rB);
+    rbA.AddImpulse(-impulse, rA);
+    rbB.AddImpulse(impulse, rB);
     // rbA.velocity -= invMassA * impulse;
     // rbB.velocity += invMassB * impulse;
     // if (invMassA > 0.0001f)

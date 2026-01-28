@@ -7,6 +7,8 @@
 
 #include "raylib.h"
 #include "Engine/Math/Math.h"
+
+struct AABB;
 class GameObject
 {
 public:
@@ -26,7 +28,7 @@ public:
     bool HasComponent() const;
 
     unsigned int GetID() const;
-    BoundingBox GetWorldBoundingBox(Vector3f (*outCorners)[8] =nullptr) const;
+    AABB GetWorldAABB(Vector3f (*outCorners)[8] =nullptr) const;
 private:
     std::vector<std::unique_ptr<IComponent>> m_components;
     // 组件索引

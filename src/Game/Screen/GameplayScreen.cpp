@@ -50,31 +50,35 @@ void GameplayScreen::ConfigureRenderer()
 // 当进入游戏场景时调用
 #include "Engine/Core/Components/Components.h"
 #include "Engine/System/Physics/Physics.h"
-#include "Game/Systems/Physics/GravityStage.h"
 #include "Game/Systems/Physics/SolarStage.h"
 #include "Game/Systems/Physics/TestStage.h"
 void GameplayScreen::OnEnter()
 {
     DisableCursor();
-    // m_physicsSystem->AddStage(std::make_unique<SolarStage>(10.0f));
-     m_physicsSystem->AddStage(std::make_unique<GravityStage>());
+    m_physicsSystem->AddStage(std::make_unique<SolarStage>(10.0f));
+    // m_physicsSystem->AddStage(std::make_unique<GravityStage>());
     //m_physicsSystem->AddStage(std::make_unique<TestStage>());
     m_physicsSystem->AddStage(std::make_unique<CollisionStage>());
+
+
+    Mesh cubeMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
+    Mesh sphereMesh = GenMeshSphere(1.0f, 32, 32);
 
     GameObject *Cube = &m_world->CreateGameObject();
 
     TransformComponent *trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(0.0f, 6.0f, 0.0f));
     RigidbodyComponent *rbPtr = &Cube->AddComponent<RigidbodyComponent>();
 
-    Vector3f size = Vector3f(1.0f, 5.0f, 1.0f);
+    Vector3f size = Vector3f::ONE*1.0f;
     trPtr->scale = size;
 
     rbPtr->mass = 1.0f;
-    rbPtr->drag = 0.0f;
+    rbPtr->drag = 0.1f;
     rbPtr->angularDrag = 0.01f;
+    rbPtr->elasticity=1.0f;
     rbPtr->velocity = Vector3f(0.0f, 0.0f, 0.0f);
-
-    rbPtr->SetBox(size);
+    
+    rbPtr->SetSphere(size);
     // rbPtr->SetAnglularVelocity(Vector3f(0.1f,4.1f,1.1f));
     rbPtr->collisionCallback = [](GameObject *other)
     {
@@ -82,52 +86,101 @@ void GameplayScreen::OnEnter()
     };
 
     RenderComponent *rdPtr = &Cube->AddComponent<RenderComponent>();
-    Mesh cubeMesh = GenMeshCube(1.0f, 1.0f, 1.0f);
-    rdPtr->model = LoadModelFromMesh(cubeMesh);
+    rdPtr->model = LoadModelFromMesh(sphereMesh);
     rdPtr->tint = BLUE;
 
-    // Cube = &m_world->CreateGameObject();
 
-    // trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(-2.0f, 2.0f, 2.0f));
-    // rbPtr = &Cube->AddComponent<RigidbodyComponent>();
+    Cube = &m_world->CreateGameObject();
 
-    // size = Vector3f(1.0f, 1.0f, 1.0f);
-    // trPtr->scale = size;
+    trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(-2.0f, 2.0f, 2.0f));
+    rbPtr = &Cube->AddComponent<RigidbodyComponent>();
 
-    // rbPtr->mass = 1.0f;
-    // rbPtr->drag = 0.0f;
-    // rbPtr->velocity = Vector3f(0.0f, 0.0f, -0.0f);
+    size = Vector3f(2.0f, 2.0f, 2.0f);
+    trPtr->scale = size;
 
-    // rbPtr->SetBox(size);
-    // // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,0.1f));
-    // rbPtr->collisionCallback = [](GameObject *other)
-    // {
-    //     std::cout << "RED " << "Collision!" << std::endl;
-    // };
-    // rdPtr = &Cube->AddComponent<RenderComponent>();
-    // rdPtr->model = LoadModelFromMesh(cubeMesh);
-    // rdPtr->tint = RED;
+    rbPtr->mass = 1.0f;
+    rbPtr->drag = 0.1f;
+    rbPtr->angularDrag = 0.01f;
+    rbPtr->elasticity=0.5f;
+    rbPtr->velocity = Vector3f(0.0f, 0.0f, -0.0f);
+
+    rbPtr->SetBox(size);
+    // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,0.1f));
+    rbPtr->collisionCallback = [](GameObject *other)
+    {
+        std::cout << "RED " << "Collision!" << std::endl;
+    };
+    rdPtr = &Cube->AddComponent<RenderComponent>();
+    rdPtr->model = LoadModelFromMesh(cubeMesh);
+    rdPtr->tint = RED;
+
+    Cube = &m_world->CreateGameObject();
+
+    trPtr = &Cube->AddComponent<TransformComponent>(Vector3f(-2.0f, 2.0f, 2.0f));
+    rbPtr = &Cube->AddComponent<RigidbodyComponent>();
+
+    size = Vector3f(2.0f, 2.0f, 2.0f);
+    trPtr->scale = size;
+
+    rbPtr->mass = 10.0f;
+    rbPtr->drag = 0.1f;
+    rbPtr->angularDrag = 0.01f;
+    rbPtr->elasticity=0.5f;
+    rbPtr->velocity = Vector3f(1.0f, 0.0f, -0.0f);
+
+    rbPtr->SetSphere(size);
+    // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,0.1f));
+    rbPtr->collisionCallback = [](GameObject *other)
+    {
+        std::cout << "RED " << "Collision!" << std::endl;
+    };
+    rdPtr = &Cube->AddComponent<RenderComponent>();
+    rdPtr->model = LoadModelFromMesh(sphereMesh);
+    rdPtr->tint = RED;
 
 
+    Cube = &m_world->CreateGameObject();
+    trPtr=&Cube->AddComponent<TransformComponent>(Vector3f(2.0f, 5.0f, 0.0f));
+    rbPtr=&Cube->AddComponent<RigidbodyComponent>();
+    size= Vector3f(1.0f, 1.0f, 1.0f);
+    trPtr->scale = size;
+    rbPtr->mass=10.0f;
+    rbPtr->drag=0.1f;
+    rbPtr->angularDrag = 0.01f;
+    rbPtr->elasticity=0.5f;
+    rbPtr->velocity=Vector3f(0.0f,0.0f,0.0f);
 
-    // Cube = &m_world->CreateGameObject();
-    // trPtr=&Cube->AddComponent<TransformComponent>(Vector3f(2.0f, 5.0f, 0.0f));
-    // rbPtr=&Cube->AddComponent<RigidbodyComponent>();
-    // size= Vector3f(2.0f, 3.0f, 1.0f);
-    // trPtr->scale = size;
-    // rbPtr->mass=10.0f;
-    // rbPtr->drag=0.1f;
-    // rbPtr->velocity=Vector3f(0.1f,0.0f,0.0f);
+    rbPtr->SetBox(size);
+    // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,-3.1f));
+    rbPtr->collisionCallback=[](GameObject *other)
+    {
+        std::cout<<"BLACK "<<"Collision!"<<std::endl;
+    };
+    rdPtr = &Cube->AddComponent<RenderComponent>();
+    rdPtr->model = LoadModelFromMesh(cubeMesh);
+    rdPtr->tint = BLACK;
 
-    // rbPtr->SetBox(size);
-    // // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,-3.1f));
-    // rbPtr->collisionCallback=[](GameObject *other)
-    // {
-    //     std::cout<<"BLACK "<<"Collision!"<<std::endl;
-    // };
-    // rdPtr = &Cube->AddComponent<RenderComponent>();
-    // rdPtr->model = LoadModelFromMesh(cubeMesh);
-    // rdPtr->tint = BLACK;
+    
+    Cube = &m_world->CreateGameObject();
+    trPtr=&Cube->AddComponent<TransformComponent>(Vector3f(5.0f, 5.0f, 0.0f));
+    rbPtr=&Cube->AddComponent<RigidbodyComponent>();
+    size= Vector3f(5.0f, 0.5f, 0.5f);
+    trPtr->scale = size;
+    rbPtr->mass=10.0f;
+    rbPtr->drag=0.1f;
+    rbPtr->angularDrag = 0.01f;
+    rbPtr->elasticity=0.5f;
+    rbPtr->velocity=Vector3f(0.0f,0.0f,0.0f);
+
+    rbPtr->SetBox(size);
+    // rbPtr->SetAnglularVelocity(Vector3f(2.1f,0.1f,-3.1f));
+    rbPtr->collisionCallback=[](GameObject *other)
+    {
+        std::cout<<"BLACK "<<"Collision!"<<std::endl;
+    };
+    rdPtr = &Cube->AddComponent<RenderComponent>();
+    rdPtr->model = LoadModelFromMesh(cubeMesh);
+    rdPtr->tint = BLACK;
 
     // m_sceneManager->LoadScene("assets/scenes/earth_map.json");
 }
