@@ -7,6 +7,7 @@ const Vector3f Vector3f::ZERO = Vector3f(0.0f, 0.0f, 0.0f);
 const Vector3f Vector3f::UP = Vector3f(0.0f, 1.0f, 0.0f);
 const Vector3f Vector3f::RIGHT = Vector3f(1.0f, 0.0f, 0.0f);
 const Vector3f Vector3f::FORWARD = Vector3f(0.0f, 0.0f, -1.0f);
+const Vector3f Vector3f::ONE = Vector3f(1.0f, 1.0f, 1.0f);
 Vector3f::Vector3f(const Vector3f &other)
 {
     m_data[0] = other.m_data[0];

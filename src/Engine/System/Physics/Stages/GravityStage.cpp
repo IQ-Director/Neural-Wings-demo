@@ -24,8 +24,8 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
             auto &tf = gameObject->GetComponent<TransformComponent>();
             rb.AddForce(m_gravity * rb.mass);
             Vector3f corners[8];
-            BoundingBox aabb = gameObject->GetWorldBoundingBox(&corners);
-            float lowy = aabb.min.y;
+            AABB aabb = gameObject->GetWorldAABB(&corners);
+            float lowy = aabb.min.y();
             tf.position.print();
             std::cout<<lowy<<std::endl;
             Vector3f normal = Vector3f(0.0, 1.0, 0.0);

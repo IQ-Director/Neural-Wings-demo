@@ -13,6 +13,7 @@ public:
     static const Vector3f UP;
     static const Vector3f RIGHT;
     static const Vector3f FORWARD;
+    static const Vector3f ONE;
 
     Vector3f(const Vector3 &v)
     {
