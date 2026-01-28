@@ -1,5 +1,9 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import MenuScreen from "./pages/MenuScreen.vue";
+import NotFoundScreen from "./pages/NotFoundScreen.vue";
+import OptionsScreen from "./pages/OptionsScreen.vue";
+import StartScreen from "./pages/StartScreen.vue";
 
 // Global state for C++ communication
 window.vueAppState = window.vueAppState || {};
@@ -171,9 +175,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section v-if="isStart" class="splash-only">
-    <h1 class="splash-title splash-typewriter">{{ typedStartTitle }}</h1>
-  </section>
+  <StartScreen v-if="isStart" :typedStartTitle="typedStartTitle" />
 
   <div v-else class="root">
     <header v-if="!isMenu && !isOptions" class="topbar pixel-font">
@@ -185,78 +187,23 @@ onBeforeUnmount(() => {
     </header>
 
     <main class="content">
-      <section v-if="isMenu" class="menu-full pixel-font">
-        <h1 class="splash-title big">Neural Wings</h1>
-        <div class="actions">
-          <a class="btn large" href="#/gameplay">Start Game</a>
-          <a class="btn large" href="#/options">Settings</a>
-        </div>
-      </section>
+      <MenuScreen v-if="isMenu" />
 
-      <section v-else-if="isOptions" class="menu-full settings-full pixel-font">
-        <h1 class="splash-title">Game Settings</h1>
-        <div class="settings-panel">
-          <div class="form">
-            <div class="row">
-              <span>Fullscreen</span>
-              <div class="settings-control">
-                <button class="chip control-chip" @click="toggleFullscreen" :class="{ active: fullscreen === true }">
-                  {{ fullscreen === null ? "Not Set" : fullscreen ? "On" : "Off" }}
-                </button>
-              </div>
-            </div>
+      <OptionsScreen
+        v-else-if="isOptions"
+        :fullscreen="fullscreen"
+        :selectedResolution="selectedResolution"
+        :isResolutionOpen="isResolutionOpen"
+        :targetFPS="targetFPS"
+        :resolutions="resolutions"
+        :toggleFullscreen="toggleFullscreen"
+        :toggleResolution="toggleResolution"
+        :chooseResolution="chooseResolution"
+        :changeFPS="changeFPS"
+        :saveSettings="saveSettings"
+      />
 
-            <div class="row">
-              <span>Resolution</span>
-              <div class="settings-control">
-                <div class="dropdown" @click.stop>
-                  <button class="chip dropdown-toggle" @click="toggleResolution">
-                    {{ selectedResolution || "Select" }}
-                    <span class="caret"></span>
-                  </button>
-                  <div v-if="isResolutionOpen" class="dropdown-menu">
-                    <button v-for="res in resolutions" :key="res.value" class="dropdown-item"
-                      @click="chooseResolution(res.value)">
-                      {{ res.label }}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="row">
-              <span>FPS</span>
-              <div class="settings-control">
-                <div class="fps-control">
-                  <input
-                    class="fps-slider"
-                    type="range"
-                    v-model.number="targetFPS"
-                    @change="changeFPS(targetFPS)"
-                    min="30"
-                    max="240"
-                    step="1"
-                    :disabled="targetFPS === null"
-                  />
-                  <span class="chip fps-value">
-                    {{ targetFPS === null ? "--" : targetFPS }} FPS
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="actions settings-actions">
-            <button class="btn large primary" @click="saveSettings">Save Settings</button>
-            <a class="btn large secondary" href="#/menu">Back to Menu</a>
-          </div>
-        </div>
-      </section>
-
-      <section v-else class="card">
-        <h1>Page Not Found</h1>
-        <a class="btn" href="#/start">Back to Start</a>
-      </section>
+      <NotFoundScreen v-else />
     </main>
   </div>
 </template>
