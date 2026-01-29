@@ -131,16 +131,17 @@ bool ScreenManager::UpdateFrame()
         m_uiLayer->Update();
     }
 
-    BeginDrawing();
-    ClearBackground(BLACK);
-    m_currentScreen->Draw();
-    EndDrawing();
-
     int nextState = m_currentScreen->GetNextScreenState();
     if (nextState != SCREEN_STATE_NONE)
     {
         ChangeScreen(nextState);
     }
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+    m_currentScreen->Draw();
+    EndDrawing();
+
     return true;
 }
 void ScreenManager::Shutdown()

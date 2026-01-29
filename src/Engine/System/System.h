@@ -3,3 +3,4 @@
 #include "Engine/System/Resource/ResourceManager.h"
 #include "Engine/System/Screen/Screen.h"
 #include "Engine/System/Time/Time.h"
+#include "Engine/System/Scene/Scene.h"

@@ -16,11 +16,11 @@ Model ResourceManager::GetModel(const std::string &path)
     Model model = {0};
     if (path.find("primitive://") == 0)
     {
-        if (path.find("primitive://cube"))
+        if (path.find("primitive://cube") != std::string::npos)
         {
             model = LoadModelFromMesh(GenMeshCube(1.0f, 1.0f, 1.0f));
         }
-        else if (path.find("primitive://sphere"))
+        else if (path.find("primitive://sphere") != std::string::npos)
         {
             model = LoadModelFromMesh(GenMeshSphere(1.0f, 32, 32));
         }
