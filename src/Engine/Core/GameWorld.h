@@ -3,6 +3,7 @@
 #include "Engine/Core/Events/Events.h"
 #include "Engine/Graphics/Renderer.h"
 #include "Engine/System/System.h"
+#include "Engine/System/Time/Time.h"
 #include <vector>
 #include <memory>
 #include <functional>
@@ -41,8 +42,12 @@ public:
     InputManager &GetInputManager() { return *m_inputManager; };
     EventManager &GetEventManager() { return *m_eventManager; };
 
+    TimeManager &GetTimeManager() { return *m_timeManager; };
+
 private:
     void DestroyWaitingObjects();
+
+    std::unique_ptr<TimeManager> m_timeManager;
 
     unsigned m_nextObjectID = 0;
     std::vector<std::unique_ptr<GameObject>> m_gameObjects;

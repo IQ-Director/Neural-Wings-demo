@@ -1,5 +1,6 @@
 #pragma once
 #include "raylib.h"
+#include "Engine/Graphics/ShaderWrapper.h"
 #include <unordered_map>
 #include <string>
 class ResourceManager
@@ -10,9 +11,11 @@ public:
 
     Model GetModel(const std::string &path);
     Texture2D GetTexture(const std::string &path);
+    std::shared_ptr<ShaderWrapper> GetShader(const std::string &vsPath, const std::string &fsPath);
     void UnloadAll();
 
 private:
     std::unordered_map<std::string, Model> m_models;
+    std::unordered_map<std::string, std::shared_ptr<ShaderWrapper>> m_shaders;
     std::unordered_map<std::string, Texture2D> m_textures;
 };

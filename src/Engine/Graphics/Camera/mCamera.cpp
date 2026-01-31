@@ -6,11 +6,22 @@ mCamera::mCamera()
     m_direction = Vector3f(1.0f, 0.0f, 0.0f);
     m_up = Vector3f(0.0f, 1.0f, 0.0f);
     m_right = Vector3f(0.0f, 0.0f, -1.0f);
-
+    m_nearPlane = 0.01;
+    m_farPlane = 100000.0;
     m_fovy = 1.0f;
     UpdatemCamera(CameraMode::CAMERA_CUSTOM);
 }
-mCamera::mCamera(Vector3f pos, Vector3f tar, Vector3f u, float f, const CameraMode &mode)
+
+Camera3D &mCamera::GetRawCamera()
+{
+    return m_rawCamera;
+}
+const Camera3D &mCamera::GetConstRawCamera() const
+{
+    return m_rawCamera;
+}
+mCamera::mCamera(Vector3f pos, Vector3f tar, Vector3f u, float f, float nearPlane,
+                 float farPlane, const CameraMode &mode)
 {
     m_position = pos;
     m_target = tar;
@@ -18,6 +29,8 @@ mCamera::mCamera(Vector3f pos, Vector3f tar, Vector3f u, float f, const CameraMo
     m_up = u.Normalized();
     m_right = m_direction ^ m_up;
     m_fovy = f;
+    m_nearPlane = nearPlane;
+    m_farPlane = farPlane;
     UpdatemCamera(mode);
 }
 Vector3f mCamera::Right() const
@@ -73,6 +86,24 @@ void mCamera::setProjection(int p)
 {
     m_projection = p;
 }
+void mCamera::setNearPlane(float nearPlane)
+{
+    m_nearPlane = nearPlane;
+}
+void mCamera::setFarPlane(float farPlane)
+{
+    m_farPlane = farPlane;
+}
+
+float mCamera::getNearPlane() const
+{
+    return m_nearPlane;
+}
+float mCamera::getFarPlane() const
+{
+    return m_farPlane;
+}
+
 void mCamera::UpdateFromDirection(Vector3f pos, Vector3f dir, Vector3f u, const CameraMode &mode)
 {
     m_position = pos;
@@ -94,12 +125,13 @@ void mCamera::UpdateFromTarget(Vector3f pos, Vector3f tar, Vector3f u, const Cam
 }
 void mCamera::UpdatemCamera(const CameraMode &mode)
 {
-    position = m_position;
-    target = m_target;
-    up = m_up;
-    fovy = m_fovy;
-    projection = m_projection;
-    UpdateCamera(this, mode);
+    m_rawCamera.position = m_position;
+    m_rawCamera.target = m_target;
+    m_rawCamera.up = m_up;
+    m_rawCamera.fovy = m_fovy;
+    m_rawCamera.projection = m_projection;
+
+    UpdateCamera(&m_rawCamera, mode);
 }
 void mCamera::Rotate(float lookHorizontal, float lookVertical)
 {

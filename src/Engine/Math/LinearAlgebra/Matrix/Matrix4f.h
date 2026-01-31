@@ -1,6 +1,7 @@
 #pragma once
 #include <cstdio>
-
+#include "raylib.h"
+#include "raymath.h"
 class Matrix2f;
 class Matrix3f;
 class Quat4f;
@@ -10,84 +11,124 @@ class Vector4f;
 class Matrix4f
 {
 public:
+	Matrix4f(float fill = 0.f);
+	Matrix4f(float m00, float m01, float m02, float m03,
+			 float m10, float m11, float m12, float m13,
+			 float m20, float m21, float m22, float m23,
+			 float m30, float m31, float m32, float m33);
 
-	Matrix4f( float fill = 0.f );
-	Matrix4f( float m00, float m01, float m02, float m03,
-		float m10, float m11, float m12, float m13,
-		float m20, float m21, float m22, float m23,
-		float m30, float m31, float m32, float m33 );
-	
 	// setColumns = true ==> sets the columns of the matrix to be [v0 v1 v2 v3]
-	Matrix4f( const Vector4f& v0, const Vector4f& v1, const Vector4f& v2, const Vector4f& v3, bool setColumns = true );
-	
-	Matrix4f( const Matrix4f& rm );
-	Matrix4f& operator = ( const Matrix4f& rm );
-	Matrix4f& operator/=(float d);
+	Matrix4f(const Vector4f &v0, const Vector4f &v1, const Vector4f &v2, const Vector4f &v3, bool setColumns = true);
 
+	Matrix4f(const Matrix4f &rm);
+	Matrix4f(const Matrix3f &rm)
+	{
+		m_data[3] = 0.f;
+		m_data[7] = 0.f;
+		m_data[11] = 0.f;
 
-	const float& operator () ( int i, int j ) const;
-	float& operator () ( int i, int j );
+		m_data[12] = 0.f;
+		m_data[13] = 0.f;
+		m_data[14] = 0.f;
 
-	Vector4f getRow( int i ) const;
-	void setRow( int i, const Vector4f& v );
+		m_data[15] = 1.f;
+		setSubmatrix3x3(0, 0, rm);
+	}
+	Matrix4f &operator=(const Matrix4f &rm);
+	Matrix4f &operator/=(float d);
+	Matrix4f(const Matrix &rm)
+	{
+		m_data[0] = rm.m0;
+		m_data[1] = rm.m1;
+		m_data[2] = rm.m2;
+		m_data[3] = rm.m3;
 
-	Vector4f getCol( int j ) const;
-	void setCol( int j, const Vector4f& v );
+		m_data[4] = rm.m4;
+		m_data[5] = rm.m5;
+		m_data[6] = rm.m6;
+		m_data[7] = rm.m7;
+
+		m_data[8] = rm.m8;
+		m_data[9] = rm.m9;
+		m_data[10] = rm.m10;
+		m_data[11] = rm.m11;
+
+		m_data[12] = rm.m12;
+		m_data[13] = rm.m13;
+		m_data[14] = rm.m14;
+		m_data[15] = rm.m15;
+	}
+
+	const float &operator()(int i, int j) const;
+	float &operator()(int i, int j);
+
+	Vector4f getRow(int i) const;
+	void setRow(int i, const Vector4f &v);
+
+	Vector4f getCol(int j) const;
+	void setCol(int j, const Vector4f &v);
 
 	// gets the 2x2 submatrix of this matrix to m
 	// starting with upper left corner at (i0, j0)
-	Matrix2f getSubmatrix2x2( int i0, int j0 ) const;
+	Matrix2f getSubmatrix2x2(int i0, int j0) const;
 
 	// gets the 3x3 submatrix of this matrix to m
 	// starting with upper left corner at (i0, j0)
-	Matrix3f getSubmatrix3x3( int i0, int j0 ) const;
+	Matrix3f getSubmatrix3x3(int i0, int j0) const;
 
 	// sets a 2x2 submatrix of this matrix to m
 	// starting with upper left corner at (i0, j0)
-	void setSubmatrix2x2( int i0, int j0, const Matrix2f& m );
+	void setSubmatrix2x2(int i0, int j0, const Matrix2f &m);
 
 	// sets a 3x3 submatrix of this matrix to m
 	// starting with upper left corner at (i0, j0)
-	void setSubmatrix3x3( int i0, int j0, const Matrix3f& m );
+	void setSubmatrix3x3(int i0, int j0, const Matrix3f &m);
 
 	float determinant() const;
-	Matrix4f inverse( bool* pbIsSingular = NULL, float epsilon = 0.f ) const;
+	Matrix4f inverse(bool *pbIsSingular = NULL, float epsilon = 0.f) const;
 
 	void transpose();
 	Matrix4f transposed() const;
 
 	static Matrix4f ones();
 	static Matrix4f identity();
-	static Matrix4f translation( float x, float y, float z );
-	static Matrix4f translation( const Vector3f& rTranslation );
-	static Matrix4f rotateX( float radians );
-	static Matrix4f rotateY( float radians );
-	static Matrix4f rotateZ( float radians );
-	static Matrix4f rotation( const Vector3f& rDirection, float radians );
-	static Matrix4f rotation( const Vector3f& rVector );
-	static Matrix4f scaling( float sx, float sy, float sz );
-	static Matrix4f uniformScaling( float s );
-	static Matrix4f lookAt( const Vector3f& eye, const Vector3f& center, const Vector3f& up );
-	static Matrix4f orthographicProjection( float width, float height, float zNear, float zFar, bool directX );
-	static Matrix4f orthographicProjection( float left, float right, float bottom, float top, float zNear, float zFar, bool directX );
-	static Matrix4f perspectiveProjection( float fLeft, float fRight, float fBottom, float fTop, float fZNear, float fZFar, bool directX );
-	static Matrix4f perspectiveProjection( float fovYRadians, float aspect, float zNear, float zFar, bool directX );
-	static Matrix4f infinitePerspectiveProjection( float fLeft, float fRight, float fBottom, float fTop, float fZNear, bool directX );
+	static Matrix4f translation(float x, float y, float z);
+	static Matrix4f translation(const Vector3f &rTranslation);
+	static Matrix4f rotateX(float radians);
+	static Matrix4f rotateY(float radians);
+	static Matrix4f rotateZ(float radians);
+	static Matrix4f rotation(const Vector3f &rDirection, float radians);
+	static Matrix4f rotation(const Vector3f &rVector);
+	static Matrix4f scaling(float sx, float sy, float sz);
+	static Matrix4f uniformScaling(float s);
+	static Matrix4f lookAt(const Vector3f &eye, const Vector3f &center, const Vector3f &up);
+	static Matrix4f orthographicProjection(float width, float height, float zNear, float zFar, bool directX);
+	static Matrix4f orthographicProjection(float left, float right, float bottom, float top, float zNear, float zFar, bool directX);
+	static Matrix4f perspectiveProjection(float fLeft, float fRight, float fBottom, float fTop, float fZNear, float fZFar, bool directX);
+	static Matrix4f perspectiveProjection(float fovYRadians, float aspect, float zNear, float zFar, bool directX);
+	static Matrix4f infinitePerspectiveProjection(float fLeft, float fRight, float fBottom, float fTop, float fZNear, bool directX);
 
 	// Returns the rotation matrix represented by a quaternion
 	// uses a normalized version of q
-	static Matrix4f rotation( const Quat4f& q );
+	static Matrix4f rotation(const Quat4f &q);
 
 	// returns an orthogonal matrix that's a uniformly distributed rotation
 	// given u[i] is a uniformly distributed random number in [0,1]
-	static Matrix4f randomRotation( float u0, float u1, float u2 );
+	static Matrix4f randomRotation(float u0, float u1, float u2);
+
+	operator Matrix() const
+	{
+		return Matrix{
+			m_data[0], m_data[4], m_data[8], m_data[12],
+			m_data[1], m_data[5], m_data[9], m_data[13],
+			m_data[2], m_data[6], m_data[10], m_data[14],
+			m_data[3], m_data[7], m_data[11], m_data[15]};
+	};
 
 private:
-
-	float m_data[ 16 ];
-
+	float m_data[16];
 };
 
-Vector4f operator * ( const Matrix4f& m, const Vector4f& v );
+Vector4f operator*(const Matrix4f &m, const Vector4f &v);
 
-Matrix4f operator * ( const Matrix4f& x, const Matrix4f& y );
+Matrix4f operator*(const Matrix4f &x, const Matrix4f &y);

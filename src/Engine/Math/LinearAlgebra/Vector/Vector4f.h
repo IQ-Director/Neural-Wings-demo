@@ -6,6 +6,7 @@ class Vector3f;
 class Vector4f
 {
 public:
+	static const Vector4f ZERO;
 	Vector4f(const Vector4 &v)
 	{
 		m_data[0] = v.x;

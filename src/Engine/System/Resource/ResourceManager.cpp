@@ -6,6 +6,16 @@ ResourceManager::~ResourceManager()
     UnloadAll();
 }
 
+std::shared_ptr<ShaderWrapper> ResourceManager::GetShader(const std::string &vsPath, const std::string &fsPath)
+{
+    std::string key = vsPath + fsPath;
+    auto it = m_shaders.find(key);
+    if (it != m_shaders.end())
+        return it->second;
+    auto shader = std::make_shared<ShaderWrapper>(vsPath, fsPath);
+    m_shaders[key] = shader;
+    return shader;
+}
 Model ResourceManager::GetModel(const std::string &path)
 {
 
@@ -67,5 +77,6 @@ void ResourceManager::UnloadAll()
         UnloadTexture(pair.second);
     }
     m_textures.clear();
+    m_shaders.clear();
     std::cout << "[ResourceManager] Unloaded all resources" << std::endl;
 }

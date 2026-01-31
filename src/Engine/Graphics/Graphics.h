@@ -1,4 +1,5 @@
-#include "CameraManager.h"
-#include "mCamera.h"
+#include "Camera/CameraManager.h"
+#include "Camera/mCamera.h"
 #include "Renderer.h"
 #include "RenderView.h"
+#include "ShaderWrapper.h"

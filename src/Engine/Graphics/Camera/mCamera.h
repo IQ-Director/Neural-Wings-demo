@@ -2,11 +2,14 @@
 #include "raylib.h"
 #include "raymath.h"
 #include "Engine/Math/Math.h"
-class mCamera : public Camera3D
+class mCamera
 {
 public:
     mCamera();
-    mCamera(Vector3f pos, Vector3f tar, Vector3f u, float f, const CameraMode &mode = CAMERA_CUSTOM);
+    mCamera(Vector3f pos, Vector3f tar, Vector3f u, float f,
+            float nearPlane,
+            float farPlane,
+            const CameraMode &mode = CAMERA_CUSTOM);
     Vector3f Right() const;
 
     Vector3f Direction() const;
@@ -22,13 +25,25 @@ public:
     void setUp(Vector3f u);
     void setFovy(float fovy);
     void setProjection(int projection);
+    void setNearPlane(float nearPlane);
+    void setFarPlane(float farPlane);
+
+    float getNearPlane() const;
+    float getFarPlane() const;
 
     void UpdateFromDirection(Vector3f pos, Vector3f dir, Vector3f u, const CameraMode &mode = CAMERA_CUSTOM);
     void UpdateFromTarget(Vector3f pos, Vector3f tar, Vector3f u, const CameraMode &mode = CAMERA_CUSTOM);
     void UpdatemCamera(const CameraMode &mode = CAMERA_CUSTOM);
     void Rotate(float LookHorizontal, float LookVertical);
-    // TODO:挂载脚本
+
+    Camera3D &GetRawCamera();
+    const Camera3D &GetConstRawCamera() const;
+
 private:
+    Camera3D m_rawCamera;
+
+    float m_nearPlane;
+    float m_farPlane;
     Vector3f m_right;
     Vector3f m_direction;
     Vector3f m_position;

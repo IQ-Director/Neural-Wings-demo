@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderView.h"
+#include "Camera/mCamera.h"
 #include <vector>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
@@ -13,7 +14,7 @@ public:
 
     void AddRenderView(const RenderView &view);
     void ClearRenderViews();
-    void RenderScene(const GameWorld &world, CameraManager &cameraManager);
+    void RenderScene(GameWorld &world, CameraManager &cameraManager);
 
     bool LoadViewConfig(const std::string &configPath);
 
@@ -21,5 +22,5 @@ private:
     RenderView ParseViews(const json &data);
     std::vector<RenderView> m_renderViews;
 
-    void DrawWorldObjects(const GameWorld &world);
+    void DrawWorldObjects(GameWorld &gameWorld, Camera3D &rawCamera, mCamera &camera, float aspect);
 };

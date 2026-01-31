@@ -1,8 +1,11 @@
 #include "Renderer.h"
 #include "Engine/Core/GameWorld.h"
-#include "CameraManager.h"
+#include "Camera/CameraManager.h"
 #include "Engine/Core/Components/Components.h"
 #include "Engine/Utils/JsonParser.h"
+#include "raylib.h"
+#include "raymath.h"
+
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
@@ -74,11 +77,11 @@ void Renderer::ClearRenderViews()
     m_renderViews.clear();
 }
 
-void Renderer::RenderScene(const GameWorld &world, CameraManager &cameraManager)
+void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
 {
     for (const auto &view : m_renderViews)
     {
-        Camera3D *camera = cameraManager.GetCamera(view.cameraName);
+        mCamera *camera = cameraManager.GetCamera(view.cameraName);
         if (camera)
         {
             BeginScissorMode(view.viewport.x, view.viewport.y, view.viewport.width, view.viewport.height);
@@ -87,9 +90,9 @@ void Renderer::RenderScene(const GameWorld &world, CameraManager &cameraManager)
             {
                 ClearBackground(view.backgroundColor);
             }
-
-            BeginMode3D(*camera);
-            DrawWorldObjects(world);
+            Camera3D rawCamera = camera->GetRawCamera();
+            BeginMode3D(rawCamera);
+            DrawWorldObjects(gameWorld, rawCamera, *camera, view.viewport.width / view.viewport.height);
             EndMode3D();
 
             // TODO：（debug）为视口绘制边框
@@ -152,44 +155,96 @@ void DrawVector(Vector3f position, Vector3f direction, float axisLength, float t
     DrawCylinderEx(position, end, thickness, thickness, sides, BLUE);
     DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, BLACK);
 }
-void Renderer::DrawWorldObjects(const GameWorld &world)
+void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &camera, float aspect)
 {
+    float gameTime = world.GetTimeManager().GetGameTime();
+    float realTime = world.GetTimeManager().GetRealTime();
+    Matrix4f matView = GetCameraMatrix(rawCamera);
+    Matrix4f matProj;
+    if (rawCamera.projection == CAMERA_PERSPECTIVE)
+    {
+        matProj = MatrixPerspective(rawCamera.fovy * M_PI / 180.0f, aspect, camera.getNearPlane(), camera.getFarPlane());
+    }
+    else
+    {
+        float top = rawCamera.fovy * 0.5f;
+        float right = top * aspect;
+        matProj = MatrixOrtho(-right, right, -top, top, camera.getNearPlane(), camera.getFarPlane());
+    }
+    Matrix4f VP = matProj * matView;
+
     for (const auto &gameObject : world.GetGameObjects())
     {
         if (gameObject->HasComponent<TransformComponent>() && gameObject->HasComponent<RenderComponent>())
         {
-            const auto &transform = gameObject->GetComponent<TransformComponent>();
+            const auto &tf = gameObject->GetComponent<TransformComponent>();
             const auto &render = gameObject->GetComponent<RenderComponent>();
 
             float angle = 0.0f;
-            Quat4f rotation = transform.rotation;
+            Quat4f rotation = tf.rotation;
             Vector3f axis = rotation.getAxisAngle(&angle);
             angle *= 180.0f / M_PI;
 
-            // TODO:web渲染bug
+            bool useShader = (render.material.shader != nullptr && render.material.shader->IsValid());
+            if (useShader)
+            {
 
-            DrawModelEx(
-                render.model,
-                transform.position,
-                axis,
-                angle,
-                transform.scale & render.scale,
-                render.tint);
+                Matrix4f S = Matrix4f(Matrix3f(tf.scale & render.scale));
+                Matrix4f R = Matrix4f(tf.rotation.toMatrix());
+                Matrix4f T = Matrix4f::translation(tf.position);
+                Matrix4f M = T * R * S;
+
+                Matrix4f MVP = VP * M;
+
+                render.material.shader->Begin();
+
+                render.material.shader->SetMat4("u_mvp", MVP);
+                render.material.shader->SetMat4("transform", M);
+                render.material.shader->SetVec3("viewPos", rawCamera.position);
+                render.material.shader->SetFloat("realTime", realTime);
+                render.material.shader->SetFloat("gameTime", gameTime);
+                Vector4f color = render.material.baseColor / 255.0f;
+                render.material.shader->SetVec4("baseColor", color);
+
+                for (int i = 0; i < render.model.meshCount; i++)
+                {
+                    Mesh &mesh = render.model.meshes[i];
+                    int matIndex = render.model.meshMaterial[i];
+                    Material tempRaylibMaterial = render.model.materials[matIndex];
+
+                    tempRaylibMaterial.shader = render.material.shader->GetShader();
+                    DrawMesh(mesh, tempRaylibMaterial, M);
+                }
+
+                render.material.shader->End();
+            }
+            else
+            {
+                // TODO:web渲染bug
+                Color tint = {render.material.baseColor.x(), render.material.baseColor.y(), render.material.baseColor.z(), 255};
+                DrawModelEx(
+                    render.model,
+                    tf.position,
+                    axis,
+                    angle,
+                    tf.scale & render.scale,
+                    tint);
+            }
             DrawModelWiresEx(
                 render.model,
-                transform.position,
+                tf.position,
                 axis,
                 angle,
-                transform.scale & render.scale,
+                tf.scale & render.scale,
                 BLACK);
 
             // TODO: debug
-            DrawCoordinateAxes(transform.position, transform.rotation, 2.0f, 0.05f);
-            DrawSphereEx(transform.position, 0.1f, 8, 8, RED);
+            DrawCoordinateAxes(tf.position, tf.rotation, 2.0f, 0.05f);
+            DrawSphereEx(tf.position, 0.1f, 8, 8, RED);
             if (gameObject->HasComponent<RigidbodyComponent>())
             {
                 const auto &rb = gameObject->GetComponent<RigidbodyComponent>();
-                DrawVector(transform.position, rb.angularVelocity, 1.0f, 0.05f);
+                DrawVector(tf.position, rb.angularVelocity, 1.0f, 0.05f);
             }
         }
     }

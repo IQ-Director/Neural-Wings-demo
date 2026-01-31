@@ -16,6 +16,14 @@ public:
         }
         return defaultValue;
     }
+    static Vector4f ToVector4f(const json &j, Vector4f defaultValue = Vector4f::ZERO)
+    {
+        if (j.is_array() && j.size() == 4)
+        {
+            return Vector4f(j[0].get<float>(), j[1].get<float>(), j[2].get<float>(), j[3].get<float>());
+        }
+        return defaultValue;
+    }
     static Color ToColor(const json &j, Color defaultValue = WHITE)
     {
         if (j.is_array() && j.size() == 4)

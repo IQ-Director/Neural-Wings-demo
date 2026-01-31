@@ -10,6 +10,8 @@ GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory 
                      const std::string &inputConfigPath,
                      const std::string &renderView)
 {
+    m_timeManager = std::make_unique<TimeManager>();
+
     m_nextObjectID = 0;
     m_renderer = std::make_unique<Renderer>();
     m_cameraManager = std::make_unique<CameraManager>();
@@ -60,7 +62,7 @@ GameObject &GameWorld::CreateGameObject()
 bool GameWorld::FixedUpdate(float fixedDeltaTime)
 {
     // TODO: 更新世界中的所有 GameObject
-    // ScriptingSystem->Update(), PhysicsSystem->Update() 等。
+    m_timeManager->TickGame(fixedDeltaTime);
     m_physicsSystem->Update(*this, fixedDeltaTime);
     m_scriptingSystem->FixedUpdate(*this, fixedDeltaTime);
     this->DestroyWaitingObjects();
@@ -70,6 +72,7 @@ bool GameWorld::FixedUpdate(float fixedDeltaTime)
 
 bool GameWorld::Update(float DeltaTime)
 {
+    m_timeManager->Tick();
     m_scriptingSystem->Update(*this, DeltaTime);
     return true;
 }

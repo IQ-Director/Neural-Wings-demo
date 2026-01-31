@@ -1,8 +1,7 @@
 #pragma once
 #include "Engine/System/System.h"
 #include "Engine/Core/GameWorld.h"
-#include "Engine/Graphics/Renderer.h"
-#include "Engine/Graphics/CameraManager.h"
+#include "Engine/Graphics/Graphics.h"
 #include "MyScreenState.h"
 
 class GameplayScreen : public GameScreen

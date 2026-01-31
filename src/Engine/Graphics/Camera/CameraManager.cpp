@@ -22,6 +22,8 @@ bool CameraManager::CreateCameraFromConfig(const json &configData)
     cam.setUp(Vector3f(configData.value("up", json::array({0.f, 1.f, 0.f}))));
     cam.setRight(cam.Direction() ^ cam.Up());
     cam.setFovy(configData.value("fovy", 60.0f));
+    cam.setNearPlane(configData.value("nearPlane", 0.1f));
+    cam.setFarPlane(configData.value("farPlane", 1000.0f));
 
     std::string proj = configData.value("projection", "PERSPECTIVE");
     if (proj == "ORTHOGRAPHIC")

@@ -24,13 +24,14 @@
             "RenderComponent": {
                 "model": "primitive://cube",
                 "material": {
+                    "vs": "assets/shaders/base.vs",
+                    "fs": "assets/shaders/lighting.fs",
                     "color": [
                         255,
                         100,
                         100,
                         255
-                    ],
-                    "glossiness": 0.8
+                    ]
                 },
                 "scale": [
                     1,

@@ -6,6 +6,7 @@
 #include "Vector2f.h"
 #include "Vector3f.h"
 
+const Vector4f Vector4f::ZERO = Vector4f(0.0f, 0.0f, 0.0f, 0.0f);
 Vector4f::Vector4f(float f)
 {
 	m_data[0] = f;
@@ -275,11 +276,9 @@ void Vector4f::Negate()
 	m_data[3] = -m_data[3];
 }
 
-
-
 float Vector4f::Distance(const Vector4f &a, const Vector4f &b)
 {
-    return (a - b).Length();
+	return (a - b).Length();
 }
 Vector4f Vector4f::Lerp(const Vector4f &v0, const Vector4f &v1, float alpha)
 {
@@ -310,7 +309,6 @@ Vector4f operator-(const Vector4f &v)
 {
 	return Vector4f(-v.x(), -v.y(), -v.z(), -v.w());
 }
-
 
 float operator*(const Vector4f &v0, const Vector4f &v1)
 {

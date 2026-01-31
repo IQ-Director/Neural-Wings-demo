@@ -1,0 +1,83 @@
+#include "ShaderWrapper.h"
+
+#include <iostream>
+
+ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::string &fsPath)
+{
+    const char *vPath = vsPath.empty() ? nullptr : vsPath.c_str();
+    const char *fPath = fsPath.empty() ? nullptr : fsPath.c_str();
+
+    m_shader = LoadShader(vPath, fPath);
+
+    if (m_shader.id <= 0)
+    {
+        std::cerr << "[ShaderWrapper] Failed to load shader: " << vsPath << ", " << fsPath << std::endl;
+    }
+}
+ShaderWrapper::~ShaderWrapper()
+{
+    if (m_shader.id > 0)
+    {
+        UnloadShader(m_shader);
+    }
+}
+void ShaderWrapper::Begin() const { BeginShaderMode(m_shader); }
+void ShaderWrapper::End() const { EndShaderMode(); }
+int ShaderWrapper::GetLocation(const std::string &name)
+{
+    auto it = m_locationCache.find(name);
+    if (it != m_locationCache.end())
+        return it->second;
+
+    int loc = GetShaderLocation(m_shader, name.c_str());
+    m_locationCache[name] = loc;
+    return loc;
+}
+
+void ShaderWrapper::SetInt(const std::string &name, int value)
+{
+    int loc = GetLocation(name);
+    if (loc >= 0)
+        SetShaderValue(m_shader, loc, &value, SHADER_UNIFORM_INT);
+}
+void ShaderWrapper::SetFloat(const std::string &name, float value)
+{
+    int loc = GetLocation(name);
+    if (loc >= 0)
+        SetShaderValue(m_shader, loc, &value, SHADER_UNIFORM_FLOAT);
+}
+void ShaderWrapper::SetVec3(const std::string &name, const Vector3f &value)
+{
+    int loc = GetLocation(name);
+    if (loc >= 0)
+    {
+        float valueArr[3] = {value.x(), value.y(), value.z()};
+        SetShaderValue(m_shader, loc, valueArr, SHADER_UNIFORM_VEC3);
+    }
+}
+void ShaderWrapper::SetVec4(const std::string &name, const Vector4f &value)
+{
+    int loc = GetLocation(name);
+    if (loc >= 0)
+    {
+        float valueArr[4] = {value.x(), value.y(), value.z(), value.w()};
+        SetShaderValue(m_shader, loc, valueArr, SHADER_UNIFORM_VEC4);
+    }
+}
+
+void ShaderWrapper::SetMat4(const std::string &name, const Matrix4f &value)
+{
+    int loc = GetLocation(name);
+    if (loc >= 0)
+    {
+        Matrix valueArr = value;
+        SetShaderValueMatrix(m_shader, loc, valueArr);
+    }
+}
+void ShaderWrapper::SetTexture(const std::string &name, Texture2D texture)
+{
+    // TODO：贴图需重新实现
+    int loc = GetLocation(name);
+    if (loc >= 0)
+        SetShaderValueTexture(m_shader, loc, texture);
+}
