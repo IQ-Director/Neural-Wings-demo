@@ -3,7 +3,7 @@
 #include "Engine/Core/Components/TransformComponent.h"
 #include "Engine/Core/Components/RigidBodyComponent.h"
 #include "Engine/Math/Math.h"
-
+#include <limits>
 void PhysicsSystem::AddStage(std::unique_ptr<IPhysicsStage> stage)
 {
     m_stages.push_back(std::move(stage));
@@ -36,7 +36,7 @@ void PhysicsSystem::Integrate(GameWorld &world, float fixedDeltaTime)
 
             // 1. F = ma  =>  a = F / m
             // 如果质量为0，不移动
-            if (std::abs(rb.mass) <= 1e-8f)
+            if (std::abs(rb.mass) <= std::numeric_limits<float>::min())
                 continue;
 
             Vector3f acceleration = rb.accumulatedForces / rb.mass;
@@ -67,7 +67,7 @@ void PhysicsSystem::Integrate(GameWorld &world, float fixedDeltaTime)
 
             rb.angularVelocity = worldInverseInertia * rb.angularMomentum;
 
-            if (rb.angularVelocity.Length() > 1e-8f)
+            if (rb.angularVelocity.Length() > std::numeric_limits<float>::min())
             {
                 // 角速度四元数 (0, ωx, ωy, ωz)
                 Quat4f omegaQuat(0, rb.angularVelocity.x(), rb.angularVelocity.y(), rb.angularVelocity.z());

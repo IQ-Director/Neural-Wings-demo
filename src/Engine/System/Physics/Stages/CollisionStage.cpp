@@ -2,6 +2,7 @@
 #include "CollisionEvent.h"
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Core/Components/Components.h"
+#include <limits>
 
 void CollisionStage::Initialize(const json &config) {};
 
@@ -67,7 +68,7 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
 }
 float GetInverseMass(const RigidbodyComponent &rb)
 {
-    if (rb.mass <= 1e-8f)
+    if (rb.mass <= std::numeric_limits<float>::min())
         return 0.0f;
     return 1.0f / rb.mass;
 }
@@ -88,7 +89,7 @@ void CollisionStage::ResolveCollision(GameObject *a, GameObject *b, const Vector
     auto rA = hitPoint - tfA.position;
     auto rB = hitPoint - tfB.position;
 
-    if (invMassA + invMassB <= 1e-8f)
+    if (invMassA + invMassB <= std::numeric_limits<float>::min())
         return;
     Vector3f rV = rbB.velocity + (rbB.angularVelocity ^ rB) - rbA.velocity - (rbA.angularVelocity ^ rA);
     float nrV = rV * normal;

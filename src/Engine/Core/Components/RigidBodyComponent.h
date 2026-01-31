@@ -4,6 +4,7 @@
 #include "raymath.h"
 #include "Engine/Math/Math.h"
 #include <iostream>
+#include <limits>
 
 class GameObject;
 struct TransformComponent;
@@ -168,9 +169,9 @@ struct RigidbodyComponent : public IComponent
     // 施加冲量
     void AddImpulse(Vector3f impulse, Vector3f r = Vector3f::ZERO)
     {
-        float invMass = mass > 1e-8f ? 1.0f / mass : 0.0f;
+        float invMass = mass > std::numeric_limits<float>::min() ? 1.0f / mass : 0.0f;
         this->velocity += impulse * invMass;
-        if (invMass > 1e-8f)
+        if (invMass > std::numeric_limits<float>::min())
             this->angularMomentum += r ^ impulse;
     }
     // 施加力
