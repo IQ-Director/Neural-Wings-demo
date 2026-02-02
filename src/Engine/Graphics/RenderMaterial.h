@@ -4,13 +4,22 @@
 #include "Engine/Math/Math.h"
 #include <unordered_map>
 #include <string>
+
+#define BLEND_OPIQUE -1
+#define BLEND_MULTIPLIED -2
+#define BLEND_SCREEN -3
+#define BLEND_SUBTRACT -4
+
 struct RenderMaterial
 {
     std::shared_ptr<ShaderWrapper> shader;
 
     Vector4f baseColor = Vector4f(255.0, 255.0, 255.0, 255.0);
+    Texture2D diffuseMap = {0};
+    bool useDiffuseMap = false;
+    std::unordered_map<std::string, Texture2D> customTextures;
 
-    int blendMode = -1; // 覆盖颜色
+    int blendMode = BLEND_OPIQUE; // 覆盖颜色
     bool depthTest = true;
     bool depthWrite = false;
 

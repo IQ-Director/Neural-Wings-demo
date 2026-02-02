@@ -10,7 +10,7 @@ public:
     ~ResourceManager();
 
     Model GetModel(const std::string &path);
-    Texture2D GetTexture(const std::string &path);
+    Texture2D GetTexture2D(const std::string &path);
     std::shared_ptr<ShaderWrapper> GetShader(const std::string &vsPath, const std::string &fsPath);
     void UnloadAll();
 

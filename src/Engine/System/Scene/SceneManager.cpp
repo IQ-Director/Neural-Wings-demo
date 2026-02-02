@@ -131,10 +131,31 @@ void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, Ga
                 mat.depthWrite = pData.value("depthWrite", true);
                 mat.depthTest = pData.value("depthTest", true);
 
-                if (pData.contains("fs"))
+                if (pData.contains("textures"))
+                {
+                    auto &texData = pData["textures"];
+                    for (auto &[texName, texPath] : texData.items())
+                    {
+                        Texture2D tex = rm.GetTexture2D(texPath);
+                        if (tex.id > 0)
+                        {
+                            if (texName == "u_diffuseMap")
+                            {
+                                mat.diffuseMap = tex;
+                                mat.useDiffuseMap = true;
+                            }
+                            else
+                                mat.customTextures[texName] = tex;
+                        }
+                    }
+                    // 若有贴图，使用对应shader或者默认贴图shader
+                    mat.shader = rm.GetShader(pData.value("vs", "assets/shaders/texture/default_texture.vs"), pData.value("fs", "assets/shaders/texture/default_texture.fs"));
+                }
+                else if (pData.contains("fs"))
                 {
                     mat.shader = rm.GetShader(pData.value("vs", "assets/shaders/default.vs"), pData["fs"]);
                 }
+
                 if (pData.contains("color"))
                     mat.baseColor = JsonParser::ToVector4f(pData["color"]);
                 if (pData.contains("blendMode"))
@@ -145,7 +166,13 @@ void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, Ga
                     else if (blendMode == "ALPHA")
                         mat.blendMode = BlendMode::BLEND_ALPHA;
                     else if (blendMode == "NONE")
-                        mat.blendMode = -1;
+                        mat.blendMode = BLEND_OPIQUE;
+                    else if (blendMode == "MULTIPLY")
+                        mat.blendMode = BLEND_MULTIPLIED;
+                    else if (blendMode == "SCREEN")
+                        mat.blendMode = BLEND_SCREEN;
+                    else if (blendMode == "SUBTRACT")
+                        mat.blendMode = BLEND_SUBTRACT;
                     else
                         std::cerr << "[GameObjectFactory]: Unknown blend mode: " << blendMode << std::endl;
                 }

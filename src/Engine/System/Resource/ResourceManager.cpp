@@ -49,7 +49,7 @@ Model ResourceManager::GetModel(const std::string &path)
         std::cerr << "[ResourceManager] Failed to load model: " << path << std::endl;
     return model;
 }
-Texture2D ResourceManager::GetTexture(const std::string &path)
+Texture2D ResourceManager::GetTexture2D(const std::string &path)
 {
     auto it = m_textures.find(path);
     if (it != m_textures.end())
@@ -59,10 +59,10 @@ Texture2D ResourceManager::GetTexture(const std::string &path)
     if (textures.id != 0)
     {
         m_textures[path] = textures;
-        std::cout << "[ResourceManager] Loaded model: " << path << std::endl;
+        std::cout << "[ResourceManager] Loaded textures " << path << std::endl;
     }
     else
-        std::cerr << "[ResourceManager] Failed to load model: " << path << std::endl;
+        std::cerr << "[ResourceManager] Failed to load texture: " << path << std::endl;
     return textures;
 }
 void ResourceManager::UnloadAll()

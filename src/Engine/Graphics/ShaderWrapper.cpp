@@ -74,10 +74,15 @@ void ShaderWrapper::SetMat4(const std::string &name, const Matrix4f &value)
         SetShaderValueMatrix(m_shader, loc, valueArr);
     }
 }
-void ShaderWrapper::SetTexture(const std::string &name, Texture2D texture)
+#include "rlgl.h"
+void ShaderWrapper::SetTexture(const std::string &name, Texture2D texture, int unit)
 {
     // TODO：贴图需重新实现
     int loc = GetLocation(name);
     if (loc >= 0)
-        SetShaderValueTexture(m_shader, loc, texture);
+    {
+        SetShaderValue(m_shader, loc, &unit, SHADER_UNIFORM_INT);
+        rlActiveTextureSlot(unit);
+        rlEnableTexture(texture.id);
+    }
 }

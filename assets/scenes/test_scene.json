@@ -23,36 +23,13 @@
     },
     "entities": [
         {
-            "name": "cube",
-            "tag": "cube",
-            "prefab": "assets/prefabs/shader_cube.json",
-            "position": [
-                0,
-                10,
-                0
-            ],
-            "rotation": [
-                0,
-                0,
-                0
-            ],
-            "scale": [
-                1.0,
-                1.0,
-                1.0
-            ],
-            "physics": {
-                "mass": 1
-            }
-        },
-        {
-            "name": "sphere",
+            "name": "texture_sphere",
             "tag": "sphere",
             "prefab": "assets/prefabs/sphere.json",
             "position": [
                 0,
                 0,
-                1
+                5
             ],
             "rotation": [
                 0,
@@ -98,47 +75,100 @@
                         "name": "Mesh_0",
                         "passes": [
                             {
-                                "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
-                                "fs": "assets/shaders/default.fs",
-                                "color": [
-                                    0,
-                                    0,
-                                    0,
-                                    255
-                                ],
+                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                                "textures": {
+                                    "u_diffuseMap": "assets/textures/test_4.png"
+                                },
                                 "blendMode": "NONE",
                                 "depthWrite": true,
                                 "depthTest": true
                             },
                             {
-                                "vs": "assets/shaders/base.vs",
+                                "name": "rgbView",
                                 "fs": "assets/shaders/rgbView.fs",
-                                "color": [
-                                    0,
-                                    0,
-                                    0,
-                                    255
-                                ],
-                                "blendMode": "NONE",
+                                "blendMode": "MULTIPLY",
                                 "depthWrite": false,
                                 "depthTest": true
-                            },
+                            }
+                        ]
+                    }
+                ]
+            },
+            "scripts": [
+                {
+                    "RotatorScript": {
+                        "angluarVelocity": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "CollisionListener": {}
+                }
+            ]
+        },
+        {
+            "name": "cube",
+            "tag": "cube",
+            "prefab": "assets/prefabs/cube.json",
+            "position": [
+                5,
+                5,
+                5
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "physics": {
+                "mass": 100,
+                "elasticity": 0.6
+            },
+            "render": {
+                "renderScale": [
+                    1,
+                    1,
+                    1
+                ],
+                "isVisible": true,
+                "showWires": false,
+                "showAxes": false,
+                "showAngVol": false,
+                "showVol": false,
+                "showCenter": false,
+                "defaultMaterial": {
+                    "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+                    "fs": "assets/shaders/default.fs",
+                    "color": [
+                        200,
+                        100,
+                        100,
+                        255
+                    ],
+                    "depthWrite": true,
+                    "depthTest": true
+                },
+                "meshPasses": [
+                    {
+                        "meshIndex": 0,
+                        "name": "Mesh_0",
+                        "passes": [
                             {
-                                "name": "outline(描边需要剔除正面,使用uniforms来自定义传入shader的参数,支持vec3,vec4,float)",
-                                "vs": "assets/shaders/outline/outline.vs",
-                                "fs": "assets/shaders/outline/outline.fs",
-                                "blendMode": "ALPHA",
-                                "cullFace": "FRONT",
-                                "uniforms": {
-                                    "u_outlineWidth": 0.1,
-                                    "u_color": [
-                                        0,
-                                        0,
-                                        0,
-                                        255
-                                    ]
+                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                                "textures": {
+                                    "u_diffuseMap": "assets/textures/test_2.png"
                                 },
-                                "depthWrite": false,
+                                "blendMode": "SUBTRACT",
+                                "cullFace": "BACK",
+                                "depthWrite": true,
                                 "depthTest": true
                             }
                         ]
@@ -213,35 +243,14 @@
                         "name": "Mesh_0",
                         "passes": [
                             {
-                                "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
-                                "fs": "assets/shaders/default.fs",
-                                "color": [
-                                    100,
-                                    255,
-                                    100,
-                                    255
-                                ],
-                                "depthWrite": true,
-                                "depthTest": true,
-                                "blendMode": "ALPHA"
-                            },
-                            {
-                                "name": "outline(描边需要剔除正面,使用uniforms来自定义传入shader的参数,支持vec3,vec4,float)",
-                                "vs": "assets/shaders/outline/outline.vs",
-                                "fs": "assets/shaders/outline/outline.fs",
-                                "blendMode": "ALPHA",
-                                "depthWrite": false,
-                                "depthTest": true,
+                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                                "textures": {
+                                    "u_diffuseMap": "assets/textures/test_2.png"
+                                },
+                                "blendMode": "NONE",
                                 "cullFace": "FRONT",
-                                "uniforms": {
-                                    "u_outlineWidth": 0.1,
-                                    "u_color": [
-                                        255,
-                                        0,
-                                        0,
-                                        255
-                                    ]
-                                }
+                                "depthWrite": true,
+                                "depthTest": true
                             }
                         ]
                     }

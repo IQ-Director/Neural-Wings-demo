@@ -22,7 +22,7 @@ public:
     void SetVec3(const std::string &name, const Vector3f &value);
     void SetVec4(const std::string &name, const Vector4f &value);
     void SetMat4(const std::string &name, const Matrix4f &value);
-    void SetTexture(const std::string &name, Texture2D texture);
+    void SetTexture(const std::string &name, Texture2D texture, int unit);
 
     bool IsValid() const { return m_shader.id > 0; };
     Shader GetShader() const { return m_shader; }

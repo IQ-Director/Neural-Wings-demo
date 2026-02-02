@@ -264,11 +264,13 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
 
 void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld)
 {
+    rlDrawRenderBatchActive();
+
     rlEnableDepthTest();
     rlEnableDepthMask();
     rlDisableBackfaceCulling();
     rlSetCullFace(RL_CULL_FACE_BACK);
-    BeginBlendMode(BLEND_ALPHA);
+    rlEnableColorBlend();
 
     float gameTime = gameWorld.GetTimeManager().GetGameTime();
     float realTime = gameWorld.GetTimeManager().GetRealTime();
@@ -279,13 +281,24 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
         Material tempRaylibMaterial = model.materials[matIdex];
 
         pass.shader->Begin();
-        if (pass.blendMode == -1)
+        rlDrawRenderBatchActive();
+
+        switch (pass.blendMode)
         {
+        case BLEND_OPIQUE:
+            rlDisableColorBlend();
+        case BLEND_MULTIPLIED:
             rlSetBlendMode(BLEND_CUSTOM);
-            rlSetBlendFactors(RL_ONE, RL_ZERO, RL_FUNC_ADD);
-        }
-        else
+            rlSetBlendFactors(RL_DST_COLOR, RL_ZERO, RL_FUNC_ADD);
+        case BLEND_SCREEN:
+            rlSetBlendMode(BLEND_CUSTOM);
+            rlSetBlendFactors(RL_ONE, RL_ONE_MINUS_SRC_COLOR, RL_FUNC_ADD);
+        case BLEND_SUBTRACT:
+            rlSetBlendMode(BLEND_CUSTOM);
+            rlSetBlendFactors(RL_ONE, RL_ONE, RL_FUNC_REVERSE_SUBTRACT);
+        default:
             BeginBlendMode(pass.blendMode);
+        }
 
         pass.shader->SetMat4("u_mvp", MVP);
         pass.shader->SetMat4("transform", M);
@@ -304,6 +317,19 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
 
         tempRaylibMaterial.shader = pass.shader->GetShader();
 
+        int texUnit = 0;
+        if (pass.useDiffuseMap)
+        {
+            pass.shader->SetTexture("u_diffuseMap", pass.diffuseMap, texUnit);
+            tempRaylibMaterial.maps[MATERIAL_MAP_DIFFUSE].texture = pass.diffuseMap;
+            texUnit++;
+        }
+        for (auto const &[name, text] : pass.customTextures)
+        {
+            pass.shader->SetTexture(name, text, texUnit);
+            texUnit++;
+        }
+
         if (pass.cullFace >= 0)
         {
             rlEnableBackfaceCulling();
@@ -319,9 +345,12 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
         pass.shader->End();
 
         EndBlendMode();
+        rlEnableColorBlend();
         rlEnableDepthTest();
         rlEnableDepthMask();
         rlDisableBackfaceCulling();
         rlSetCullFace(RL_CULL_FACE_BACK);
+
+        rlDrawRenderBatchActive();
     }
 }
