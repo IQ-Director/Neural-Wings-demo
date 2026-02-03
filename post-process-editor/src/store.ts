@@ -11,6 +11,9 @@ import type {
     PassNodeData,
     TextureNodeData
 } from './types';
+const generateRandomRT = () => {
+    return `rt_${Math.random().toString(36).substring(2, 6)}`;
+};
 const generateId = () => Math.random().toString(36).substr(2, 9);
 const hslToHex = (h: number, s: number, l: number) => {
     l /= 100;
@@ -62,6 +65,8 @@ interface State {
     setPostProcessName: (name: string) => void;
 
     importJSON: (jsonStr: string) => void;
+
+    isRTNameDuplicate: (nodeId: string, name: string) => { error: boolean; msg?: string };
 }
 
 function getTopologicalSort(nodes: Node<AllNodeData>[], edges: Edge[]): string[] {
@@ -333,7 +338,20 @@ export const useStore = create<State>((set, get) => ({
             edges: addEdge(connection, filteredEdges)
         });
     },
+    isRTNameDuplicate: (nodeId: string, name: string) => {
+        if (name === 'inScreen') return { error: true, msg: 'inScreen 是保留输入名，不可作为输出' };
+        const nodes = get().nodes;
+        const exists = nodes.some(n =>
+            n.id !== nodeId &&
+            n.type === 'passNode' &&
+            (n.data as PassNodeData).output === name
+        );
+
+        return exists ? { error: true, msg: `RT名称 "${name}" 已存在，请使用唯一名称` } : { error: false };
+    },
+
     updateNodeData: (nodeId, newData) => set({
+
         nodes: get().nodes.map(n => n.id === nodeId ? { ...n, data: { ...n.data, ...newData } } : n)
     }),
 
@@ -484,6 +502,11 @@ export const useStore = create<State>((set, get) => ({
     },
 
     addPassNode: () => {
+        const { nodes } = get();
+        let newRTName = generateRandomRT();
+        while (nodes.some(n => n.type === 'passNode' && (n.data as PassNodeData).output === newRTName)) {
+            newRTName = generateRandomRT();
+        }
         const position = {
             x: Math.random() * 400 + 100,
             y: Math.random() * 300 + 100
@@ -497,7 +520,7 @@ export const useStore = create<State>((set, get) => ({
                 inputPorts: [{ id: `in_${generateId()}`, name: 'u_tex0' }],
                 texturePorts: [],
                 uniforms: {},
-                output: 'rt_out',
+                output: newRTName,
                 themeColor: getTechColor()
             }
         };

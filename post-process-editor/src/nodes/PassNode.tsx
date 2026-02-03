@@ -4,6 +4,57 @@ import { useStore } from '../store';
 import type { PassNodeData } from '../types';
 import { UniformItem } from './UniformItem';
 import React from 'react';
+
+
+
+const RTNameInput = ({ nodeId, value }: { nodeId: string, value: string }) => {
+    const [localValue, setLocalValue] = React.useState(value);
+    const { updateNodeData, isRTNameDuplicate } = useStore();
+
+    // 当外部值改变（比如导入时），同步内部值
+    React.useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    const handleCommit = () => {
+        // 如果没改名字，直接返回
+        if (localValue === value) return;
+
+        // 检查是否重名
+        const check = isRTNameDuplicate(nodeId, localValue);
+
+        if (check.error) {
+            alert(check.msg);
+            setLocalValue(value); // 校验失败，回退到原始值
+        } else {
+            // 校验通过，正式写入 Store
+            updateNodeData(nodeId, { output: localValue });
+        }
+    };
+
+    return (
+        <input
+            className="nodrag"
+            value={localValue}
+            onChange={(e) => setLocalValue(e.target.value)} // 输入中只改变本地状态，不弹窗
+            onBlur={handleCommit} // 失去焦点时判断
+            onKeyDown={(e) => e.key === 'Enter' && handleCommit()} // 按回车时判断
+            style={{
+                background: '#111',
+                border: '1px solid #3d3d3d',
+                borderRadius: '4px',
+                color: '#fff',
+                fontSize: '11px',
+                width: '90px',
+                textAlign: 'right',
+                padding: '2px 6px',
+                outline: 'none'
+            }}
+        />
+    );
+};
+
+
 // 颜色转换工具函数
 const rgbaToHex = (r: number, g: number, b: number) => {
     return "#" + [r, g, b].map(x =>
@@ -235,9 +286,7 @@ export default function PassNode({ id, data }: NodeProps<PassNodeData>) {
                 {/* 6. 输出端口 */}
                 <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', position: 'relative', marginTop: '12px', borderTop: '1px solid #3d3d3d', paddingTop: '8px' }}>
                     <span style={{ fontSize: '10px', marginRight: '6px', color: theme, fontWeight: 'bold' }}>RT:</span>
-                    <input className="nodrag" value={data.output} onChange={(e) => updateNodeData(id, { output: e.target.value })}
-                        style={{ background: '#111', border: '1px solid #3d3d3d', borderRadius: '4px', color: '#fff', fontSize: '11px', width: '90px', textAlign: 'right', padding: '2px 6px' }} />
-                    <Handle type="source" position={Position.Right} id="output" style={{ background: theme, width: '10px', height: '10px', right: '-15px', border: '2px solid #2d2d2d' }} />
+                    <RTNameInput nodeId={id} value={data.output} /> <Handle type="source" position={Position.Right} id="output" style={{ background: theme, width: '10px', height: '10px', right: '-15px', border: '2px solid #2d2d2d' }} />
                 </div>
 
             </div>
