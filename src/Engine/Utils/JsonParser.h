@@ -55,5 +55,6 @@ public:
                              w <= 1 ? w * sw : w,
                              h <= 1 ? h * sh : h};
         }
+        return Rectangle{0, 0, 0, 0};
     }
 };

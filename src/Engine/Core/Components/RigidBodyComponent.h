@@ -274,6 +274,8 @@ struct HitBox
             return GetCollisionInfoSphereBox(a, b, normal, penetration, hitPoint);
         if (a.colliderType == ColliderType::BOX && b.colliderType == ColliderType::SPHERE)
             return GetCollisionInfoBoxSphere(a, b, normal, penetration, hitPoint);
+        std::cerr << "[RigidBodyComponent] Unhandled collision type combination!" << std::endl;
+        return false;
     }
 
     static bool GetCollisionInfoBoxSphere(const HitBox &box, const HitBox &sphere,

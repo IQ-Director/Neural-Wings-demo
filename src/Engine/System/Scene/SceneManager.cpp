@@ -90,6 +90,7 @@ bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
             }
         }
     }
+    return true;
 }
 
 void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, GameWorld &gameWorld)

@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(MSVC)
+    add_compile_options("/utf-8")
     # /FS allows concurrent cl.exe processes to share the same PDB
     # (VS generators enable parallel builds by default).
     set(CMAKE_CXX_FLAGS_DEBUG "/MDd /Od /Z7 /EHsc /FS")

@@ -124,8 +124,8 @@ void CollisionStage::ResolveCollision(GameObject *a, GameObject *b, const Vector
     //     rbB.angularMomentum += (rB ^ impulse);
 
     // TODO:精度
-    const float percent = 0.6;
-    const float slop = 0.0001;
+    const float percent = 0.6f;
+    const float slop = 0.0001f;
     Vector3f correction = std::max(penetration - slop, 0.0f) * percent * normal / (invMassA + invMassB);
     tfA.position -= invMassA * correction;
     tfB.position += invMassB * correction;

@@ -23,7 +23,7 @@ ScreenManager::ScreenManager(const EngineConfig &config, std::unique_ptr<ScreenF
     : m_factory(std::move(factory)), m_activeConfig(config)
 {
     InitWindow(config.screenWidth, config.screenHeight, config.windowTitle.c_str());
-    SetTargetFPS(config.targetFPS);
+    SetTargetFPS((int)config.targetFPS);
     m_timeManager = TimeManager(static_cast<float>(config.targetFPS));
     m_accumulator = 0.0f;
     SetExitKey(KEY_NULL);

@@ -27,7 +27,8 @@ GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory 
 
     m_cameraManager->LoadConfig(cameraConfigPath);
     m_sceneManager->LoadScene(sceneConfigPath, *this);
-    m_renderer->LoadViewConfig(renderView, *this);
+
+    m_renderer->Init(renderView, *this);
 
     if (!m_inputManager->LoadBindings(inputConfigPath))
     {

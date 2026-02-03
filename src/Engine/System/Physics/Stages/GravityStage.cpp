@@ -1,3 +1,9 @@
+#ifdef _MSC_VER
+#pragma warning(disable : 4244)
+#pragma warning(disable : 4267)
+#pragma warning(disable : 4305)
+#endif
+
 #include "GravityStage.h"
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Core/Components/RigidBodyComponent.h"
@@ -36,9 +42,7 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
             Vector3f corners[8];
             AABB aabb = gameObject->GetWorldAABB(&corners);
             float lowy = aabb.min.y();
-            tf.position.print();
-            std::cout << lowy << std::endl;
-            Vector3f normal = Vector3f(0.0, 1.0, 0.0);
+            Vector3f normal = Vector3f(0.0f, 1.0f, 0.0f);
             if (lowy < ground)
             {
                 float penetration = ground - lowy;
@@ -50,14 +54,14 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
                     float penetation;
                 };
                 std::vector<Contact> contacts;
-                for (int i = 0; i < 8; i++)
+                for (size_t i = 0; i < 8; i++)
                 {
                     if (corners[i].y() < ground + 0.01f)
                     {
                         contacts.push_back({corners[i] - tf.position, ground - corners[i].y()});
                     }
                 }
-                int div = contacts.size();
+                const float div = (float)contacts.size();
                 for (auto &cp : contacts)
                 {
                     Vector3f rV = rb.velocity + (rb.angularVelocity ^ cp.r);
@@ -66,7 +70,7 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
                     {
                         float invMass = 1.0f / rb.mass;
                         float e = (fabsf(nrV) < 0.2f) ? 0.0f : rb.elasticity * e_ground;
-                        float i = -(1.0 + e) * nrV;
+                        float i = -(1.0f + e) * nrV;
                         auto raxn = cp.r ^ normal;
                         auto rot = tf.rotation.toMatrix();
                         auto worldInverseInertia = rot * rb.inverseInertiaTensor * rot.transposed();

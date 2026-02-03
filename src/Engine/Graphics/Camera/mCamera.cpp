@@ -6,8 +6,8 @@ mCamera::mCamera()
     m_direction = Vector3f(1.0f, 0.0f, 0.0f);
     m_up = Vector3f(0.0f, 1.0f, 0.0f);
     m_right = Vector3f(0.0f, 0.0f, -1.0f);
-    m_nearPlane = 0.01;
-    m_farPlane = 100000.0;
+    m_nearPlane = 0.01f;
+    m_farPlane = 100000.0f;
     m_fovy = 1.0f;
     UpdatemCamera(CameraMode::CAMERA_CUSTOM);
 }

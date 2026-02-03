@@ -14,141 +14,11 @@ using json = nlohmann::json;
 
 #define M_PI 3.14159265358979323846
 
-void Renderer::AddPostProcessPass(const PostProcessPass &pass)
+void Renderer::Init(const std::string &configViewPath, GameWorld &gameWorld)
 {
-    if (pass.outputTarget.empty())
-    {
-        std::cerr << "[Renderer]: Post process pass missing output target: " << pass.name << std::endl;
-        return;
-    }
-    m_postProcessPasses.push_back(pass);
-    std::cout << "[Renderer]: Post process pass added: " << pass.name << " output target -> " << pass.outputTarget << std::endl;
-}
-void Renderer::SetUpRTPool(const std::vector<std::string> &names, int width, int height)
-{
-    UnloadRTPool();
-    for (const auto &name : names)
-    {
-        RenderTexture2D rt = LoadRenderTexture(width, height);
-        if (rt.id > 0)
-        {
-            m_RTPool[name] = rt;
-            SetTextureFilter(m_RTPool[name].texture, TEXTURE_FILTER_BILINEAR);
-        }
-        else
-        {
-            std::cerr << "[Renderer]: Failed to create render texture: " << name << std::endl;
-        }
-    }
-    std::cout << "[Renderer]: Render texture pool set up with " << names.size() << " render targets" << std::endl;
-}
-void Renderer::UnloadRTPool()
-{
-    int count = 0;
-
-    for (auto &pair : m_RTPool)
-    {
-        UnloadRenderTexture(pair.second);
-        count++;
-    }
-    m_RTPool.clear();
-    m_postProcessPasses.clear();
-    std::cout << "[Renderer]: Unloaded " << count << " render targets" << std::endl;
-}
-
-RenderView Renderer::ParseViews(const json &viewData)
-{
-    RenderView view;
-    if (viewData.contains("name"))
-        // 与camerajson中名字一致
-        view.cameraName = viewData["name"];
-    else
-    {
-        std::cerr << "[Renderer]: View config file missing 'name' field" << std::endl;
-        return view;
-    }
-    if (viewData.contains("viewport"))
-        view.viewport = JsonParser::ToRectangle(viewData["viewport"]);
-    else
-        view.viewport = Rectangle{0.0, 0.0, (float)GetScreenHeight(), (float)GetScreenWidth()};
-
-    view.clearBackground = viewData.value("clearBackground", false);
-    if (viewData.contains("backgroundColor"))
-        view.backgroundColor = JsonParser::ToColor(viewData["backgroundColor"]);
-    else
-        view.backgroundColor = WHITE;
-    return view;
-}
-
-void Renderer::ParsePostProcessPasses(const json &data, GameWorld &gameWorld)
-{
-    if (!data.contains("rtPool"))
-    {
-        std::cerr << "[Renderer]: Post process config file missing 'rtPool' field" << std::endl;
-        return;
-    }
-    if (!data.contains("postProcessGraph"))
-    {
-        std::cerr << "[Renderer]: Post process config file missing 'postProcessGraph' field" << std::endl;
-        return;
-    }
-    const std::vector<std::string> &rtNames = data["rtPool"].get<std::vector<std::string>>();
-    this->SetUpRTPool(rtNames, GetScreenWidth(), GetScreenHeight());
-    this->m_postProcessPasses.clear();
-    auto &rm = gameWorld.GetResourceManager();
-
-    for (const auto &passData : data["postProcessGraph"])
-    {
-        PostProcessPass pass;
-        pass.name = passData["name"];
-
-        // 解析输入输出
-        pass.outputTarget = passData["output"];
-        if (passData.contains("inputs"))
-            for (const auto &inputItem : passData["inputs"])
-            {
-                if (inputItem.size() == 2)
-                    pass.inputs.push_back({inputItem[0], inputItem[1]});
-                else
-                    std::cerr << "[Renderer]: Post process pass: " << pass.name << " input item size not equal to 2" << std::endl;
-            }
-        // 解析shader
-        PostRenderMaterial &mat = pass.material;
-        mat.shader = rm.GetShader(
-            passData.value("vs", "assets/shaders/postprocess/default.vs"),
-            passData.value("fs", "assets/shaders/postprocess/default.fs"));
-        if (passData.contains("baseColor"))
-            mat.baseColor = JsonParser::ToVector4f(passData["baseColor"]);
-        if (passData.contains("uniforms"))
-        {
-            auto &uniformsData = passData["uniforms"];
-            for (auto &[uName, uValue] : uniformsData.items())
-            {
-                if (uValue.is_number())
-                    mat.customFloats[uName] = uValue;
-                else if (uValue.is_array() && uValue.size() == 2)
-                    mat.customVector2[uName] = JsonParser::ToVector2f(uValue);
-                else if (uValue.is_array() && uValue.size() == 3)
-                    mat.customVector3[uName] = JsonParser::ToVector3f(uValue);
-                else if (uValue.is_array() && uValue.size() == 4)
-                    mat.customVector4[uName] = JsonParser::ToVector4f(uValue);
-                else
-                    std::cerr << "[Renderer]:ParsePostProcessPasses Unknown uniform type: " << uName << std::endl;
-            }
-        }
-        // 解析外部纹理
-        if (passData.contains("textures"))
-        {
-            auto &texData = passData["textures"];
-            for (auto &[texName, texPath] : texData.items())
-            {
-                Texture2D tex = rm.GetTexture2D(texPath);
-                if (tex.id > 0)
-                    mat.customTextures[texName] = tex;
-            }
-        }
-        this->AddPostProcessPass(pass);
-    }
+    m_postProcesser = std::make_unique<PostProcesser>();
+    m_renderViewer = std::make_unique<RenderViewer>();
+    this->LoadViewConfig(configViewPath, gameWorld);
 }
 
 bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorld)
@@ -163,20 +33,9 @@ bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorl
     {
         json data = json::parse(configFile);
         if (data.contains("views"))
-        {
-            this->ClearRenderViews();
-            for (const auto &viewData : data["views"])
-            {
-                // TODO: 添加各view后处理效果
-                RenderView view = ParseViews(viewData);
-                this->AddRenderView(view);
-            }
-        }
+            m_renderViewer->ParseViewConfig(data["views"]);
         if (data.contains("postProcess"))
-        {
-            ParsePostProcessPasses(data["postProcess"], gameWorld);
-        }
-
+            m_postProcesser->ParsePostProcessPasses(data["postProcess"], gameWorld);
         return true;
     }
     catch (std::exception &e)
@@ -187,26 +46,16 @@ bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorl
     }
 }
 
-void Renderer::AddRenderView(const RenderView &view)
-{
-    m_renderViews.push_back(view);
-}
-
-void Renderer::ClearRenderViews()
-{
-    m_renderViews.clear();
-}
-
 #include <utility>
 
 void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
 {
-    for (const auto &view : m_renderViews)
+    for (const auto &view : m_renderViewer->GetRenderViews())
     {
         mCamera *camera = cameraManager.GetCamera(view.cameraName);
         if (camera)
         {
-            BeginScissorMode(view.viewport.x, view.viewport.y, view.viewport.width, view.viewport.height);
+            BeginScissorMode((int)view.viewport.x, (int)view.viewport.y, (int)view.viewport.width, (int)view.viewport.height);
             // 透明底？
             if (view.clearBackground)
             {
@@ -224,101 +73,10 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
     }
 }
 
-void Renderer::DrawTextureQuad(RenderTexture2D &texture, float width, float height, bool flipY)
-{
-    rlBegin(RL_QUADS);
-    rlColor4ub(255, 255, 255, 255);
-    if (flipY)
-    {
-        rlTexCoord2f(0.0f, 1.0f);
-        rlVertex2f(0.0f, 0.0f);
-        rlTexCoord2f(1.0f, 1.0f);
-        rlVertex2f(width, 0.0f);
-        rlTexCoord2f(1.0f, 0.0f);
-        rlVertex2f(width, height);
-        rlTexCoord2f(0.0f, 0.0f);
-        rlVertex2f(0.0f, height);
-    }
-    else
-    {
-        rlTexCoord2f(0.0f, 0.0f);
-        rlVertex2f(0.0f, 0.0f);
-        rlTexCoord2f(1.0f, 0.0f);
-        rlVertex2f(width, 0.0f);
-        rlTexCoord2f(1.0f, 1.0f);
-        rlVertex2f(width, height);
-        rlTexCoord2f(0.0f, 1.0f);
-        rlVertex2f(0.0f, height);
-    }
-    rlEnd();
-}
-
-void Renderer::PostProcess(RenderTexture2D &itScene, GameWorld &gameWorld)
-{
-    for (auto &pass : m_postProcessPasses)
-    {
-        auto &itOut = m_RTPool.find(pass.outputTarget);
-        if (itOut == m_RTPool.end())
-            continue;
-
-        BeginTextureMode(itOut->second);
-        ClearBackground(BLANK);
-
-        auto &mat = pass.material;
-        mat.shader->Begin();
-
-        // 上传输入纹理
-        int texUnit = 0;
-        unsigned int firstInputId = 0;
-        for (const auto &[shaderVarName, rtName] : pass.inputs)
-        {
-            if (m_RTPool.count(rtName))
-            {
-                mat.shader->SetTexture(shaderVarName, m_RTPool[rtName].texture, texUnit);
-                if (texUnit == 0)
-                    firstInputId = m_RTPool[rtName].texture.id;
-                texUnit++;
-            }
-        }
-        // 外部纹理
-        for (auto const &[name, text] : mat.customTextures)
-        {
-            if (texUnit == 0)
-                firstInputId = text.id;
-            mat.shader->SetTexture(name, text, texUnit);
-            texUnit++;
-        }
-        // 上传参数
-        mat.shader->SetFloat("gameTime", gameWorld.GetTimeManager().GetGameTime());
-        mat.shader->SetFloat("realTime", gameWorld.GetTimeManager().GetRealTime());
-        mat.shader->SetFloat("deltaRealTime", gameWorld.GetTimeManager().GetDeltaTime());
-        mat.shader->SetFloat("deltaGameTime", gameWorld.GetTimeManager().GetFixedDeltaTime());
-
-        Vector2f screenRes((float)itOut->second.texture.width, (float)itOut->second.texture.height);
-        mat.shader->SetVec2("screenResolution", screenRes);
-
-        mat.shader->SetVec4("baseColor", mat.baseColor);
-
-        for (auto const &[name, value] : mat.customFloats)
-            mat.shader->SetFloat(name, value);
-        for (auto const &[name, value] : mat.customVector2)
-            mat.shader->SetVec2(name, value);
-        for (auto const &[name, value] : mat.customVector3)
-            mat.shader->SetVec3(name, value);
-        for (auto const &[name, value] : mat.customVector4)
-            mat.shader->SetVec4(name, value);
-
-        rlSetTexture(firstInputId);
-        DrawTextureQuad(itScene, screenRes.x(), screenRes.y(), true);
-        rlSetTexture(0);
-        mat.shader->End();
-        EndTextureMode();
-    }
-}
-
 void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
 {
     // RT图出入口
+    auto &m_RTPool = m_postProcesser->GetRTPool();
     auto &itScene = m_RTPool.find("inScreen");
     auto &itFinal = m_RTPool.find("outScreen");
     if (itScene == m_RTPool.end())
@@ -337,7 +95,7 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
     RawRenderScene(gameWorld, cameraManager);
     EndTextureMode();
 
-    PostProcess(itScene->second, gameWorld);
+    m_postProcesser->PostProcess(gameWorld);
 
     // 最终输出
     ClearBackground(BLACK);
@@ -348,58 +106,6 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
                    {0, 0}, 0, WHITE);
 }
 
-#include <iostream>
-void DrawCoordinateAxes(Vector3f position, Quat4f rotation, float axisLength, float thickness)
-{
-    // 定义基准轴
-    Vector3f baseRight = {1.0f, 0.0f, 0.0f};
-    Vector3f baseUp = {0.0f, 1.0f, 0.0f};
-    Vector3f baseForward = {0.0f, 0.0f, 1.0f};
-
-    // 计算旋转后的局部轴方向
-    // 如果你使用了 raymath.h，也可以直接用 Vector3RotateByQuaternion(baseRight, rotation)
-    Vector3f localRight = rotation * baseRight;
-    Vector3f localUp = rotation * baseUp;
-    Vector3f localForward = rotation * baseForward;
-
-    // 预计算一些常量
-    int sides = 8;                               // 圆柱体面数，8面够圆了，太多影响性能
-    float coneHeight = axisLength * 0.2f;        // 箭头长度占总长的 20%
-    float cylinderLen = axisLength - coneHeight; // 剩余部分是圆柱体
-    float coneRadius = thickness * 2.5f;         // 箭头底部半径比轴粗一些
-
-    // === X 轴 (红色) ===
-    Vector3f endX = position + localRight * cylinderLen;
-    Vector3f tipX = position + localRight * axisLength;
-    DrawCylinderEx(position, endX, thickness, thickness, sides, RED); // 轴身
-    DrawCylinderEx(endX, tipX, coneRadius, 0.0f, sides, RED);         // 箭头
-
-    // === Y 轴 (绿色) ===
-    Vector3f endY = position + localUp * cylinderLen;
-    Vector3f tipY = position + localUp * axisLength;
-    DrawCylinderEx(position, endY, thickness, thickness, sides, GREEN);
-    DrawCylinderEx(endY, tipY, coneRadius, 0.0f, sides, GREEN);
-
-    // === Z 轴 (蓝色) ===
-    Vector3f endZ = position + localForward * cylinderLen;
-    Vector3f tipZ = position + localForward * axisLength;
-    DrawCylinderEx(position, endZ, thickness, thickness, sides, BLUE);
-    DrawCylinderEx(endZ, tipZ, coneRadius, 0.0f, sides, BLUE);
-}
-
-void DrawVector(Vector3f position, Vector3f direction, float axisLength, float thickness)
-{
-
-    int sides = 8;                               // 圆柱体面数，8面够圆了，太多影响性能
-    float coneHeight = axisLength * 0.2f;        // 箭头长度占总长的 20%
-    float cylinderLen = axisLength - coneHeight; // 剩余部分是圆柱体
-    float coneRadius = thickness * 2.5f;         // 箭头底部半径比轴粗一些
-
-    Vector3f end = position + direction * cylinderLen;
-    Vector3f tip = position + direction * axisLength;
-    DrawCylinderEx(position, end, thickness, thickness, sides, BLUE);
-    DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, BLACK);
-}
 void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &camera, float aspect)
 {
     Matrix4f matView = GetCameraMatrix(rawCamera);
@@ -426,7 +132,7 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
             float angle = 0.0f;
             Quat4f rotation = tf.rotation;
             Vector3f axis = rotation.getAxisAngle(&angle);
-            angle *= 180.0f / M_PI;
+            angle *= (float)180.0f / (float)M_PI;
 
             bool useShader = (render.defaultMaterial.shader != nullptr && render.defaultMaterial.shader->IsValid());
             if (useShader)
@@ -467,7 +173,7 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
             }
             else
             {
-                Color tint = {render.defaultMaterial.baseColor.x(), render.defaultMaterial.baseColor.y(), render.defaultMaterial.baseColor.z(), render.defaultMaterial.baseColor.w()};
+                Color tint = {(unsigned char)render.defaultMaterial.baseColor.x(), (unsigned char)render.defaultMaterial.baseColor.y(), (unsigned char)render.defaultMaterial.baseColor.z(), (unsigned char)render.defaultMaterial.baseColor.w()};
                 DrawModelEx(
                     render.model,
                     tf.position,
@@ -545,21 +251,6 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
 
         pass.shader->SetAll(MVP, M, camera.Position(), realTime, gameTime, pass.baseColor, pass.customFloats, pass.customVector2, pass.customVector3, pass.customVector4);
 
-        // pass.shader->SetMat4("u_mvp", MVP);
-        // pass.shader->SetMat4("transform", M);
-        // pass.shader->SetVec3("viewPos", camera.Position());
-        // pass.shader->SetFloat("realTime", realTime);
-        // pass.shader->SetFloat("gameTime", gameTime);
-        // Vector4f color = pass.baseColor / 255.0f;
-        // pass.shader->SetVec4("baseColor", color);
-
-        // for (auto const &[name, value] : pass.customFloats)
-        //     pass.shader->SetFloat(name, value);
-        // for (auto const &[name, value] : pass.customVector3)
-        //     pass.shader->SetVec3(name, value);
-        // for (auto const &[name, value] : pass.customVector4)
-        //     pass.shader->SetVec4(name, value);
-
         tempRaylibMaterial.shader = pass.shader->GetShader();
 
         int texUnit = 0;
@@ -596,4 +287,58 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
         rlDisableBackfaceCulling();
         rlSetCullFace(RL_CULL_FACE_BACK);
     }
+}
+
+// Debug
+#include <iostream>
+void Renderer::DrawCoordinateAxes(Vector3f position, Quat4f rotation, float axisLength, float thickness)
+{
+    // 定义基准轴
+    Vector3f baseRight = {1.0f, 0.0f, 0.0f};
+    Vector3f baseUp = {0.0f, 1.0f, 0.0f};
+    Vector3f baseForward = {0.0f, 0.0f, 1.0f};
+
+    // 计算旋转后的局部轴方向
+    // 如果你使用了 raymath.h，也可以直接用 Vector3RotateByQuaternion(baseRight, rotation)
+    Vector3f localRight = rotation * baseRight;
+    Vector3f localUp = rotation * baseUp;
+    Vector3f localForward = rotation * baseForward;
+
+    // 预计算一些常量
+    int sides = 8;                               // 圆柱体面数，8面够圆了，太多影响性能
+    float coneHeight = axisLength * 0.2f;        // 箭头长度占总长的 20%
+    float cylinderLen = axisLength - coneHeight; // 剩余部分是圆柱体
+    float coneRadius = thickness * 2.5f;         // 箭头底部半径比轴粗一些
+
+    // === X 轴 (红色) ===
+    Vector3f endX = position + localRight * cylinderLen;
+    Vector3f tipX = position + localRight * axisLength;
+    DrawCylinderEx(position, endX, thickness, thickness, sides, RED); // 轴身
+    DrawCylinderEx(endX, tipX, coneRadius, 0.0f, sides, RED);         // 箭头
+
+    // === Y 轴 (绿色) ===
+    Vector3f endY = position + localUp * cylinderLen;
+    Vector3f tipY = position + localUp * axisLength;
+    DrawCylinderEx(position, endY, thickness, thickness, sides, GREEN);
+    DrawCylinderEx(endY, tipY, coneRadius, 0.0f, sides, GREEN);
+
+    // === Z 轴 (蓝色) ===
+    Vector3f endZ = position + localForward * cylinderLen;
+    Vector3f tipZ = position + localForward * axisLength;
+    DrawCylinderEx(position, endZ, thickness, thickness, sides, BLUE);
+    DrawCylinderEx(endZ, tipZ, coneRadius, 0.0f, sides, BLUE);
+}
+
+void Renderer::DrawVector(Vector3f position, Vector3f direction, float axisLength, float thickness)
+{
+
+    int sides = 8;                               // 圆柱体面数，8面够圆了，太多影响性能
+    float coneHeight = axisLength * 0.2f;        // 箭头长度占总长的 20%
+    float cylinderLen = axisLength - coneHeight; // 剩余部分是圆柱体
+    float coneRadius = thickness * 2.5f;         // 箭头底部半径比轴粗一些
+
+    Vector3f end = position + direction * cylinderLen;
+    Vector3f tip = position + direction * axisLength;
+    DrawCylinderEx(position, end, thickness, thickness, sides, BLUE);
+    DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, BLACK);
 }
