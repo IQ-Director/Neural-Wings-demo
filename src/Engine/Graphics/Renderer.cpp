@@ -51,7 +51,7 @@ bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorl
 void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
 {
     rlEnableDepthMask();
-    ClearBackground(BLACK);
+    ClearBackground(BLACK); // 擦除深度
     for (const auto &view : m_renderViewer->GetRenderViews())
     {
         mCamera *camera = cameraManager.GetCamera(view.cameraName);

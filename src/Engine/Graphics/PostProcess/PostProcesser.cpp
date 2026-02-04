@@ -249,8 +249,8 @@ void PostProcesser::PostProcess(GameWorld &gameWorld)
 
         rlSetTexture(firstInputId);
         DrawTextureQuad(screenRes.x(), screenRes.y(), true);
-        // rlSetTexture(0);
         mat.shader->End();
         EndTextureMode();
     }
+    rlSetTexture(0);
 }
