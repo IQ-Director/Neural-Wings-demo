@@ -4,4 +4,4 @@
 #include "RenderView/RenderViewer.h"
 #include "ShaderWrapper.h"
 
-#include "ParticleSystem/ParticleSystem.h"
+#include "Particle/Particle.h"

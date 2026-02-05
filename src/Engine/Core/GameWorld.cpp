@@ -4,7 +4,7 @@
 #include "Engine/Graphics/Graphics.h"
 #include <string>
 
-GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &)> configCallback,
+GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &, ParticleFactory &)> configCallback,
                      const std::string &cameraConfigPath,
                      const std::string &sceneConfigPath,
                      const std::string &inputConfigPath,
@@ -22,8 +22,9 @@ GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory 
     m_scriptingSystem = std::make_unique<ScriptingSystem>();
     m_eventManager = std::make_unique<EventManager>();
     m_renderer = std::make_unique<Renderer>();
+    m_particleFactory = std::make_unique<ParticleFactory>();
 
-    configCallback(*m_scriptingFactory, *m_physicsStageFactory);
+    configCallback(*m_scriptingFactory, *m_physicsStageFactory, *m_particleFactory);
 
     m_cameraManager->LoadConfig(cameraConfigPath);
     m_sceneManager->LoadScene(sceneConfigPath, *this);

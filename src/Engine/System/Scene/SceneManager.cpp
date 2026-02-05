@@ -104,6 +104,10 @@ bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
             {
                 AddScripts(gameWorld, obj, entityData["scripts"]);
             }
+            if (entityData.contains("particles"))
+            {
+                AddParticle(gameWorld, obj, entityData["particles"]);
+            }
         }
     }
     return true;
@@ -271,6 +275,21 @@ void SceneManager::AddScripts(GameWorld &gameWorld, GameObject &gameObject, cons
                 script->OnCreate();
                 sc.scripts.push_back(std::move(script));
             }
+        }
+    }
+}
+void SceneManager::AddParticle(GameWorld &gameWorld, GameObject &gameObject, const json &data)
+{
+    if (gameObject.HasComponent<ParticleEmitterComponent>())
+        gameObject.AddComponent<ParticleEmitterComponent>();
+    auto &ec = gameObject.GetComponent<ParticleEmitterComponent>();
+    ec.activate = data.value("activate", true);
+    if (data.contains("emitters"))
+    {
+        for (const auto &emitterConfig : data["emitters"])
+        {
+            auto emitter = std::make_shared<ParticleEmitter>(emitterConfig, gameWorld.GetParticleFactory(), gameWorld.GetResourceManager());
+            ec.AddEmitter(emitter);
         }
     }
 }

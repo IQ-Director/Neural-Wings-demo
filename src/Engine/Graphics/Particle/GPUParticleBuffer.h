@@ -20,6 +20,8 @@ public:
     // CPU注入接口
     void UpdateSubData(const std::vector<GPUParticle> &newParticles, size_t offset);
 
+    size_t GetMaxParticles() const { return m_maxParticles; }
+
 private:
     void SetupBuffers();
 

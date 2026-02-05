@@ -1,0 +1,113 @@
+{
+    "name": "Cube",
+    "components": [
+        {
+            "TransformComponent": {
+                "position": [
+                    0,
+                    0,
+                    0
+                ],
+                "scale": [
+                    1,
+                    1,
+                    1
+                ],
+                "rotation": [
+                    0,
+                    0,
+                    0
+                ]
+            }
+        },
+        {
+            "RenderComponent": {
+                "model": "primitive://cube",
+                "scale": [
+                    1,
+                    1,
+                    1
+                ]
+            }
+        },
+        {
+            "RigidBodyComponent": {
+                "mass": 100,
+                "drag": 0.1,
+                "angularDrag": 0.1,
+                "elasticity": 1.0,
+                "velocity": [
+                    0,
+                    0,
+                    0
+                ],
+                "angularVlocity": [
+                    0,
+                    0,
+                    0
+                ],
+                "colliderType": "BOX"
+            }
+        },
+        {
+            "ParticleEmitterComponent": {
+                "activate": true,
+                "emitters": [
+                    {
+                        "name": "Core_Thrust",
+                        "maxParticles": 10000,
+                        "emissionRate": 2000.0,
+                        "maxLife": 1.5,
+                        "space": "WORLD",
+                        "updateShader": "assets/shaders/particles/sim_thrust.vs",
+                        "initializers": [
+                            {
+                                "name": "SpherePosition",
+                                "params": {
+                                    "radius": 0.2,
+                                    "offset": [
+                                        0.0,
+                                        0.0,
+                                        -2.5
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "RadialVelocity",
+                                "params": {
+                                    "direction": [
+                                        0.0,
+                                        0.0,
+                                        -1.0
+                                    ],
+                                    "angle": 5.0,
+                                    "speedMin": 20.0,
+                                    "speedMax": 50.0
+                                }
+                            },
+                            {
+                                "name": "RandomLife",
+                                "params": {
+                                    "min": 0.5,
+                                    "max": 1.2
+                                }
+                            }
+                        ],
+                        "renderMaterial": {
+                            "vs": "assets/shaders/particles/render_billboard.vs",
+                            "fs": "assets/shaders/particles/render_soft.fs",
+                            "blendMode": "ADDITIVE",
+                            "depthWrite": false,
+                            "textures": {
+                                "u_sprite": "assets/textures/particles/glow_dot.png"
+                            },
+                            "uniforms": {
+                                "u_softness": 1.0
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+    ]
+}

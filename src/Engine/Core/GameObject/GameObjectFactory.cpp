@@ -56,6 +56,10 @@ void GameObjectFactory::ApplyComponent(GameWorld &gameWorld, GameObject &gameObj
     {
         ParseScriptComponent(gameWorld, gameObject, prefab);
     }
+    else if (compName == "ParticleEmitterComponent")
+    {
+        ParseParticleEmitterComponent(gameWorld, gameObject, prefab);
+    }
     else
         std::cerr << "Component " << compName << " not implemented" << std::endl;
 }
@@ -232,6 +236,20 @@ void GameObjectFactory::ParseScriptComponent(GameWorld &gameWorld, GameObject &g
             script->Initialize(scriptData);
             script->OnCreate();
             sc.scripts.push_back(std::move(script));
+        }
+    }
+}
+
+void GameObjectFactory::ParseParticleEmitterComponent(GameWorld &gameWorld, GameObject &gameObject, const json &data)
+{
+    auto &ec = gameObject.AddComponent<ParticleEmitterComponent>();
+    ec.activate = data.value("activate", true);
+    if (data.contains("emitters"))
+    {
+        for (const auto &emitterConfig : data["emitters"])
+        {
+            auto emitter = std::make_shared<ParticleEmitter>(emitterConfig, gameWorld.GetParticleFactory(), gameWorld.GetResourceManager());
+            ec.AddEmitter(emitter);
         }
     }
 }

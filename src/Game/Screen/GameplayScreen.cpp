@@ -2,6 +2,9 @@
 #include "raylib.h"
 #include "Game/Screen/MyScreenState.h"
 #include "Game/Systems/Physics/SolarStage.h"
+#include "Game/Systems/Particles/Initializers/RadialVelocity.h"
+#include "Game/Systems/Particles/Initializers/RandomLife.h"
+#include "Game/Systems/Particles/Initializers/SpherePosition.h"
 #include "Game/Scripts/Scripts.h"
 
 #include "raymath.h"
@@ -15,8 +18,8 @@ GameplayScreen::GameplayScreen()
     const std::string &sceneConfigPath = "assets/scenes/test_scene.json";
     const std::string &inputConfigPath = "assets/config/input_config.json";
     const std::string &renderViewConfigPath = "assets/view/test_view.json";
-    m_world = std::make_unique<GameWorld>([this](ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory)
-                                          { this->ConfigCallback(scriptingFactory, physicsStageFactory); },
+    m_world = std::make_unique<GameWorld>([this](ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory, ParticleFactory &particleFactory)
+                                          { this->ConfigCallback(scriptingFactory, physicsStageFactory, particleFactory); },
                                           cameraConfigPath,
                                           sceneConfigPath,
                                           inputConfigPath,
@@ -27,7 +30,7 @@ GameplayScreen::~GameplayScreen()
     OnExit();
 }
 
-void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory)
+void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory, ParticleFactory &particleFactory)
 {
     // 注册后才可使用json配置
     physicsStageFactory.Register("SolarStage", []()
@@ -39,6 +42,13 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                               { return std::make_unique<RotatorScript>(); });
     scriptingFactory.Register("CollisionListener", []()
                               { return std::make_unique<CollisionListener>(); });
+    // 注册粒子初始化器
+    particleFactory.Register("SpherePosition", []()
+                             { return std::make_unique<SpherePosition>(); });
+    particleFactory.Register("RadialVelocity", []()
+                             { return std::make_unique<RadialVelocity>(); });
+    particleFactory.Register("RandomLife", []()
+                             { return std::make_unique<RandomLife>(); });
 }
 
 // 当进入游戏场景时调用

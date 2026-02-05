@@ -42,16 +42,15 @@ void GPUParticleBuffer::SetupBuffers()
 
         // 设置属性指针
         BIND_ATTRIB(0, position, GL_FLOAT, 3);
-        BIND_ATTRIB(1, spaceFlag, GL_FLOAT, 1);
-        BIND_ATTRIB(2, velocity, GL_FLOAT, 3);
-        BIND_ATTRIB(3, acceleration, GL_FLOAT, 3);
-        BIND_ATTRIB(4, color, GL_FLOAT, 4);
-        BIND_ATTRIB(5, size, GL_FLOAT, 2);
-        BIND_ATTRIB(6, rotation, GL_FLOAT, 1);
-        BIND_ATTRIB(7, life, GL_FLOAT, 2);
+        BIND_ATTRIB(1, velocity, GL_FLOAT, 3);
+        BIND_ATTRIB(2, acceleration, GL_FLOAT, 3);
+        BIND_ATTRIB(3, color, GL_FLOAT, 4);
+        BIND_ATTRIB(4, size, GL_FLOAT, 2);
+        BIND_ATTRIB(5, rotation, GL_FLOAT, 1);
+        BIND_ATTRIB(6, life, GL_FLOAT, 2);
 
-        glEnableVertexAttribArray(8);
-        glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, stride, (void *)offsetof(GPUParticle, randomID));
+        glEnableVertexAttribArray(7);
+        glVertexAttribIPointer(7, 1, GL_UNSIGNED_INT, stride, (void *)offsetof(GPUParticle, randomID));
 
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
