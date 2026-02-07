@@ -83,6 +83,15 @@ body,
 }
 
 
+.particle-node:hover {
+  transform: scale(1.12);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+.particle-node {
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
 /* 拖拽文件经过时改变边框颜色 */
 .texture-node:active {
   border-color: #fff !important;

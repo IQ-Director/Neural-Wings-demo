@@ -5,7 +5,8 @@ import PassNode from './nodes/PassNode';
 import InputNode from './nodes/InputNode';
 import OutputNode from './nodes/OutputNode';
 import TextureNode from './nodes/TextureNode';
-import ReactFlow, { Background, Controls, Panel } from 'reactflow';
+import ParticleNode from './nodes/ParticleNode';
+import ReactFlow, { Background, Controls, Panel, SelectionMode } from 'reactflow';
 import type { Connection, Edge } from 'reactflow';
 
 import { useRef } from 'react';
@@ -37,12 +38,13 @@ const nodeTypes = {
   inputNode: InputNode,
   outputNode: OutputNode,
   textureNode: TextureNode, // 注册贴图节点
+  particleNode: ParticleNode,
 };
 
 export default function App() {
   const {
     nodes, edges, onNodesChange, onEdgesChange, onConnect,
-    addPassNode, addTextureNode, generateJSON,
+    addPassNode, addTextureNode, generateJSON, addParticleNode,
     postProcessName, setPostProcessName,
     importJSON
   } = useStore();
@@ -86,7 +88,7 @@ export default function App() {
     }
 
     // 3. RT 连线校验 (InputNode/PassNode -> PassNode 的 Input 端口 或 OutputNode)
-    if (sourceNode.type === 'inputNode' || sourceNode.type === 'passNode') {
+    if (sourceNode.type === 'inputNode' || sourceNode.type === 'passNode' || sourceNode.type === 'particleNode') {
       // 如果连向输出节点，直接允许
       if (targetNode.type === 'outputNode') return true;
 
@@ -130,6 +132,10 @@ export default function App() {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         isValidConnection={isValidConnection}
+        selectionOnDrag={true}
+        selectionMode={SelectionMode.Partial}
+        deleteKeyCode={['Backspace', 'Delete']}
+        selectionKeyCode="Shift"
         fitView
       >
         <Background color="#333" gap={20} />
@@ -137,9 +143,9 @@ export default function App() {
 
         {/* 顶部左侧：修改全局名字 */}
         <Panel position="top-left" style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-          <h2 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>后处理编辑器</h2>
+          <h2 style={{ color: '#fff', margin: 0, fontSize: '18px' }}>帧合成编辑器</h2>
           <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: '#666', fontSize: '9px' }}>PostProcess Name:</span>
+            <span style={{ color: '#666', fontSize: '9px' }}>FrameProcess Name:</span>
             <input
               value={postProcessName}
               onChange={(e) => setPostProcessName(e.target.value)}
@@ -159,19 +165,23 @@ export default function App() {
           >
             📂 导入 JSON
           </button>
-          <button onClick={addPassNode} style={btnStyle}>+ 添加 Pass 节点</button>
+          <button onClick={addParticleNode} style={{ ...btnStyle, borderColor: '#e67e22', color: '#e67e22' }}>
+            + 粒子节点
+          </button>
 
-          {/* 新增：添加贴图节点的按钮 */}
           <button onClick={addTextureNode} style={{ ...btnStyle, borderColor: '#3a8ee6', color: '#3a8ee6' }}>
             + 添加 贴图节点
           </button>
+          <button onClick={addPassNode} style={{ ...btnStyle, borderColor: '#409eff' }}>+ 添加 Pass 节点</button>
+
+
 
           <button onClick={onExport} style={{ ...btnStyle, background: '#3fb950', color: '#fff', border: 'none' }}>
             导出 JSON
           </button>
         </Panel>
       </ReactFlow>
-    </div>
+    </div >
   );
 }
 

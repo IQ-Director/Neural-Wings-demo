@@ -38,6 +38,7 @@
         "rtPool": [
             "inScreen",
             "Sparks",
+            "Explosions",
             "outScreen"
         ],
         "hint1": "支持深度共享",
@@ -45,7 +46,8 @@
             {
                 "source": "inScreen",
                 "targets": [
-                    "Sparks"
+                    "Sparks",
+                    "Explosions"
                 ]
             }
         ],

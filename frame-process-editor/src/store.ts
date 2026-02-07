@@ -9,7 +9,8 @@ import type {
     UniformValue,
     AllNodeData,
     PassNodeData,
-    TextureNodeData
+    TextureNodeData,
+    ParticleNodeData
 } from './types';
 const generateRandomRT = () => {
     return `rt_${Math.random().toString(36).substring(2, 6)}`;
@@ -56,7 +57,7 @@ interface State {
     updateUniformValue: (nodeId: string, key: string, value: UniformValue) => void;
     changeUniformType: (nodeId: string, key: string, type: 'float' | 'vec2' | 'vec3' | 'vec4') => void;
     updateBaseColor: (nodeId: string, color: [number, number, number, number]) => void;
-
+    addParticleNode: () => void;
     setNodeThemeColor: (nodeId: string, color: string) => void;
 
     generateJSON: () => PostProcessConfig;
@@ -119,9 +120,26 @@ export const useStore = create<State>((set, get) => ({
         }
     ],
     edges: [],
-    postProcessName: "后处理蓝图", // 默认名
+    postProcessName: "帧合成蓝图", // 默认名
 
-
+    addParticleNode: () => {
+        const id = uuidv4();
+        set({
+            nodes: [
+                ...get().nodes,
+                {
+                    id,
+                    type: 'particleNode',
+                    position: { x: 100, y: 500 },
+                    data: {
+                        name: 'Particle',
+                        output: generateRandomRT(),
+                        themeColor: getTechColor(), // 粒子默认橙色
+                    } as ParticleNodeData,
+                },
+            ],
+        });
+    },
 
     importJSON: (jsonStr: string) => {
         try {
@@ -150,7 +168,26 @@ export const useStore = create<State>((set, get) => ({
             // rtMap: 记录 "RT名称" 对应的 "节点ID" (用于 RT 连线)
             const rtMap = new Map<string, string>();
             rtMap.set('inScreen', startNodeId);
+            const passOutputs = new Set(graph.map(p => p.output));
+            const particleRTs = data.rtPool.filter(rt =>
+                rt !== 'inScreen' && rt !== 'outScreen' && !passOutputs.has(rt)
+            );
 
+            particleRTs.forEach((rtName, index) => {
+                const particleNodeId = generateId();
+                const color = getTechColor();
+                rtMap.set(rtName, particleNodeId); // 存入映射表，供后续 PassNode 寻找 sourceNodeId
+                newNodes.push({
+                    id: particleNodeId,
+                    type: 'particleNode',
+                    position: { x: 50, y: 450 + index * 110 }, // 布局在 InputNode 下方
+                    data: {
+                        name: rtName,
+                        output: rtName,
+                        themeColor: color
+                    }
+                });
+            });
             // textureMap: 记录 "图片路径" 对应的 "节点ID" (防止重复创建相同的贴图节点)
             const textureMap = new Map<string, string>();
 
@@ -532,7 +569,11 @@ export const useStore = create<State>((set, get) => ({
         const sortedIds = getTopologicalSort(nodes, edges);
         const sortedPasses: Pass[] = [];
         const rtPoolSet = new Set<string>(['inScreen', 'outScreen']);
-
+        nodes.forEach(n => {
+            if (n.type === 'particleNode') {
+                rtPoolSet.add((n.data as ParticleNodeData).output);
+            }
+        });
         sortedIds.forEach(id => {
             const node = nodes.find(n => n.id === id);
             if (!node || node.type !== 'passNode') return;
