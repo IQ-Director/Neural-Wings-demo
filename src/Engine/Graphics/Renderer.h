@@ -19,19 +19,23 @@ struct Model;
 class Renderer
 {
 public:
-    Renderer() = default;
+    Renderer();
+    ~Renderer();
     void Init(const std::string &configViewPath, GameWorld &gameWorld);
     void RenderScene(GameWorld &world, CameraManager &cameraManager);
 
 private:
+    void CopyDepthBuffer(RenderTexture2D sourceRT, Texture2D targetDepth);
+
     void RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager);
     void RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld);
     void DrawWorldObjects(GameWorld &gameWorld, Camera3D &rawCamera, mCamera &camera, float aspect);
+    void DrawParticle(GameWorld &gameWorld, mCamera &camera, const Texture2D &sceneDepth, float aspect);
 
     bool LoadViewConfig(const std::string &configPath, GameWorld &gameWorld);
     std::unique_ptr<RenderViewer> m_renderViewer;
     std::unique_ptr<PostProcesser> m_postProcesser;
-
+    Texture2D m_dummyDepth;
     // Debug
     void DrawCoordinateAxes(Vector3f position, Quat4f rotation, float axisLength, float thickness);
     void DrawVector(Vector3f position, Vector3f direction, float axisLength, float thickness);

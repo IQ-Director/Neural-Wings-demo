@@ -87,6 +87,7 @@ public:
     // given u[i] is a uniformly distributed random number in [0,1]
     static Quat4f randomRotation(float u0, float u1, float u2);
 
+    static Quat4f dirToQuat(const Vector3f &dir);
     void print() const { std::cout << "Quat4f: " << m_data[0] << " " << m_data[1] << " " << m_data[2] << " " << m_data[3] << std::endl; };
     operator Quaternion() const { return {m_data[1], m_data[2], m_data[3], m_data[0]}; }
 

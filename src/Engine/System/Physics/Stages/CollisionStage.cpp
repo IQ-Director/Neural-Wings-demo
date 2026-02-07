@@ -55,13 +55,11 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
 
             if (isColliding)
             {
-                world.GetEventManager().Emit(CollisionEvent(go1.get(), go2.get(), normal, penetration, hitPoint));
                 if (rb1.collisionCallback)
                     rb1.collisionCallback(go2.get());
                 if (rb2.collisionCallback)
                     rb2.collisionCallback(go1.get());
-                // TODO:碰撞响应
-                ResolveCollision(go1.get(), go2.get(), normal, penetration, hitPoint);
+                ResolveCollision(world, go1.get(), go2.get(), normal, penetration, hitPoint);
             }
         }
     }
@@ -72,7 +70,7 @@ float GetInverseMass(const RigidbodyComponent &rb)
         return 0.0f;
     return 1.0f / rb.mass;
 }
-void CollisionStage::ResolveCollision(GameObject *a, GameObject *b, const Vector3f &normal, float penetration, const Vector3f &hitPoint)
+void CollisionStage::ResolveCollision(GameWorld &world, GameObject *a, GameObject *b, const Vector3f &normal, float penetration, const Vector3f &hitPoint)
 {
     // normal:A->B为正
 
@@ -129,4 +127,6 @@ void CollisionStage::ResolveCollision(GameObject *a, GameObject *b, const Vector
     Vector3f correction = std::max(penetration - slop, 0.0f) * percent * normal / (invMassA + invMassB);
     tfA.position -= invMassA * correction;
     tfB.position += invMassB * correction;
+
+    world.GetEventManager().Emit(CollisionEvent(a, b, normal, penetration, hitPoint, rV, j));
 }

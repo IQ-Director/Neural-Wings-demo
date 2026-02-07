@@ -4,11 +4,12 @@
 #include "Engine/Graphics/Graphics.h"
 #include <string>
 
-GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &)> configCallback,
+GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &, ParticleFactory &)> configCallback,
                      const std::string &cameraConfigPath,
                      const std::string &sceneConfigPath,
                      const std::string &inputConfigPath,
-                     const std::string &renderView)
+                     const std::string &renderView,
+                     const std::string &effectLibPath)
 {
     m_timeManager = std::make_unique<TimeManager>();
 
@@ -22,11 +23,14 @@ GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory 
     m_scriptingSystem = std::make_unique<ScriptingSystem>();
     m_eventManager = std::make_unique<EventManager>();
     m_renderer = std::make_unique<Renderer>();
+    m_particleFactory = std::make_unique<ParticleFactory>();
+    m_particleSystem = std::make_unique<ParticleSystem>(this);
 
-    configCallback(*m_scriptingFactory, *m_physicsStageFactory);
+    configCallback(*m_scriptingFactory, *m_physicsStageFactory, *m_particleFactory);
 
     m_cameraManager->LoadConfig(cameraConfigPath);
     m_sceneManager->LoadScene(sceneConfigPath, *this);
+    m_particleSystem->LoadEffectLibrary(effectLibPath);
 
     m_renderer->Init(renderView, *this);
 
@@ -62,12 +66,11 @@ GameObject &GameWorld::CreateGameObject()
 // 返回true表示游戏继续，返回false表示游戏结束
 bool GameWorld::FixedUpdate(float fixedDeltaTime)
 {
-    // TODO: 更新世界中的所有 GameObject
     m_timeManager->TickGame(fixedDeltaTime);
     m_physicsSystem->Update(*this, fixedDeltaTime);
     m_scriptingSystem->FixedUpdate(*this, fixedDeltaTime);
-    this->DestroyWaitingObjects();
 
+    this->DestroyWaitingObjects();
     return true;
 }
 
@@ -75,6 +78,7 @@ bool GameWorld::Update(float DeltaTime)
 {
     m_timeManager->Tick();
     m_scriptingSystem->Update(*this, DeltaTime);
+    m_particleSystem->Update(*this, DeltaTime);
     return true;
 }
 

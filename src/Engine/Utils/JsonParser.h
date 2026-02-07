@@ -8,6 +8,18 @@ using json = nlohmann::json;
 class JsonParser
 {
 public:
+    static json Vector2fToJson(const Vector2f &v)
+    {
+        return json::array({v.x(), v.y()});
+    }
+    static json Vector3fToJson(const Vector3f &v)
+    {
+        return json::array({v.x(), v.y(), v.z()});
+    }
+    static json Vector4fToJson(const Vector4f &v)
+    {
+        return json::array({v.x(), v.y(), v.z(), v.w()});
+    }
     static Vector2f ToVector2f(const json &j, Vector2f defaultValue = Vector2f::ZERO)
     {
         if (j.is_array() && j.size() == 2)

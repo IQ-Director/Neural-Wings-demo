@@ -44,11 +44,15 @@ void GameObject::SetOwnerWorld(GameWorld *world)
 
 // 用于删除GameObject
 // 先销毁脚本
+#include "Engine/Core/GameWorld.h"
+#include "Engine/Graphics/Particle/ParticleEmitter.h"
+#include "Engine/Graphics/Particle/ParticleSystem.h"
 void GameObject::OnDestroy()
 {
     if (m_isDestroyed)
         return;
     m_isDestroyed = true;
+    // 删除脚本
     if (this->HasComponent<ScriptComponent>())
     {
         auto &sc = this->GetComponent<ScriptComponent>();
@@ -58,6 +62,19 @@ void GameObject::OnDestroy()
                 script->OnDestroy();
         }
         sc.scripts.clear();
+    }
+    // 挂载遗留粒子
+    if (this->HasComponent<ParticleEmitterComponent>() && this->HasComponent<TransformComponent>())
+    {
+        auto &ec = this->GetComponent<ParticleEmitterComponent>();
+        const auto &tf = this->GetComponent<TransformComponent>();
+
+        auto &particleSys = owner_world->GetParticleSystem();
+        for (auto &emitter : ec.emitters)
+        {
+            if (emitter->simSpace == SimulationSpace::WORLD)
+                particleSys.RegisterOrphan(emitter, tf);
+        }
     }
     m_isWaitingDestroy = true;
 }

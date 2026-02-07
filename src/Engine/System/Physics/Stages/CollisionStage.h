@@ -14,7 +14,7 @@ public:
     CollisionStage() = default;
 
     void Execute(GameWorld &world, float fixedDeltaTime) override;
-    void ResolveCollision(GameObject *a, GameObject *b, const Vector3f &normal, float penetration, const Vector3f &hitPoint);
+    void ResolveCollision(GameWorld &world, GameObject *a, GameObject *b, const Vector3f &normal, float penetration, const Vector3f &hitPoint);
     void Initialize(const json &config) override;
 
 private:

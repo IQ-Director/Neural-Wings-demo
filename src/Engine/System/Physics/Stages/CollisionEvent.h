@@ -11,11 +11,14 @@ struct CollisionEvent : public IEvent
   Vector3f normal;
   float penetration;
   Vector3f hitpoint;
+  Vector3f relativeVelocity;
+  float impulse;
 
-  CollisionEvent(GameObject *object1, GameObject *object2, Vector3f normal, float penetration, Vector3f hitpoint)
+  CollisionEvent(GameObject *object1, GameObject *object2, Vector3f normal, float penetration, Vector3f hitpoint, Vector3f relativeVelocity, float j)
       : m_object1(object1),
         m_object2(object2),
         normal(normal),
         penetration(penetration),
-        hitpoint(hitpoint) {}
+        hitpoint(hitpoint),
+        relativeVelocity(relativeVelocity), impulse(j) {}
 };

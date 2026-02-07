@@ -14,8 +14,8 @@ public:
     void PostProcess(GameWorld &gameWorld);
 
     void ParsePostProcessPasses(const json &data, GameWorld &gameWorld);
-
     std::unordered_map<std::string, RenderTexture2D> &GetRTPool() { return m_RTPool; }
+    void DefaultSetup();
 
 private:
     void DrawTextureQuad(float width, float height, bool flipY);

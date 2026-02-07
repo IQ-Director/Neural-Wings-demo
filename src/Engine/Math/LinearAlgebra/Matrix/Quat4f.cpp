@@ -439,6 +439,24 @@ Quat4f Quat4f::randomRotation(float u0, float u1, float u2)
 		sin(w) * z);
 }
 
+// static
+
+Quat4f Quat4f::dirToQuat(const Vector3f &dir)
+{
+	Vector3f normal = dir.Normalized();
+	Vector3f start = Vector3f(0.0f, 0.0f, 1.0f); // 正朝向
+	if (start * normal > 0.99f)
+		return Quat4f(1.0f, 0.0f, 0.0f, 0.0f);
+	if (start * normal < -0.99f)
+		return Quat4f(0.0f, 0.0f, 1.0f, 0.0f);
+
+	Vector3f axis = (start ^ normal).Normalized();
+	float angle = acos(start * normal);
+	Quat4f res;
+	res.setAxisAngle(angle, axis);
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Operators
 //////////////////////////////////////////////////////////////////////////
