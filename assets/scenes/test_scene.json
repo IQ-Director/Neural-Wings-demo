@@ -29,7 +29,7 @@
             "position": [
                 0,
                 0,
-                5
+                0
             ],
             "rotation": [
                 0,
@@ -37,13 +37,13 @@
                 0
             ],
             "scale": [
-                1,
-                1,
-                1
+                4,
+                4,
+                4
             ],
             "physics": {
-                "mass": 100,
-                "elasticity": 0.6
+                "mass": 10000,
+                "elasticity": 1.0
             },
             "render": {
                 "renderScale": [
@@ -107,9 +107,9 @@
             "tag": "cube",
             "prefab": "assets/prefabs/particle_cube.json",
             "position": [
-                5,
+                20,
                 0,
-                5
+                0
             ],
             "rotation": [
                 0,
@@ -123,7 +123,7 @@
             ],
             "physics": {
                 "mass": 100,
-                "elasticity": 0.6
+                "elasticity": 1.0
             },
             "render": {
                 "renderScale": [

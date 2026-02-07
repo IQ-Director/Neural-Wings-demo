@@ -27,14 +27,16 @@ void main() {
     float dt = u_deltaTime;
     vec3 newVelocity = pVelocity + (pAcceleration) * dt;
     newVelocity *= 0.99;
+    float vel = length(newVelocity);
     vec3 newPosition = pPosition + newVelocity * dt;
-    float remaingLife = pLife.y;
+    float remaingLife = pLife.y - dt;
+    vec2 newSize = pSize * 0.99;
 
     outPosition = vec4(newPosition, 0);
     outVelocity = vec4(newVelocity, 0);
     outAcceleration = vec4(pAcceleration, 0);
 
     outColor = pColor;
-    outSizeRotation = vec4(pSize, pRotation, 0);
+    outSizeRotation = vec4(newSize, pRotation + 10 * vel * dt, 0);
     outLifeRand = vec4(pLife.x, remaingLife, pRandomID, 0);
 }

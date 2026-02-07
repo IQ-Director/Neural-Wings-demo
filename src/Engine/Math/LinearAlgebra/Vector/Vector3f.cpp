@@ -323,5 +323,5 @@ Vector3f Vector3f::RandomCycle(const Vector3f &normal, float radius)
     }
     tangent2 = normal ^ tangent1;
 
-    return (tangent1 * x + tangent2 * y + normal) * radius;
+    return ((tangent1 * x) + (tangent2 * y)) * radius;
 }

@@ -64,9 +64,13 @@ void GameplayScreen::OnEnter()
     m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
                                                          { std::cout << "CollisionEvent, impluse: " <<e.impulse << std::endl;
                                                             e.hitpoint.print();
-                                                            if(std::fabsf(e.impulse)<0.1f) return;
+                                                            if(std::fabsf(e.relativeVelocity.Length())<0.5f) return;
                                                             auto &particleSys = m_world->GetParticleSystem();
-                                                            particleSys.Spawn("Collision", e.hitpoint,"relVel",e.relativeVelocity,"normal",e.normal,"impulse",e.impulse); });
+                                                            particleSys.Spawn("Collision", e.hitpoint,
+                                                                "relVel",e.relativeVelocity,
+                                                                "normal",e.normal,
+                                                                "impulse",e.impulse,
+                                                                "maxSpeed",e.relativeVelocity.Length()/4); });
 
     // ParticleSystem::Spawn("Sparks", event.hitpoint);
     // std::cout<<"ParticleSystem::Spawn at"<< e.hitpoint<<std::endl; });
