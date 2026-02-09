@@ -5,6 +5,7 @@
 #include "Game/Systems/Particles/Initializers/RandomLife.h"
 #include "Game/Systems/Particles/Initializers/SphereDir.h"
 #include "Game/Systems/Particles/Initializers/CollisionInit.h"
+#include "Game/Systems/Particles/Initializers/SPHInit.h"
 #include "Game/Scripts/Scripts.h"
 
 #include "raymath.h"
@@ -53,6 +54,8 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                              { return std::make_unique<RandomLife>(); });
     particleFactory.Register("CollisionInit", []()
                              { return std::make_unique<CollisionInit>(); });
+    particleFactory.Register("SPHInit", []()
+                             { return std::make_unique<SPHInit>(); });
 }
 
 // 当进入游戏场景时调用
@@ -61,19 +64,17 @@ void GameplayScreen::OnEnter()
     DisableCursor();
 
     // 监听事件
-    m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
-                                                         { std::cout << "CollisionEvent, impluse: " <<e.impulse << std::endl;
-                                                            e.hitpoint.print();
-                                                            if(std::fabsf(e.relativeVelocity.Length())<1.0f) return;
-                                                            auto &particleSys = m_world->GetParticleSystem();
-                                                            particleSys.Spawn("Collision", e.hitpoint,
-                                                                "relVel",e.relativeVelocity,
-                                                                "normal",e.normal,
-                                                                "impulse",e.impulse,
-                                                                "maxSpeed",e.relativeVelocity.Length()/4); });
-
-    // ParticleSystem::Spawn("Sparks", event.hitpoint);
-    // std::cout<<"ParticleSystem::Spawn at"<< e.hitpoint<<std::endl; });
+    // m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
+    //                                                      { std::cout << "CollisionEvent, impluse: " <<e.impulse << std::endl;
+    //                                                         e.hitpoint.print();
+    //                                                         if(std::fabsf(e.relativeVelocity.Length())<1.0f) return;
+    //                                                         auto &particleSys = m_world->GetParticleSystem();
+    //                                                         particleSys.Spawn("Collision", e.hitpoint,
+    //                                                             "relVel",e.relativeVelocity,
+    //                                                             "normal",e.normal,
+    //                                                             "impulse",e.impulse,
+    //                                                             "maxSpeed",e.relativeVelocity.Length()/4); });
+    m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
 }
 
 // 当离开游戏场景时调用
@@ -81,7 +82,6 @@ void GameplayScreen::OnExit()
 {
     EnableCursor();
 }
-// TODO:主循环
 
 // 在固定时间步更新（未来的物理和网络逻辑将在这里）
 void GameplayScreen::FixedUpdate(float fixedDeltaTime)

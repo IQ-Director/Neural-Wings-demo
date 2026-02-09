@@ -15,72 +15,19 @@
                 0,
                 255
             ]
-        },
-        {
-            "name": "rear_view",
-            "viewport": [
-                0.8,
-                0.8,
-                1,
-                1
-            ],
-            "clearBackground": true,
-            "backgroundColor": [
-                0,
-                0,
-                0,
-                180
-            ]
         }
     ],
     "postProcess": {
-        "name": "粒子合成",
+        "name": "SPH",
         "rtPool": [
             "inScreen",
-            "Sparks",
-            "RTTest1",
-            "RTTest2",
             "outScreen"
         ],
         "hint1": "支持深度共享",
         "depthLinks": [
             {
                 "source": "inScreen",
-                "targets": [
-                    "Sparks",
-                    "RTTest1",
-                    "RTTest2"
-                ]
-            }
-        ],
-        "hint2": "postProcessGraph务必按照拓扑序！",
-        "postProcessGraph": [
-            {
-                "name": "combinePass",
-                "fs": "assets/shaders/postprocess/particle_test.fs",
-                "inputs": [
-                    [
-                        "u_screen",
-                        "inScreen"
-                    ],
-                    [
-                        "u_RTTest1",
-                        "RTTest1"
-                    ],
-                    [
-                        "u_RTTest2",
-                        "RTTest2"
-                    ],
-                    [
-                        "u_sparks",
-                        "Sparks"
-                    ]
-                ],
-                "output": "outScreen",
-                "uniforms": {
-                    "u_bloomIntensity": 1.0,
-                    "u_1": 1.0
-                }
+                "targets": []
             }
         ]
     }

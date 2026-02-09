@@ -30,6 +30,7 @@ public:
             p.randomID = rand() % 10000;
             p.color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
             p.size = size;
+            p.ID = i;
         }
     }
 };

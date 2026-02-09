@@ -10,6 +10,7 @@ in vec2 pSize;
 in float pRotation;
 in vec2 pLife; // (totalLife,remainingLife )
 in uint pRandomID;
+in uint pID;
 
 // 标准输出
 out vec4 outPosition; // (x,y,z,padding)
@@ -18,7 +19,7 @@ out vec4 outAcceleration; // (x,y,z,padding)
 
 out vec4 outColor;
 out vec4 outSizeRotation; // (s1,s2,rotation,padding)
-out vec4 outLifeRand; // (totalLife,remainingLife,randomID,padding )
+out vec4 outLifeRand; // (totalLife,remainingLife,randomID,ID )
 
 // 自定义输入
 uniform float u_deltaTime;
@@ -38,5 +39,5 @@ void main() {
 
     outColor = pColor;
     outSizeRotation = vec4(newSize, pRotation + 10 * vel * dt, 0);
-    outLifeRand = vec4(pLife.x, remaingLife, pRandomID, 0);
+    outLifeRand = vec4(pLife.x, remaingLife, pRandomID, pID);
 }

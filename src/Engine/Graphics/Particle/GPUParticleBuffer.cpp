@@ -28,6 +28,31 @@ GPUParticleBuffer::GPUParticleBuffer(size_t maxParticles, const std::vector<Rend
     }
 }
 
+void GPUParticleBuffer::SyncPrticleDataToTexture(unsigned int textureId)
+{
+    // GPUParticle共96 bytes,需占用连续6 pixels(RGBA32F )
+    // [P1,V1,A1,C1,S1,L1]
+    // 使用maxParticles*6的纹理存储粒子数据
+    // row1:P1,V1,A1,C1,S1,L1
+    // row2:P2,V2,A2,C2,S2,L2
+    // ...
+
+    // PBO 纹理同步实现邻居粒子数据上传
+
+    unsigned int vboId = GetReadVBO();
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, vboId);
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // 每一行96字节，4对齐
+    glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
+
+    glBindTexture(GL_TEXTURE_2D, textureId);
+
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, 6, (GLsizei)m_maxParticles, GL_RGBA, GL_FLOAT, (void *)0);
+
+    // 清理
+    glBindTexture(GL_TEXTURE_2D, 0);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
 GPUParticleBuffer::~GPUParticleBuffer()
 {
     glDeleteBuffers(2, m_vbos);
@@ -105,6 +130,9 @@ void GPUParticleBuffer::SetupBuffers()
         glEnableVertexAttribArray(7);
         glVertexAttribIPointer(7, 1, GL_UNSIGNED_INT, stride, (void *)offsetof(GPUParticle, randomID));
 
+        glEnableVertexAttribArray(8);
+        glVertexAttribIPointer(8, 1, GL_UNSIGNED_INT, stride, (void *)offsetof(GPUParticle, ID));
+
         glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
@@ -161,6 +189,7 @@ void GPUParticleBuffer::AddRenderVAO(const Shader &renderShader)
             BIND_ATTRIB_SAFE(renderShader, "pRotation", rotation, GL_FLOAT, 1, 1);
             BIND_ATTRIB_SAFE(renderShader, "pLife", life, GL_FLOAT, 2, 1);
             BIND_ATTRIB_I_SAFE(renderShader, "pRandomID", randomID, 1);
+            BIND_ATTRIB_I_SAFE(renderShader, "pID", ID, 1);
 
             glBindVertexArray(0);
         }

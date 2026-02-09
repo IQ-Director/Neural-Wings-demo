@@ -1,0 +1,245 @@
+{
+    "name": "test_scene",
+    "physics": {
+        "physicsStage": {
+            "CollisionStage": {
+                "enable": true
+            },
+            "GravityStage": {
+                "gravity": [
+                    0.0,
+                    -9.8,
+                    0.0
+                ],
+                "ground": 0.0,
+                "e_ground": 0.4,
+                "enable": false
+            },
+            "SolarStage": {
+                "G": 0.1,
+                "enable": true
+            }
+        }
+    },
+    "entities": [
+        {
+            "name": "texture_sphere",
+            "tag": "sphere",
+            "prefab": "assets/prefabs/sphere.json",
+            "position": [
+                0,
+                0,
+                0
+            ],
+            "rotation": [
+                0,
+                0,
+                0
+            ],
+            "scale": [
+                4,
+                4,
+                4
+            ],
+            "physics": {
+                "mass": 10000,
+                "elasticity": 1.0
+            },
+            "render": {
+                "renderScale": [
+                    1,
+                    1,
+                    1
+                ],
+                "isVisible": true,
+                "showWires": false,
+                "showAxes": false,
+                "showAngVol": false,
+                "showVol": false,
+                "showCenter": false,
+                "defaultMaterial": {
+                    "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+                    "fs": "assets/shaders/default.fs",
+                    "color": [
+                        50,
+                        100,
+                        50,
+                        255
+                    ],
+                    "depthWrite": true,
+                    "depthTest": true
+                },
+                "meshPasses": [
+                    {
+                        "meshIndex": 0,
+                        "name": "Mesh_0",
+                        "passes": [
+                            {
+                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                                "textures": {
+                                    "u_diffuseMap": "assets/textures/test_1.png"
+                                },
+                                "blendMode": "NONE",
+                                "depthWrite": true,
+                                "depthTest": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "scripts": [
+                {
+                    "RotatorScript": {
+                        "angluarVelocity": [
+                            0.0,
+                            0.0,
+                            1.0
+                        ]
+                    }
+                },
+                {
+                    "CollisionListener": {}
+                }
+            ]
+        },
+        {
+            "name": "cube",
+            "tag": "cube",
+            "prefab": "assets/prefabs/cube.json",
+            "position": [
+                0,
+                0,
+                30
+            ],
+            "rotation": [
+                0,
+                45,
+                0
+            ],
+            "scale": [
+                1,
+                1,
+                1
+            ],
+            "physics": {
+                "mass": 100,
+                "elasticity": 1.0
+            },
+            "render": {
+                "renderScale": [
+                    1,
+                    1,
+                    1
+                ],
+                "isVisible": true,
+                "showWires": false,
+                "showAxes": false,
+                "showAngVol": false,
+                "showVol": false,
+                "showCenter": false,
+                "defaultMaterial": {
+                    "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+                    "fs": "assets/shaders/default.fs",
+                    "color": [
+                        200,
+                        100,
+                        100,
+                        255
+                    ],
+                    "depthWrite": true,
+                    "depthTest": true
+                },
+                "meshPasses": [
+                    {
+                        "meshIndex": 0,
+                        "name": "Mesh_0",
+                        "passes": [
+                            {
+                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                                "textures": {
+                                    "u_diffuseMap": "assets/textures/test_2.png"
+                                },
+                                "blendMode": "NONE",
+                                "depthWrite": true,
+                                "depthTest": true
+                            }
+                        ]
+                    }
+                ]
+            },
+            "scripts": [
+                {
+                    "CollisionListener": {}
+                }
+            ],
+            "particles": {
+                "activate": true,
+                "emitters": [
+                    {
+                        "name": "Core_Thrust",
+                        "maxParticles": 1090,
+                        "emissionRate": 20.0,
+                        "maxLife": 15,
+                        "space": "WORLD",
+                        "updateShader": "assets/shaders/particles/compute/test_update.vs",
+                        "initializers": [
+                            {
+                                "name": "SphereDir",
+                                "params": {
+                                    "offset": [
+                                        0.0,
+                                        0.0,
+                                        0.0
+                                    ],
+                                    "minSpeed": 0.0,
+                                    "maxSpeed": 2.0,
+                                    "size": [
+                                        0.4,
+                                        0.4
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "RandomLife",
+                                "params": {
+                                    "minLife": 0.5,
+                                    "maxLife": 1.5
+                                }
+                            }
+                        ],
+                        "passes": [
+                            {
+                                "name": "直接输出size",
+                                "vs": "assets/shaders/particles/render/billboard.vs",
+                                "fs": "assets/shaders/particles/render/soft.fs",
+                                "blendMode": "NONE",
+                                "hint": "粒子没有深度写入功能，仅深度测试",
+                                "textures": {
+                                    "tex": "assets/textures/test_2.png"
+                                },
+                                "uniforms": {
+                                    "u_softness": 1.0
+                                },
+                                "outputRT": "RTTest1"
+                            },
+                            {
+                                "name": "直接输出size",
+                                "vs": "assets/shaders/particles/render/billboard.vs",
+                                "fs": "assets/shaders/particles/render/soft.fs",
+                                "blendMode": "NONE",
+                                "hint": "粒子没有深度写入功能，仅深度测试",
+                                "textures": {
+                                    "tex": "assets/textures/test_3.png"
+                                },
+                                "uniforms": {
+                                    "u_softness": 1.0
+                                },
+                                "outputRT": "RTTest2"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ]
+}

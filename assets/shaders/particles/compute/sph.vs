@@ -10,6 +10,7 @@ in vec2 pSize;
 in float pRotation;
 in vec2 pLife; // (totalLife,remainingLife )
 in uint pRandomID;
+in uint pID;
 
 // 标准输出
 out vec4 outPosition; // (x,y,z,padding)
@@ -18,25 +19,149 @@ out vec4 outAcceleration; // (x,y,z,padding)
 
 out vec4 outColor;
 out vec4 outSizeRotation; // (s1,s2,rotation,padding)
-out vec4 outLifeRand; // (totalLife,remainingLife,randomID,padding )
+out vec4 outLifeRand; // (totalLife,remainingLife,randomID,ID )
+
+// 引擎内置参数
+uniform sampler2D dataTex;
+uniform int maxParticles;
+uniform float deltaTime;
+uniform float gameTime;
+uniform float realTime;
+// SPH参数
+const float H = 0.25; // kernal radius;
+const float H2 = H * H;
+const float MASS = 1.0; //粒子质量
+const float Rho0 = 50.0; //目标密度
+const float GAS_CONST = 50.0; // 压力数
+const float VISC = 40.5; //粘度
+const float PI = 3.1415926535;
+const vec3 GRAVITY = vec3(0, -9.8, 0);
+
+// 边界
+vec3 BOX_MIN = vec3(-2.0, -5.0, 0.0);
+vec3 BOX_MAX = vec3(5.0, 200.0, 8.0);
+
+vec3 GetPos(int id) {
+    return texelFetch(dataTex, ivec2(0, id), 0).xyz;
+}
+vec3 GetVel(int id) {
+    return texelFetch(dataTex, ivec2(1, id), 0).xyz;
+}
+vec4 GetAcc(int id) {
+    return texelFetch(dataTex, ivec2(2, id), 0);
+}
+vec4 GetColor(int id) {
+    return texelFetch(dataTex, ivec2(3, id), 0);
+}
+vec4 GetSize(int id) {
+    return texelFetch(dataTex, ivec2(4, id), 0);
+}
+vec4 GetLife(int id) {
+    return texelFetch(dataTex, ivec2(5, id), 0);
+}
 
 // 自定义输入
-uniform float u_deltaTime;
 
 void main() {
-    float dt = u_deltaTime;
-    vec3 newVelocity = pVelocity + (pAcceleration) * dt;
-    newVelocity *= 0.99;
-    float vel = length(newVelocity);
+    float dt = deltaTime;
+    BOX_MIN = vec3(-5.0 + 3 * sin(gameTime * 1.4), -5.0, -5.0);
+    BOX_MAX = vec3(5.0 - 3 * sin(gameTime * 2), 200.0, 5.0);
+    // for(int i = 0; i < maxParticles; i++) {
+    //     if(uint(i) == pID)
+    //         continue;
+    //     // 去除死粒子
+    //     if(GetLife(i).y <= 0)
+    //         continue;
+
+    //     float t = distance(pPosition, GetPos(i).xyz);
+    //     if(t < 0.001)
+    //         continue;
+    // }
+
+    // stage 1:密度计算
+    float rho = 0.0;
+    for(int i = 0; i < maxParticles; i++) {
+        // 去除死粒子
+        if(GetLife(i).y <= 0)
+            continue;
+        vec3 otherPos = GetPos(i);
+        vec3 diff = pPosition - otherPos;
+        float r2 = dot(diff, diff);
+        if(r2 < H2) {
+              // Poly6 Kernel
+            float h2_r2 = H2 - r2;
+            rho += MASS * (315.0 / (64.0 * PI * pow(H, 9.0))) * h2_r2 * h2_r2 * h2_r2;
+
+        }
+    }
+
+    float pressure = (rho - Rho0) * GAS_CONST;
+    vec3 fPress = vec3(0.0);
+    vec3 fVisc = vec3(0.0);
+
+    // stage 2:合力计算（压力+粘稠力）
+    for(int i = 0; i < maxParticles; i++) {
+        if(uint(i) == pID)
+            continue;
+        // 去除死粒子
+        if(GetLife(i).y <= 0)
+            continue;
+        vec3 otherPos = GetPos(i);
+        vec3 diff = pPosition - otherPos;
+        float r = length(diff);
+
+        if(r < H && r > 0.001) {
+            vec3 dir = normalize(diff);
+            // Spiky Kernal Gradient
+            float gradW = -45.0 / (PI * pow(H, 6.0)) * pow(H - r, 2.0);
+            fPress += dir * (-MASS * (pressure + GAS_CONST) / (2.0 * rho) * gradW);
+            // Viscosity 
+            vec3 otherVel = GetVel(i);
+            float lapW = 45.0 / (PI * pow(H, 6.0)) * (H - r);
+            fVisc += (VISC * MASS * (otherVel - pVelocity) / (rho) * lapW);
+        }
+    }
+    vec3 fBound = vec3(0);
+    // if(BOX_MAX.z - pPosition.z < 0.15) {
+    //     fBound = vec3(80.0, 0.0, 0.0);
+    // }
+    vec3 force = fPress + fVisc + fBound * rho + GRAVITY * rho;
+    vec3 acc = force / rho;
+    vec3 newVelocity = pVelocity + acc * dt + vec3(float(pRandomID), 0, float(pRandomID)) * 0.00001;
+    newVelocity = newVelocity * 0.992;
     vec3 newPosition = pPosition + newVelocity * dt;
-    float remaingLife = pLife.y - dt;
-    vec2 newSize = pSize * 0.99;
+
+    float bounce = 0.3;
+    if(newPosition.x < BOX_MIN.x) {
+        newPosition.x = BOX_MIN.x;
+        newVelocity.x *= -bounce;
+    }
+    if(newPosition.x > BOX_MAX.x) {
+        newPosition.x = BOX_MAX.x;
+        newVelocity.x *= -bounce;
+    }
+    if(newPosition.y < BOX_MIN.y) {
+        newPosition.y = BOX_MIN.y;
+        newVelocity.y *= -bounce;
+    }
+    if(newPosition.y > BOX_MAX.y) {
+        newPosition.y = BOX_MAX.y;
+        newVelocity.y *= -bounce;
+    }
+    if(newPosition.z < BOX_MIN.z) {
+        newPosition.z = BOX_MIN.z;
+        newVelocity.z *= -bounce;
+
+    }
+    if(newPosition.z > BOX_MAX.z) {
+        newPosition.z = BOX_MAX.z;
+        newVelocity.z *= -bounce;
+    }
 
     outPosition = vec4(newPosition, 0);
     outVelocity = vec4(newVelocity, 0);
     outAcceleration = vec4(pAcceleration, 0);
-
     outColor = pColor;
-    outSizeRotation = vec4(newSize, pRotation + 10 * vel * dt, 0);
-    outLifeRand = vec4(pLife.x, remaingLife, pRandomID, 0);
+    outSizeRotation = vec4(pSize, pRotation, 0);
+    outLifeRand = vec4(pLife.x, pLife.y - dt, uintBitsToFloat(pRandomID), uintBitsToFloat(pID));
 }

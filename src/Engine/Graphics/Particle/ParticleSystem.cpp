@@ -120,10 +120,15 @@ void ParticleSystem::Update(GameWorld &gameWorld, float dt)
             // 生成GPU粒子
             GPUParticleBuffer *buffer = GetOrCreateBuffer(emitter);
             emitter->Update(dt, ownerTf, *buffer);
+
+            // 同步粒子数据到纹理
+            emitter->EnsureDataTextureSize(emitter->GetMaxParticles());
+            buffer->SyncPrticleDataToTexture(emitter->GetDataTextureID());
+
             if (emitter->GetUpdateShader())
             {
                 // emitter->PrepareForces(ownerTf); 计算力的在随体系与世界系的变换
-                m_TFBManager->Simulate(*(emitter->GetUpdateShader()), *buffer, (int)emitter->GetMaxParticles(), dt);
+                m_TFBManager->Simulate(gameWorld, emitter->GetDataTexture(), (int)emitter->GetMaxParticles(), *(emitter->GetUpdateShader()), *buffer, (int)emitter->GetMaxParticles(), dt);
             }
         }
     }
@@ -136,7 +141,10 @@ void ParticleSystem::Update(GameWorld &gameWorld, float dt)
         if (it->emitter->GetUpdateShader())
         {
             // it->emitter->PrepareForces(it->lastTransform);计算力的在随体系与世界系的变换
-            m_TFBManager->Simulate(*(it->emitter->GetUpdateShader()), *buffer, (int)it->emitter->GetMaxParticles(), dt);
+
+            it->emitter->EnsureDataTextureSize(it->emitter->GetMaxParticles());
+            buffer->SyncPrticleDataToTexture(it->emitter->GetDataTextureID());
+            m_TFBManager->Simulate(gameWorld, it->emitter->GetDataTexture(), (int)it->emitter->GetMaxParticles(), *(it->emitter->GetUpdateShader()), *buffer, (int)it->emitter->GetMaxParticles(), dt);
         }
         if (it->emitter->IsFinished())
         {
@@ -185,6 +193,8 @@ void ParticleSystem::Render(std::unordered_map<std::string, RenderTexture2D> &RT
                 continue;
             Matrix4f renderModelMat = emitter->GetRenderMatrix(ownerTf);
 
+            emitter->EnsureDataTextureSize(emitter->GetMaxParticles());
+            buffer->SyncPrticleDataToTexture(emitter->GetDataTextureID());
             emitter->Render(RTPool, *buffer, sceneDepth, renderModelMat, camera.Position(),
                             realTime, gameTime, VP, camera);
         }
@@ -198,6 +208,8 @@ void ParticleSystem::Render(std::unordered_map<std::string, RenderTexture2D> &RT
 
         Matrix4f renderModelMat = orphan.emitter->GetRenderMatrix(orphan.lastTransform);
 
+        orphan.emitter->EnsureDataTextureSize(orphan.emitter->GetMaxParticles());
+        buffer->SyncPrticleDataToTexture(orphan.emitter->GetDataTextureID());
         orphan.emitter->Render(RTPool, *buffer, sceneDepth, renderModelMat, camera.Position(),
                                realTime, gameTime, VP, camera);
     }

@@ -55,6 +55,7 @@ public:
             p.life = Vector2f(0.5f * maxLife / p.velocity.Length());
             p.rotation = p.velocity.Length();
             p.randomID = std::rand() % 1000;
+            p.ID = i;
         }
     }
 };

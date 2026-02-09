@@ -103,8 +103,9 @@ void ParticleEmitter::Burst(const TransformComponent &ownerTf, GPUParticleBuffer
 void ParticleEmitter::Spawn(int spawnCounts, const TransformComponent &ownerTf, GPUParticleBuffer &particleBuffer)
 {
 
-    if (spawnCounts > 1024)
-        spawnCounts = 1024; // 防止卡顿
+    // TODO
+    // if (spawnCounts > 8192)
+    //     spawnCounts = 8192; // 防止卡顿
     m_spawnBuffer.assign(spawnCounts, GPUParticle());
 
     // 初始化
@@ -216,6 +217,10 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
         Vector3f up = camera.Up();
 
         int texUnit = 0;
+
+        pass.shader->SetTexture("dataTex", m_dataTexture, texUnit++);
+        pass.shader->SetInt("maxParticles", m_maxParticles);
+
         for (const auto &[name, texture] : pass.customTextures)
         {
             if (texture.id > 0)
@@ -226,18 +231,18 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
         }
         if (sceneDepth.id > 0)
         {
-            pass.shader->SetTexture("u_sceneDepth", sceneDepth, texUnit);
+            pass.shader->SetTexture("sceneDepth", sceneDepth, texUnit);
             texUnit++;
         }
 
-        pass.shader->SetVec2("u_resolution", Vector2f(GetScreenWidth(), GetScreenHeight()));
-        pass.shader->SetFloat("u_near", camera.getNearPlane());
-        pass.shader->SetFloat("u_far", camera.getFarPlane());
+        pass.shader->SetVec2("resolution", Vector2f(GetScreenWidth(), GetScreenHeight()));
+        pass.shader->SetFloat("near", camera.getNearPlane());
+        pass.shader->SetFloat("far", camera.getFarPlane());
 
-        pass.shader->SetVec3("u_cameraRight", right);
-        pass.shader->SetVec3("u_cameraUp", up);
-        pass.shader->SetMat4("u_vp", VP);
-        pass.shader->SetMat4("u_model", modelMat);
+        pass.shader->SetVec3("cameraRight", right);
+        pass.shader->SetVec3("cameraUp", up);
+        pass.shader->SetMat4("vp", VP);
+        pass.shader->SetMat4("model", modelMat);
         pass.shader->SetAll(Matrix4f::identity(), Matrix4f::identity(), viewPos, realTime, gameTime,
                             pass.baseColor,
                             pass.customFloats,
@@ -313,4 +318,26 @@ Matrix4f ParticleEmitter::GetRenderMatrix(const TransformComponent &parentTf) co
         return Matrix4f::identity();
     else
         return parentTf.GetTransformMatrix(); // local space
+}
+
+unsigned int ParticleEmitter::GetDataTextureID() const
+{
+    return m_dataTexture.id;
+}
+void ParticleEmitter::EnsureDataTextureSize(size_t maxParticles)
+{
+    if (m_dataTexture.id == 0 || maxParticles != m_dataTexture.height)
+    {
+        m_dataTexture.id = rlLoadTexture(nullptr, 6, maxParticles, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32, 1);
+        m_dataTexture.width = 6;
+        m_dataTexture.height = maxParticles;
+        m_dataTexture.mipmaps = 1;
+        m_dataTexture.format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
+
+        SetTextureFilter(m_dataTexture, TEXTURE_FILTER_POINT);
+    }
+}
+Texture2D &ParticleEmitter::GetDataTexture()
+{
+    return m_dataTexture;
 }

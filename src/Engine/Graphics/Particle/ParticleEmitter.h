@@ -48,6 +48,10 @@ public:
 
     std::vector<RenderMaterial> &GetRenderPasses();
 
+    unsigned int GetDataTextureID() const;
+    Texture2D &GetDataTexture();
+    void EnsureDataTextureSize(size_t macParticles);
+
 private:
     float m_maxLife = 5.0f;       // 粒子最大生命周期
     float m_lastDeltaTime = 0.0f; // 距离上一次发射粒子过去的时间
@@ -69,4 +73,7 @@ private:
     void RenderSignlePass(size_t passIndex, const RenderMaterial &pass, std::unordered_map<std::string, RenderTexture2D> &RTPool, GPUParticleBuffer &gpuBuffer, const Texture2D &sceneDepth, const Matrix4f &modelMat,
                           const Vector3f &viewPos, float realTime, float gameTime,
                           const Matrix4f &VP, const mCamera &camera);
+
+    // 粒子数据纹理
+    Texture2D m_dataTexture = {0};
 };
