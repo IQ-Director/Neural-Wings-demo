@@ -71,3 +71,22 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* 框选区域的背景 */
+.react-flow__selection {
+  background: rgba(58, 142, 230, 0.1);
+  border: 1px solid #3a8ee6;
+  border-radius: 4px;
+}
+
+/* 节点被选中时的外边框样式 */
+.react-flow__node.selected {
+  box-shadow: 0 0 0 2px #3a8ee6 !important;
+  border-radius: 8px;
+}
+
+/* 连线被选中时的颜色 */
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: #3a8ee6 !important;
+  stroke-width: 3;
+}

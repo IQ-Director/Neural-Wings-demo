@@ -2,6 +2,9 @@
 #include "raylib.h"
 #include "Game/Screen/MyScreenState.h"
 #include "Game/Systems/Physics/SolarStage.h"
+#include "Game/Systems/Particles/Initializers/RandomLife.h"
+#include "Game/Systems/Particles/Initializers/SphereDir.h"
+#include "Game/Systems/Particles/Initializers/CollisionInit.h"
 #include "Game/Scripts/Scripts.h"
 
 #include "raymath.h"
@@ -15,19 +18,21 @@ GameplayScreen::GameplayScreen()
     const std::string &sceneConfigPath = "assets/scenes/test_scene.json";
     const std::string &inputConfigPath = "assets/config/input_config.json";
     const std::string &renderViewConfigPath = "assets/view/test_view.json";
-    m_world = std::make_unique<GameWorld>([this](ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory)
-                                          { this->ConfigCallback(scriptingFactory, physicsStageFactory); },
+    const std::string &effectLibPath = "assets/Library/particle_effects.json";
+    m_world = std::make_unique<GameWorld>([this](ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory, ParticleFactory &particleFactory)
+                                          { this->ConfigCallback(scriptingFactory, physicsStageFactory, particleFactory); },
                                           cameraConfigPath,
                                           sceneConfigPath,
                                           inputConfigPath,
-                                          renderViewConfigPath);
+                                          renderViewConfigPath,
+                                          effectLibPath);
 }
 GameplayScreen::~GameplayScreen()
 {
     OnExit();
 }
 
-void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory)
+void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsStageFactory &physicsStageFactory, ParticleFactory &particleFactory)
 {
     // 注册后才可使用json配置
     physicsStageFactory.Register("SolarStage", []()
@@ -39,6 +44,15 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                               { return std::make_unique<RotatorScript>(); });
     scriptingFactory.Register("CollisionListener", []()
                               { return std::make_unique<CollisionListener>(); });
+    // 注册粒子初始化器
+    particleFactory.Register("SphereDir", []()
+                             { return std::make_unique<SphereDir>(); });
+    // particleFactory.Register("RadialVelocity", []()
+    //                          { return std::make_unique<RadialVelocity>(); });
+    particleFactory.Register("RandomLife", []()
+                             { return std::make_unique<RandomLife>(); });
+    particleFactory.Register("CollisionInit", []()
+                             { return std::make_unique<CollisionInit>(); });
 }
 
 // 当进入游戏场景时调用
@@ -47,12 +61,18 @@ void GameplayScreen::OnEnter()
     DisableCursor();
 
     // 监听事件
-    m_world->GetEventManager().Subscribe<CollisionEvent>([](const CollisionEvent &e)
-                                                         { std::cout << "CollisionEvent: " << e.m_object1->GetName() << " and " << e.m_object2->GetName() << std::endl; });
+    m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
+                                                         { std::cout << "CollisionEvent, impluse: " <<e.impulse << std::endl;
+                                                            e.hitpoint.print();
+                                                            if(std::fabsf(e.relativeVelocity.Length())<1.0f) return;
+                                                            auto &particleSys = m_world->GetParticleSystem();
+                                                            particleSys.Spawn("Collision", e.hitpoint,
+                                                                "relVel",e.relativeVelocity,
+                                                                "normal",e.normal,
+                                                                "impulse",e.impulse,
+                                                                "maxSpeed",e.relativeVelocity.Length()/4); });
 
-    //     m_world->GetEventManager().Subscribe<CollisionEvent>([](const CollisionEvent &e)
-    //                                                          {
-    // // ParticleSystem::Spawn("Sparks", event.hitpoint);
+    // ParticleSystem::Spawn("Sparks", event.hitpoint);
     // std::cout<<"ParticleSystem::Spawn at"<< e.hitpoint<<std::endl; });
 }
 
@@ -99,30 +119,24 @@ void GameplayScreen::Update(float deltaTime)
 
         if (m_inputManager.IsActionDown("Forward"))
         {
-            DrawText("Forward!", 200, 200, 20, GREEN);
             mainPos += mainCam->Direction() * 0.3f;
         }
         if (m_inputManager.IsActionDown("Backward"))
         {
-            DrawText("Backward!", 200, 200, 20, GREEN);
             mainPos -= mainCam->Direction() * 0.1f;
         }
         if (m_inputManager.IsActionDown("Left"))
         {
-            DrawText("Left!", 200, 200, 20, GREEN);
             mainPos -= mainCam->Right() * 0.1f;
         }
         if (m_inputManager.IsActionDown("Right"))
         {
-            DrawText("Right!", 200, 200, 20, GREEN);
             mainPos += mainCam->Right() * 0.1f;
         }
         mainCam->UpdateFromDirection(mainPos, mainCam->Direction(), mainCam->Up());
 
         float lookHorizontal = -m_inputManager.GetAxisValue("LookHorizontal") * PI / 180;
         float lookVertical = m_inputManager.GetAxisValue("LookVertical") * PI / 180;
-        DrawText(TextFormat("LookHorizontal: %f", lookHorizontal), 200, 300, 20, GREEN);
-        DrawText(TextFormat("LookVertical: %f", lookVertical), 200, 350, 20, GREEN);
         mainCam->Rotate(lookHorizontal, lookVertical);
 
         if (auto *rearCam = m_cameraManager.GetCamera("rear_view"))
@@ -141,13 +155,9 @@ void GameplayScreen::Draw()
 {
     ClearBackground(RAYWHITE); // 设置一个浅灰色背景
 
-    // m_renderer->RenderScene(*m_world, *m_cameraManager);
     m_world->Render();
     // 在3D内容之上绘制一些2D的调试信息
-    DrawText("Welcome to the 3D World!", 10, 40, 20, DARKGRAY);
     DrawText("Press ESC to return.", 10, GetScreenHeight() - 30, 20, DARKGRAY);
-    // m_worldRenderer->Draw(*m_world, *m_cameraManager);
-    // m_uiManager->Draw(*m_world, *m_cameraManager);
 }
 
 // 向 ScreenManager 报告下一个状态

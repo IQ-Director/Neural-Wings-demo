@@ -1,7 +1,7 @@
 #pragma once
 #include "Engine/Core/GameObject/GameObject.h"
 #include "Engine/Core/Events/Events.h"
-#include "Engine/Graphics/Renderer.h"
+#include "Engine/Graphics/Graphics.h"
 #include "Engine/System/System.h"
 #include "Engine/System/Time/Time.h"
 #include <vector>
@@ -15,11 +15,12 @@ class ScriptingSystem;
 class GameWorld
 {
 public:
-    GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &)> configCallback,
+    GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &, ParticleFactory &)> configCallback,
               const std::string &cameraConfigPath = "assets/config/cameras_config.json",
               const std::string &sceneConfigPath = "assets/scenes/test_scene.json",
               const std::string &inputConfigPath = "assets/config/input_config.json",
-              const std::string &renderView = "assets/view/test_view.json");
+              const std::string &renderView = "assets/view/test_view.json",
+              const std::string &effectLibPath = "assets/Library/particle_effects.json");
     ~GameWorld();
     void OnDestroy();
 
@@ -44,6 +45,24 @@ public:
 
     TimeManager &GetTimeManager() { return *m_timeManager; };
 
+    ParticleFactory &GetParticleFactory() { return *m_particleFactory; };
+    ParticleSystem &GetParticleSystem() { return *m_particleSystem; };
+
+    template <typename... Components>
+    std::vector<GameObject *> GetEntitiesWith()
+    {
+        std::vector<GameObject *> results;
+        for (auto &obj : m_gameObjects)
+        {
+            if ((obj->HasComponent<Components>() && ...))
+            {
+                if (!obj->IsWaitingDestroy())
+                    results.push_back(obj.get());
+            }
+        }
+        return results;
+    }
+
 private:
     void DestroyWaitingObjects();
 
@@ -66,4 +85,7 @@ private:
     std::unique_ptr<ResourceManager> m_resourceManager;
 
     std::unique_ptr<EventManager> m_eventManager;
+
+    std::unique_ptr<ParticleFactory> m_particleFactory;
+    std::unique_ptr<ParticleSystem> m_particleSystem;
 };

@@ -23,9 +23,20 @@ export interface PostProcessConfig {
         rtPool: string[];
         hint: string;
         postProcessGraph: Pass[];
+        depthLinks?: DepthLink[];
     };
 }
 
+
+export interface ParticleNodeData {
+    name: string;
+    output: string;// RT名
+    themeColor?: string;
+}
+export interface DepthLink {
+    source: string;
+    targets: string[];
+}
 export interface PassNodeData {
     name: string;
     vs?: string;
@@ -47,4 +58,4 @@ export interface TextureNodeData {
     themeColor?: string;
 }
 
-export type AllNodeData = PassNodeData | TextureNodeData;
+export type AllNodeData = PassNodeData | TextureNodeData | ParticleNodeData;

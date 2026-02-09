@@ -11,16 +11,64 @@ void PostProcesser::AddPostProcessPass(const PostProcessPass &pass)
     m_postProcessPasses.push_back(pass);
     std::cout << "[PostProcesser]: Post process pass added: " << pass.name << " output target -> " << pass.outputTarget << std::endl;
 }
+// raylib源码修改，深度不再不可采样
+#include "rlgl.h"
+RenderTexture2D PostProcesser::LoadRT(int width, int height)
+{
+    RenderTexture2D target = {0};
+
+    target.id = rlLoadFramebuffer(); // Load an empty framebuffer
+
+    if (target.id > 0)
+    {
+        rlEnableFramebuffer(target.id);
+
+        // Create color texture (default to RGBA)
+        target.texture.id = rlLoadTexture(NULL, width, height, PIXELFORMAT_UNCOMPRESSED_R8G8B8A8, 1);
+        target.texture.width = width;
+        target.texture.height = height;
+        target.texture.format = PIXELFORMAT_UNCOMPRESSED_R8G8B8A8;
+        target.texture.mipmaps = 1;
+
+        // Create depth renderbuffer/texture
+        target.depth.id = rlLoadTextureDepth(width, height, false);
+        target.depth.width = width;
+        target.depth.height = height;
+        target.depth.format = 19; // DEPTH_COMPONENT_24BIT?
+        target.depth.mipmaps = 1;
+
+        // Attach color texture and depth renderbuffer/texture to FBO
+        rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+
+        // Check if fbo is complete with attachments (valid)
+        if (rlFramebufferComplete(target.id))
+            std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+
+        rlDisableFramebuffer();
+    }
+
+    return target;
+}
+
+void PostProcesser::DefaultSetup()
+{
+    std::vector<std::string> names = {"inScreen", "outScreen"};
+    SetUpRTPool(names, GetScreenWidth(), GetScreenHeight());
+}
 void PostProcesser::SetUpRTPool(const std::vector<std::string> &names, int width, int height)
 {
     UnloadRTPool();
     for (const auto &name : names)
     {
-        RenderTexture2D rt = LoadRenderTexture(width, height);
+
+        // RenderTexture2D rt = LoadRenderTexture(width, height); 原raylib实现
+        RenderTexture2D rt = LoadRT(width, height);
         if (rt.id > 0)
         {
             m_RTPool[name] = rt;
             SetTextureFilter(m_RTPool[name].texture, TEXTURE_FILTER_BILINEAR);
+            SetTextureFilter(m_RTPool[name].depth, TEXTURE_FILTER_BILINEAR);
         }
         else
         {
@@ -40,6 +88,7 @@ void PostProcesser::UnloadRTPool()
     }
     m_RTPool.clear();
     m_postProcessPasses.clear();
+    m_fboDepthTracking.clear();
     std::cout << "[PostProcesser]: Unloaded " << count << " render targets" << std::endl;
 }
 
@@ -57,6 +106,18 @@ void PostProcesser::ParsePostProcessPasses(const json &data, GameWorld &gameWorl
     }
     const std::vector<std::string> &rtNames = data["rtPool"].get<std::vector<std::string>>();
     this->SetUpRTPool(rtNames, GetScreenWidth(), GetScreenHeight());
+    if (data.contains("depthLinks"))
+    {
+        for (const auto &linkEntry : data["depthLinks"])
+        {
+            std::string src = linkEntry["source"];
+            for (const std::string &dst : linkEntry["targets"])
+            {
+                LinkDepthBuffer(src, dst);
+            }
+        }
+    }
+
     this->m_postProcessPasses.clear();
     auto &rm = gameWorld.GetResourceManager();
 
@@ -113,6 +174,7 @@ void PostProcesser::ParsePostProcessPasses(const json &data, GameWorld &gameWorl
         this->AddPostProcessPass(pass);
     }
 }
+
 #include "rlgl.h"
 void PostProcesser::DrawTextureQuad(float width, float height, bool flipY)
 {
@@ -164,13 +226,19 @@ void PostProcesser::PostProcess(GameWorld &gameWorld)
         {
             if (m_RTPool.count(rtName))
             {
-                mat.shader->SetTexture(shaderVarName, m_RTPool[rtName].texture, texUnit);
                 if (texUnit == 0)
                     firstInputId = m_RTPool[rtName].texture.id;
+                mat.shader->SetTexture(shaderVarName, m_RTPool[rtName].texture, texUnit);
+                // 仅rawScreen有深度
+                if (rtName == "inScreen")
+                {
+                    mat.shader->SetTexture(shaderVarName + "_depth", m_RTPool[rtName].depth, texUnit + 1);
+                    texUnit++;
+                }
                 texUnit++;
             }
         }
-        // 外部纹理
+        // 外部纹理(无深度)
         for (auto const &[name, text] : mat.customTextures)
         {
             if (texUnit == 0)
@@ -200,8 +268,49 @@ void PostProcesser::PostProcess(GameWorld &gameWorld)
 
         rlSetTexture(firstInputId);
         DrawTextureQuad(screenRes.x(), screenRes.y(), true);
-        rlSetTexture(0);
         mat.shader->End();
         EndTextureMode();
+    }
+    rlSetTexture(0);
+}
+
+void PostProcesser::LinkDepthBuffer(const std::string &sourceName, const std::string &targetName)
+{
+    auto itSrc = m_RTPool.find(sourceName);
+    auto itDst = m_RTPool.find(targetName);
+    if (itSrc == m_RTPool.end() || itDst == m_RTPool.end())
+        return;
+
+    RenderTexture2D &src = itSrc->second;
+    RenderTexture2D &dst = itDst->second;
+    if (m_fboDepthTracking.count(dst.id) && m_fboDepthTracking[dst.id] == src.depth.id)
+    {
+        return;
+    }
+    rlEnableFramebuffer(dst.id);
+    rlFramebufferAttach(dst.id, src.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+
+    if (rlFramebufferComplete(dst.id))
+    {
+        m_fboDepthTracking[dst.id] = src.depth.id;
+    }
+    rlDisableFramebuffer();
+}
+void PostProcesser::UnlinkDepthBuffer(const std::string &targetName)
+{
+    auto itDst = m_RTPool.find(targetName);
+    if (itDst == m_RTPool.end())
+        return;
+    RenderTexture2D &dst = itDst->second;
+    if (m_fboDepthTracking.count(dst.id) && m_fboDepthTracking[dst.id] != dst.depth.id)
+    {
+
+        rlEnableFramebuffer(dst.id);
+        rlFramebufferAttach(dst.id, dst.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+        if (rlFramebufferComplete(dst.id))
+        {
+            m_fboDepthTracking[dst.id] = dst.depth.id;
+        }
+        rlDisableFramebuffer();
     }
 }

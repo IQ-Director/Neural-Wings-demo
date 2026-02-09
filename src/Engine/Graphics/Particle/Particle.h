@@ -1,0 +1,7 @@
+#include "GPUParticle.h"
+#include "GPUParticleBuffer.h"
+#include "IParticleInitializer.h"
+#include "TFBManager.h"
+#include "ParticleEmitter.h"
+#include "ParticleSystem.h"
+#include "ParticleFactory.h"

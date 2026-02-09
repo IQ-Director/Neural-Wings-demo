@@ -5,3 +5,4 @@
 #include "Engine/Core/Components/RenderComponent.h"
 #include "Engine/Core/Components/RigidBodyComponent.h"
 #include "Engine/Core/Components/ScriptComponent.h"
+#include "Engine/Core/Components/ParticleEmitterComponent.h"

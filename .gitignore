@@ -6,3 +6,4 @@ ui/node_modules/
 ui/dist/
 .vscode/
 .vscode_copy/
+post-process-editor/node_modules/

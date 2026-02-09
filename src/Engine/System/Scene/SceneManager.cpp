@@ -31,6 +31,7 @@ void SceneManager::ParsePhysics(const json &sceneData, GameWorld &gameWorld)
 
 bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
 {
+
     std::ifstream file(scenePath);
     if (!file.is_open())
     {
@@ -88,6 +89,10 @@ bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
             {
                 AddScripts(gameWorld, obj, entityData["scripts"]);
             }
+            if (entityData.contains("particles"))
+            {
+                AddParticle(gameWorld, obj, entityData["particles"]);
+            }
         }
     }
     return true;
@@ -129,83 +134,7 @@ void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, Ga
             for (const auto &pData : entry["passes"])
             {
                 RenderMaterial mat;
-
-                mat.depthWrite = pData.value("depthWrite", true);
-                mat.depthTest = pData.value("depthTest", true);
-
-                if (pData.contains("textures"))
-                {
-                    auto &texData = pData["textures"];
-                    for (auto &[texName, texPath] : texData.items())
-                    {
-                        Texture2D tex = rm.GetTexture2D(texPath);
-                        if (tex.id > 0)
-                        {
-                            if (texName == "u_diffuseMap")
-                            {
-                                mat.diffuseMap = tex;
-                                mat.useDiffuseMap = true;
-                            }
-                            else
-                                mat.customTextures[texName] = tex;
-                        }
-                    }
-                    // 若有贴图，使用对应shader或者默认贴图shader
-                    mat.shader = rm.GetShader(pData.value("vs", "assets/shaders/texture/default_texture.vs"), pData.value("fs", "assets/shaders/texture/default_texture.fs"));
-                }
-                else if (pData.contains("fs"))
-                {
-                    mat.shader = rm.GetShader(pData.value("vs", "assets/shaders/default.vs"), pData["fs"]);
-                }
-
-                if (pData.contains("color"))
-                    mat.baseColor = JsonParser::ToVector4f(pData["color"]);
-                if (pData.contains("blendMode"))
-                {
-                    std::string blendMode = pData["blendMode"];
-                    if (blendMode == "ADDITIVE")
-                        mat.blendMode = BlendMode::BLEND_ADDITIVE;
-                    else if (blendMode == "ALPHA")
-                        mat.blendMode = BlendMode::BLEND_ALPHA;
-                    else if (blendMode == "NONE")
-                        mat.blendMode = BLEND_OPIQUE;
-                    else if (blendMode == "MULTIPLY")
-                        mat.blendMode = BLEND_MULTIPLIED;
-                    else if (blendMode == "SCREEN")
-                        mat.blendMode = BLEND_SCREEN;
-                    else if (blendMode == "SUBTRACT")
-                        mat.blendMode = BLEND_SUBTRACT;
-                    else
-                        std::cerr << "[GameObjectFactory]: Unknown blend mode: " << blendMode << std::endl;
-                }
-
-                if (pData.contains("uniforms"))
-                {
-                    auto &uniformsData = pData["uniforms"];
-                    for (auto &[uName, uValue] : uniformsData.items())
-                    {
-                        if (uValue.is_number())
-                            mat.customFloats[uName] = uValue;
-                        else if (uValue.is_array() && uValue.size() == 2)
-                            mat.customVector2[uName] = JsonParser::ToVector2f(uValue);
-                        else if (uValue.is_array() && uValue.size() == 3)
-                            mat.customVector3[uName] = JsonParser::ToVector3f(uValue);
-                        else if (uValue.is_array() && uValue.size() == 4)
-                            mat.customVector4[uName] = JsonParser::ToVector4f(uValue);
-                        else
-                            std::cerr << "[GameObjectFactory]: Unknown uniform type: " << uName << std::endl;
-                    }
-                }
-
-                if (pData.contains("cullFace"))
-                {
-                    if (pData["cullFace"] == "FRONT")
-                        mat.cullFace = RL_CULL_FACE_FRONT;
-                    else if (pData["cullFace"] == "BACK")
-                        mat.cullFace = RL_CULL_FACE_BACK;
-                    else
-                        mat.cullFace = -1;
-                }
+                mat.LoadFromConfig(pData, rm);
                 passes.push_back(mat);
             }
         }
@@ -255,6 +184,21 @@ void SceneManager::AddScripts(GameWorld &gameWorld, GameObject &gameObject, cons
                 script->OnCreate();
                 sc.scripts.push_back(std::move(script));
             }
+        }
+    }
+}
+void SceneManager::AddParticle(GameWorld &gameWorld, GameObject &gameObject, const json &data)
+{
+    if (!gameObject.HasComponent<ParticleEmitterComponent>())
+        gameObject.AddComponent<ParticleEmitterComponent>();
+    auto &ec = gameObject.GetComponent<ParticleEmitterComponent>();
+    ec.activate = data.value("activate", true);
+    if (data.contains("emitters"))
+    {
+        for (const auto &emitterConfig : data["emitters"])
+        {
+            auto emitter = std::make_shared<ParticleEmitter>(emitterConfig, gameWorld.GetParticleFactory(), gameWorld.GetResourceManager());
+            ec.AddEmitter(emitter);
         }
     }
 }

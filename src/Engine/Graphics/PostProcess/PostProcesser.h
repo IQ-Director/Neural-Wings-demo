@@ -14,14 +14,22 @@ public:
     void PostProcess(GameWorld &gameWorld);
 
     void ParsePostProcessPasses(const json &data, GameWorld &gameWorld);
-
     std::unordered_map<std::string, RenderTexture2D> &GetRTPool() { return m_RTPool; }
+    void DefaultSetup();
+
+    void LinkDepthBuffer(const std::string &sourceName, const std::string &targetName);
+    void UnlinkDepthBuffer(const std::string &targetName);
 
 private:
     void DrawTextureQuad(float width, float height, bool flipY);
     void AddPostProcessPass(const PostProcessPass &pass);
     void SetUpRTPool(const std::vector<std::string> &names, int width, int height);
     void UnloadRTPool();
+
+    RenderTexture2D PostProcesser::LoadRT(int width, int height);
+
     std::unordered_map<std::string, RenderTexture2D> m_RTPool;
     std::vector<PostProcessPass> m_postProcessPasses;
+
+    std::unordered_map<unsigned int, unsigned int> m_fboDepthTracking;
 };
