@@ -8,7 +8,7 @@ out vec4 finalColor;
 uniform sampler2D u_fluidDepth;
 uniform vec2 u_dir;
 
-float radius = 20.0;
+float radius = 30.0;
 float sigma_s = 10.0; // 空间权重的标准差
 float sigma_r = 10.5; // 范围权重的标准差
 

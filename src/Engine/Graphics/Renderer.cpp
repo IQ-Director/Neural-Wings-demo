@@ -336,7 +336,7 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
 
         tempRaylibMaterial.shader = pass.shader->GetShader();
 
-        int texUnit = 0;
+        int texUnit = 1;
         if (pass.useDiffuseMap)
         {
             pass.shader->SetTexture("u_diffuseMap", pass.diffuseMap, texUnit);

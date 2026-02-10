@@ -59,6 +59,6 @@ void main() {
     t = length(GetVel(int(vID)));
     t = clamp(t / 10, 0, 1);
     vec4 texColor = texture(tex, fragTexCoord);
-    finalColor = texColor * (1 - t) + vec4(1, 0, 0, 1) * (t);
+    finalColor = (texColor * (1 - t) + vec4(1, 0, 0, 1) * t);
 
 }

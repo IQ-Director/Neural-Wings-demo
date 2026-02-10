@@ -97,9 +97,9 @@
             "tag": "cube",
             "prefab": "assets/prefabs/cube.json",
             "position": [
-                8,
-                8,
-                5
+                0,
+                -20,
+                0
             ],
             "rotation": [
                 0,

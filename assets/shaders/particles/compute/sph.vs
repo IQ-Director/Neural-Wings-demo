@@ -31,9 +31,9 @@ uniform float realTime;
 const float H = 0.25; // kernal radius;
 const float H2 = H * H;
 const float MASS = 1.0; //粒子质量
-const float Rho0 = 50.0; //目标密度
+const float Rho0 = 100.0; //目标密度
 const float GAS_CONST = 50.0; // 压力数
-const float VISC = 40.5; //粘度
+const float VISC = 15.5; //粘度
 const float PI = 3.1415926535;
 const vec3 GRAVITY = vec3(0, -9.8, 0);
 
@@ -64,8 +64,17 @@ vec4 GetLife(int id) {
 
 void main() {
     float dt = deltaTime;
-    BOX_MIN = vec3(-5.0 + 3 * sin(gameTime * 1.4), -5.0, -5.0);
-    BOX_MAX = vec3(5.0 - 3 * sin(gameTime * 2), 200.0, 5.0);
+    float wavePeriod = 8.0;
+    float phase = mod(gameTime, wavePeriod);
+
+    float pistonX = 0;
+    if(phase < 4.5) {
+        pistonX = (phase / 4.5) * 25.0;
+    } else {
+        pistonX = 25.0 - ((phase - 4.5) / (8 - 4.5)) * 25.0;
+    }
+    BOX_MIN = vec3(-5.0 + 4 * sin(gameTime * 1.4), -5.0, -0.0);
+    BOX_MAX = vec3(5.0 + 2 * sin(gameTime * 2), 200.0, 5.0);
     // for(int i = 0; i < maxParticles; i++) {
     //     if(uint(i) == pID)
     //         continue;
@@ -96,10 +105,10 @@ void main() {
 
         }
     }
-    float size = clamp((float(count) - 10) / 100.0, -0.1, 0.1);
-    float pS = clamp(pSize.x + pSize.x * size, 0.1, 0.5);
+    float size = clamp((float(count) - 10) / 20.0, -0.1, 0.1);
+    float pS = clamp(pSize.x + pSize.x * size, 0.1, 0.3);
 
-    vec2 newSize = vec2(2);
+    vec2 newSize = vec2(pS);
     float pressure = (rho - Rho0) * GAS_CONST;
     vec3 fPress = vec3(0.0);
     vec3 fVisc = vec3(0.0);
@@ -131,23 +140,36 @@ void main() {
     //     fBound = vec3(80.0, 0.0, 0.0);
     // }
     vec3 force = fPress + fVisc + fBound * rho + GRAVITY * rho;
-    vec3 acc = force / rho;
-    vec3 newVelocity = pVelocity + acc * dt + vec3(float(pRandomID), 0, float(pRandomID)) * 0.00001;
+    vec3 acc = force / rho + pAcceleration;
+    vec3 newVelocity = pVelocity + acc * dt + vec3(float(pRandomID), 0, float(pRandomID)) * 0.000001;
     newVelocity = newVelocity * 0.992;
     vec3 newPosition = pPosition + newVelocity * dt;
 
-    float bounce = 0.3;
+    vec3 newAcceleration = vec3(0);
+
+    float bounce = 1;
+    float aF = bounce;
+    float pene = 0.0;
+
     if(newPosition.x < BOX_MIN.x) {
+        pene = BOX_MIN.x - newPosition.x;
         newPosition.x = BOX_MIN.x;
-        newVelocity.x *= -bounce;
+        newVelocity.x *= -bounce * pene;
+        newAcceleration.x = aF;
     }
     if(newPosition.x > BOX_MAX.x) {
-        newPosition.x = BOX_MAX.x;
-        newVelocity.x *= -bounce;
+        pene = -BOX_MAX.x + newPosition.x;
+        newPosition.x = BOX_MAX.x - 0.1;
+        newVelocity.x *= -bounce * pene * 1;
+
+        //newVelocity.y *= bounce * pene * 0;
+        //newAcceleration.x = -aF * 100;
+        //newAcceleration.y = aF * 100;
     }
     if(newPosition.y < BOX_MIN.y) {
         newPosition.y = BOX_MIN.y;
         newVelocity.y *= -bounce;
+        newAcceleration.x = aF * 0.8;
     }
     if(newPosition.y > BOX_MAX.y) {
         newPosition.y = BOX_MAX.y;
@@ -156,16 +178,17 @@ void main() {
     if(newPosition.z < BOX_MIN.z) {
         newPosition.z = BOX_MIN.z;
         newVelocity.z *= -bounce;
-
+        newAcceleration.z = aF;
     }
     if(newPosition.z > BOX_MAX.z) {
         newPosition.z = BOX_MAX.z;
         newVelocity.z *= -bounce;
+        newAcceleration.z = -aF;
     }
 
     outPosition = vec4(newPosition, 0);
     outVelocity = vec4(newVelocity, 0);
-    outAcceleration = vec4(pAcceleration, 0);
+    outAcceleration = vec4(newAcceleration, 0);
     outColor = pColor;
     outSizeRotation = vec4(newSize, pRotation, 0);
     outLifeRand = vec4(pLife.x, pLife.y - dt, uintBitsToFloat(pRandomID), uintBitsToFloat(pID));

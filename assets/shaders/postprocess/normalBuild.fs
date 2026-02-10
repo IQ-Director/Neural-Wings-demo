@@ -35,22 +35,42 @@ void main() {
         discard;
     }
     vec3 pos = getWorldPos(fragTexCoord);
-    vec2 u_texelSize = 2.0 / textureSize(u_fluidDepth, 0);
-    vec2 offset = u_texelSize;
-    vec3 posR = getWorldPos(fragTexCoord + vec2(offset.x, 0.0));
-    vec3 posU = getWorldPos(fragTexCoord + vec2(0.0, offset.y));
-    if(length(posR) == 0.0) {
-        vec3 posL = getWorldPos(fragTexCoord - vec2(offset.x, 0.0));
-        posR = pos;
-        pos = posL; // 维持差分方向
+    vec2 texelSize = 1.0 / textureSize(u_fluidDepth, 0);
+
+    float dR = texture(u_fluidDepth, fragTexCoord + vec2(texelSize.x, 0.0)).r;
+    float dL = texture(u_fluidDepth, fragTexCoord - vec2(texelSize.x, 0.0)).r;
+    float dU = texture(u_fluidDepth, fragTexCoord + vec2(0.0, texelSize.y)).r;
+    float dD = texture(u_fluidDepth, fragTexCoord - vec2(0.0, texelSize.y)).r;
+
+    vec3 posR = getWorldPos(fragTexCoord + vec2(texelSize.x, 0.0));
+    vec3 posL = getWorldPos(fragTexCoord - vec2(texelSize.x, 0.0));
+    vec3 posU = getWorldPos(fragTexCoord + vec2(0.0, texelSize.y));
+    vec3 posD = getWorldPos(fragTexCoord - vec2(0.0, texelSize.y));
+
+    float threshold = 0.5;
+
+    vec3 ddx, ddy;
+
+    float dzR = abs(dR - centerDepth);
+    float dzL = abs(dL - centerDepth);
+    if(dzR < dzL && dzR < threshold) {
+        ddx = posR - pos;
+    } else if(dzL < threshold) {
+        ddx = pos - posL;
+    } else {
+        ddx = vec3(texelSize.x, 0.0, 0.0);
     }
-    if(length(posU) == 0.0) {
-        vec3 posD = getWorldPos(fragTexCoord - vec2(0.0, offset.y));
-        posU = pos;
-        pos = posD;
+
+    float dzU = abs(dU - centerDepth);
+    float dzD = abs(dD - centerDepth);
+    if(dzU < dzD && dzU < threshold) {
+        ddy = posU - pos;
+    } else if(dzD < threshold) {
+        ddy = pos - posD;
+    } else {
+        ddy = vec3(0.0, texelSize.y, 0.0);
     }
-    vec3 ddx = posR - pos;
-    vec3 ddy = posU - pos;
+
     vec3 normal = normalize(cross(ddx, ddy));
     finalColor = vec4(normal * 0.5 + 0.5, 1.0);
 }

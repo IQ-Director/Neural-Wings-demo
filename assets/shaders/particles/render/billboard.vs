@@ -47,7 +47,7 @@ out float vFar;
 void main() {
     float lifeRatio = clamp(pLife.y / pLife.x, 0.0, 1.0);
     if(pLife.y <= 0.00001) {
-        gl_Position = vec4(0.0, 0.0, 0.0, 0.0);
+        gl_Position = vec4(100.0, 100.0, 100.0, 1.0);
         return;
     }
     // 计算局部系还是世界系。
