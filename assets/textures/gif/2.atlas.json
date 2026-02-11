@@ -1,0 +1,8 @@
+{
+  "source": "2.gif",
+  "atlas": "2.atlas.png",
+  "frameCount": 5,
+  "frameWidth": 330,
+  "frameHeight": 300,
+  "fps": 16.666666666666668
+}

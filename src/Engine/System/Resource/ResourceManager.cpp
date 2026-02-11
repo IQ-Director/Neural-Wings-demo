@@ -1,5 +1,62 @@
 #include "ResourceManager.h"
 #include <iostream>
+#include <cctype>
+#include <fstream>
+#include <filesystem>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+namespace
+{
+bool TryLoadPreprocessedGifAtlas(const std::string &gifPath, Texture2D &outTexture, int &outFrameCount)
+{
+    namespace fs = std::filesystem;
+    fs::path basePath = fs::path(gifPath).replace_extension("");
+    fs::path atlasPath = basePath.string() + ".atlas.png";
+    fs::path metaPath = basePath.string() + ".atlas.json";
+
+    if (!fs::exists(atlasPath) || !fs::exists(metaPath))
+        return false;
+
+    std::ifstream metaFile(metaPath);
+    if (!metaFile.is_open())
+        return false;
+
+    json meta;
+    try
+    {
+        metaFile >> meta;
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    if (!meta.contains("frameCount") || !meta["frameCount"].is_number_integer())
+        return false;
+
+    outFrameCount = meta["frameCount"].get<int>();
+    if (outFrameCount <= 0)
+        return false;
+
+    Texture2D tex = LoadTexture(atlasPath.string().c_str());
+    if (tex.id == 0)
+        return false;
+
+    outTexture = tex;
+    return true;
+}
+
+bool IsGifPath(const std::string &path)
+{
+    namespace fs = std::filesystem;
+    std::string ext = fs::path(path).extension().string();
+    for (char &c : ext)
+        c = (char)tolower(c);
+    return ext == ".gif";
+}
+} // namespace
 
 ResourceManager::~ResourceManager()
 {
@@ -71,44 +128,22 @@ Texture2D ResourceManager::GetTexture2D(const std::string &path, int *outFrameCo
         return it->second;
     }
     // gif贴图
-    if (path.substr(path.find_last_of(".") + 1) == "gif")
+    if (IsGifPath(path))
     {
+        Texture2D preprocessed = {0};
         int frameCount = 0;
-
-        Image animImg = LoadImageAnim(path.c_str(), &frameCount);
-        if (frameCount > 0)
+        if (TryLoadPreprocessedGifAtlas(path, preprocessed, frameCount))
         {
-            int frameWidth = animImg.width;
-            int frameHeight = animImg.height;
-
-            Image atlas = GenImageColor(frameWidth, frameHeight * frameCount, BLANK);
-
-            int pixelSize = GetPixelDataSize(frameWidth, frameHeight, animImg.format);
-            for (int i = 0; i < frameCount; i++)
-            {
-                Image frame;
-                frame.data = (unsigned char *)animImg.data + (i * pixelSize);
-                frame.width = frameWidth;
-                frame.height = frameHeight;
-                frame.mipmaps = 1;
-                frame.format = animImg.format;
-
-                ImageDraw(&atlas, frame,
-                          Rectangle{0, 0, (float)frameWidth, (float)frameHeight},
-                          Rectangle{0, (float)i * frameHeight, (float)frameWidth, (float)frameHeight},
-                          WHITE);
-            }
-
-            Texture2D tex = LoadTextureFromImage(atlas);
-            UnloadImage(animImg);
-            UnloadImage(atlas);
-            m_textures[path] = tex;
-            m_textureFrameCounts[tex.id] = frameCount;
+            m_textures[path] = preprocessed;
+            m_textureFrameCounts[preprocessed.id] = frameCount;
             if (outFrameCount)
                 *outFrameCount = frameCount;
-            std::cout << "[ResourceManager]: Loaded GIF as Atlas: " << path << " (" << frameCount << " frames)" << std::endl;
-            return tex;
+            std::cout << "[ResourceManager]: Loaded preprocessed GIF atlas: " << path << " (" << frameCount << " frames)" << std::endl;
+            return preprocessed;
         }
+
+        std::cerr << "[ResourceManager] Missing preprocessed GIF atlas for: " << path << " (expect .atlas.png + .atlas.json)" << std::endl;
+        return Texture2D{0};
     }
     // 静态贴图
     Texture2D textures = LoadTexture(path.c_str());

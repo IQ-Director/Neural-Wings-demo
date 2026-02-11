@@ -182,6 +182,20 @@
         "cwd": "${workspaceFolder}/ui"
       },
       "problemMatcher": []
+    },
+    {
+      "label": "Tools: Preprocess GIF Textures",
+      "type": "shell",
+      "command": "${workspaceFolder}/tools/.venv/Scripts/python.exe",
+      "args": [
+        "${workspaceFolder}/tools/preprocess_gif_textures.py",
+        "--dir",
+        "${workspaceFolder}/assets/textures/gif"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
     }
   ]
 }
