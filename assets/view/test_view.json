@@ -95,7 +95,7 @@
             {
                 "name": "Shading",
                 "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/debug.fs",
+                "fs": "assets/shaders/postprocess/sph_ssf.fs",
                 "inputs": [
                     [
                         "u_sceneTex",
