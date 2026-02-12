@@ -59,7 +59,7 @@
                         "emissionRate": 20.0,
                         "maxLife": 15,
                         "space": "WORLD",
-                        "updateShader": "assets/shaders/particles/compute/test_update.vs",
+                        "updateShader": "assets/shaders/particles/compute/default.vs",
                         "initializers": [
                             {
                                 "name": "SphereDir",
@@ -93,11 +93,12 @@
                                 "blendMode": "NONE",
                                 "hint": "粒子没有深度写入功能，仅深度测试",
                                 "textures": {
-                                    "tex": "assets/textures/test_4.png"
+                                    "tex": [
+                                        "assets/textures/test_4.png",
+                                        1
+                                    ]
                                 },
-                                "uniforms": {
-                                    "u_softness": 1.0
-                                },
+                                "uniforms": {},
                                 "outputRT": "inScreen"
                             }
                         ]

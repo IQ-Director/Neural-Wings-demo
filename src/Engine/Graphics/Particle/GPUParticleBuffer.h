@@ -9,7 +9,6 @@
 class GPUParticleBuffer
 {
 public:
-    // TODO:支持多RT输出
     GPUParticleBuffer(size_t maxParticles, const std::vector<RenderMaterial> &mats);
     ~GPUParticleBuffer();
     GPUParticleBuffer(const GPUParticleBuffer &) = delete;
@@ -29,6 +28,8 @@ public:
 
     void BindForRender(size_t passIndex);
     size_t GetVAOSetCount() const { return m_multiRenderVAOs.size(); }
+
+    void SyncPrticleDataToTexture(unsigned int textureId);
 
 private:
     void SetupBuffers();

@@ -86,40 +86,84 @@ Renderer::~Renderer()
 // }
 void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
 {
-    rlEnableDepthMask();
 
     auto &m_RTPool = m_postProcesser->GetRTPool();
     auto &itScene = m_RTPool["inScreen"];
     BeginTextureMode(itScene);
     {
-        ClearBackground(BLUE);
+
+        rlEnableDepthMask();
+        // ClearBackground(BLUE);
         for (const auto &view : m_renderViewer->GetRenderViews())
         {
             mCamera *camera = cameraManager.GetCamera(view.cameraName);
             if (camera)
             {
-                BeginScissorMode((int)view.viewport.x, (int)view.viewport.y, (int)view.viewport.width, (int)view.viewport.height);
-                //  透明底？
+
+                int x1 = (int)view.viewport.x;
+                int y1 = (int)view.viewport.y;
+                int x2 = (int)view.viewport.width;
+                int y2 = (int)view.viewport.height;
+
+                int vx = x1;
+                int vy = y1;
+                int vw = x2 - x1;
+                int vh = y2 - y1;
+
+                BeginScissorMode(vx, vy, vw, vh); //  透明底？
                 if (view.clearBackground)
                 {
                     ClearBackground(view.backgroundColor);
                 }
+                float aspect = (float)vw / (float)vh;
+
                 Camera3D rawCamera = camera->GetRawCamera();
                 BeginMode3D(rawCamera);
-                DrawWorldObjects(gameWorld, rawCamera, *camera, view.viewport.width / view.viewport.height);
+
+                rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
+
+                rlMatrixMode(RL_PROJECTION);
+                rlLoadIdentity();
+                if (rawCamera.projection == CAMERA_PERSPECTIVE)
+                {
+                    double top = 0.01 * tan(rawCamera.fovy * 0.5 * DEG2RAD);
+                    double right = top * aspect;
+                    rlFrustum(-right, right, -top, top, 0.01, 1000.0);
+                }
+                else
+                {
+                    float top = rawCamera.fovy * 0.5f;
+                    float right = top * aspect;
+                    rlOrtho(-right, right, -top, top, 0.01, 1000.0);
+                }
+                rlMatrixMode(RL_MODELVIEW);
+
+                DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
+
+                // debug
+                // for (const auto &view1 : m_renderViewer->GetRenderViews())
+                // {
+                //     if (view1.cameraName != view.cameraName)
+                //     {
+                //         mCamera *camera = cameraManager.GetCamera(view1.cameraName);
+                //         if (camera->GetMountTarget() != nullptr)
+                //             DrawVector(camera->getPosition(), camera->getDirection(), 1.0f, 0.05f);
+                //     }
+                // }
                 EndMode3D();
 
                 // （debug）为视口绘制边框
-                DrawRectangleLinesEx(view.viewport, 2, GRAY);
+                // DrawRectangleLinesEx(view.viewport, 2, GRAY);
                 EndScissorMode();
             }
         }
+        rlViewport(0, 0, itScene.texture.width, itScene.texture.height);
     }
     EndTextureMode();
 }
 void Renderer::RawRenderParticle(GameWorld &gameWorld, CameraManager &cameraManager)
 {
-    rlDisableDepthMask();
+    // rlDisableDepthMask();
     // 粒子的BeginTextureMode在每个emitter，每个emitter有自己的输出RT，最后到后处理中处理
     for (const auto &view : m_renderViewer->GetRenderViews())
     {
@@ -172,7 +216,7 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
     RawRenderScene(gameWorld, cameraManager);
     RawRenderParticle(gameWorld, cameraManager);
 
-    m_postProcesser->PostProcess(gameWorld);
+    m_postProcesser->PostProcess(gameWorld, cameraManager);
 
     // 最终输出
     ClearBackground(BLACK);
@@ -209,7 +253,7 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
             const auto &render = gameObject->GetComponent<RenderComponent>();
 
             float angle = 0.0f;
-            Quat4f rotation = tf.rotation;
+            Quat4f rotation = tf.GetWorldRotation();
             Vector3f axis = rotation.getAxisAngle(&angle);
             angle *= (float)180.0f / (float)M_PI;
 
@@ -217,9 +261,9 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
             if (useShader)
             {
 
-                Matrix4f S = Matrix4f(Matrix3f(tf.scale & render.scale));
-                Matrix4f R = Matrix4f(tf.rotation.toMatrix());
-                Matrix4f T = Matrix4f::translation(tf.position);
+                Matrix4f S = Matrix4f(Matrix3f(tf.GetWorldScale() & render.scale));
+                Matrix4f R = Matrix4f(tf.GetWorldRotation().toMatrix());
+                Matrix4f T = Matrix4f::translation(tf.GetWorldPosition());
                 Matrix4f M = T * R * S;
 
                 Matrix4f MVP = VP * M;
@@ -255,39 +299,40 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
                 Color tint = {(unsigned char)render.defaultMaterial.baseColor.x(), (unsigned char)render.defaultMaterial.baseColor.y(), (unsigned char)render.defaultMaterial.baseColor.z(), (unsigned char)render.defaultMaterial.baseColor.w()};
                 DrawModelEx(
                     render.model,
-                    tf.position,
+                    tf.GetWorldPosition(),
                     axis,
                     angle,
-                    tf.scale & render.scale,
+                    tf.GetWorldScale() & render.scale,
                     tint);
             }
             if (render.showWires)
                 DrawModelWiresEx(
                     render.model,
-                    tf.position,
+                    tf.GetWorldPosition(),
                     axis,
                     angle,
-                    tf.scale & render.scale,
+                    tf.GetWorldScale() & render.scale,
                     BLACK);
 
             if (render.showAxes)
-                DrawCoordinateAxes(tf.position, tf.rotation, 2.0f, 0.05f);
+                DrawCoordinateAxes(tf.GetWorldPosition(), tf.GetWorldRotation(), 2.0f, 0.05f);
             if (render.showCenter)
-                DrawSphereEx(tf.position, 0.1f, 8, 8, RED);
+                DrawSphereEx(tf.GetWorldPosition(), 0.1f, 8, 8, RED);
             if (render.showAngVol && gameObject->HasComponent<RigidbodyComponent>())
             {
                 const auto &rb = gameObject->GetComponent<RigidbodyComponent>();
-                DrawVector(tf.position, rb.angularVelocity, 1.0f, 0.05f);
+                DrawVector(tf.GetWorldPosition(), rb.angularVelocity, 1.0f, 0.05f);
             }
             if (render.showVol && gameObject->HasComponent<RigidbodyComponent>())
             {
                 const auto &rb = gameObject->GetComponent<RigidbodyComponent>();
-                DrawVector(tf.position, rb.velocity, 1.0f, 0.05f);
+                DrawVector(tf.GetWorldPosition(), rb.velocity, 1.0f, 0.05f);
             }
         }
     }
     // TODO: debug
     DrawGrid(20, 10.0f);
+
     DrawCoordinateAxes(Vector3f(0.0f), Quat4f::IDENTITY, 2.0f, 0.05f);
 }
 
@@ -336,16 +381,36 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
 
         tempRaylibMaterial.shader = pass.shader->GetShader();
 
-        int texUnit = 0;
+        int texUnit = 1;
         if (pass.useDiffuseMap)
         {
             pass.shader->SetTexture("u_diffuseMap", pass.diffuseMap, texUnit);
+            if (pass.diffuseIsAnimated)
+            {
+                pass.shader->SetInt("u_diffuseMap_frameCount", pass.diffuseframeCount);
+                pass.shader->SetFloat("u_diffuseMap_animSpeed", pass.diffuseanimSpeed);
+            }
+            else
+            {
+                pass.shader->SetInt("u_diffuseMap_frameCount", 1);
+                pass.shader->SetFloat("u_diffuseMap_animSpeed", 0.0f);
+            }
             tempRaylibMaterial.maps[MATERIAL_MAP_DIFFUSE].texture = pass.diffuseMap;
             texUnit++;
         }
         for (auto const &[name, text] : pass.customTextures)
         {
             pass.shader->SetTexture(name, text, texUnit);
+            if (pass.isAnimated.at(name))
+            {
+                pass.shader->SetInt(name + "_frameCount", pass.frameCount.at(name));
+                pass.shader->SetFloat(name + "_animSpeed", pass.animSpeed.at(name));
+            }
+            else
+            {
+                pass.shader->SetInt(name + "_frameCount", 1);
+                pass.shader->SetFloat(name + "_animSpeed", 0.0f);
+            }
             texUnit++;
         }
 
@@ -392,7 +457,7 @@ void Renderer::DrawParticle(GameWorld &gameWorld, mCamera &camera, float aspect)
         matProj = MatrixOrtho(-right, right, -top, top, camera.getNearPlane(), camera.getFarPlane());
     }
     Matrix4f VP = matProj * matView;
-    particleSys.Render(m_RTPool, realTime, gameTime, VP, gameWorld, camera);
+    particleSys.Render(m_RTPool, realTime, gameTime, VP, matProj, gameWorld, camera);
 }
 // Debug
 #include <iostream>
@@ -444,6 +509,6 @@ void Renderer::DrawVector(Vector3f position, Vector3f direction, float axisLengt
 
     Vector3f end = position + direction * cylinderLen;
     Vector3f tip = position + direction * axisLength;
-    DrawCylinderEx(position, end, thickness, thickness, sides, BLUE);
-    DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, BLACK);
+    DrawCylinderEx(position, end, thickness, thickness, sides, RED);
+    DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, WHITE);
 }

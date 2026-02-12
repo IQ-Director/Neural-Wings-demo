@@ -34,34 +34,53 @@
         }
     ],
     "postProcess": {
-        "name": "Debug_Depth",
+        "name": "粒子合成",
         "rtPool": [
             "inScreen",
+            "Sparks",
+            "RTTest1",
+            "RTTest2",
             "outScreen"
         ],
-        "hint": "postProcessGraph务必按照拓扑序！",
+        "hint1": "支持深度共享",
+        "depthLinks": [
+            {
+                "source": "inScreen",
+                "targets": [
+                    "Sparks",
+                    "RTTest1",
+                    "RTTest2"
+                ]
+            }
+        ],
+        "hint2": "postProcessGraph务必按照拓扑序！",
         "postProcessGraph": [
             {
-                "name": "depthPass",
-                "fs": "assets/shaders/postprocess/debug_depth.fs",
-                "hint2": "input会上传inScreen深度到name_depth，此处为raw_depth(仅inScreen有深度)",
+                "name": "combinePass",
+                "fs": "assets/shaders/postprocess/particle_test.fs",
                 "inputs": [
                     [
-                        "rawScreen",
+                        "u_screen",
                         "inScreen"
+                    ],
+                    [
+                        "u_RTTest1",
+                        "RTTest1"
+                    ],
+                    [
+                        "u_RTTest2",
+                        "RTTest2"
+                    ],
+                    [
+                        "u_sparks",
+                        "Sparks"
                     ]
                 ],
                 "output": "outScreen",
                 "uniforms": {
-                    "near": 0.1,
-                    "far": 1000.0
-                },
-                "baseColor": [
-                    255,
-                    255,
-                    255,
-                    255
-                ]
+                    "u_bloomIntensity": 1.0,
+                    "u_1": 1.0
+                }
             }
         ]
     }

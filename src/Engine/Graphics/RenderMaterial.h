@@ -22,8 +22,16 @@ struct RenderMaterial
     std::shared_ptr<ShaderWrapper> shader;
 
     Vector4f baseColor = Vector4f(255.0, 255.0, 255.0, 255.0);
+
+    bool diffuseIsAnimated = false;
+    int diffuseframeCount = 1;
+    float diffuseanimSpeed = 0.0;
     Texture2D diffuseMap = {0};
     bool useDiffuseMap = false;
+
+    std::unordered_map<std::string, bool> isAnimated;
+    std::unordered_map<std::string, int> frameCount;
+    std::unordered_map<std::string, float> animSpeed;
     std::unordered_map<std::string, Texture2D> customTextures;
 
     int blendMode = BLEND_OPIQUE; // 覆盖颜色
@@ -49,18 +57,38 @@ struct RenderMaterial
         if (config.contains("textures"))
         {
             auto &texData = config["textures"];
-            for (auto &[texName, texPath] : texData.items())
+            for (auto &[texName, texInfo] : texData.items())
             {
-                Texture2D tex = rm.GetTexture2D(texPath);
+                int frame = 1;
+                Texture2D tex = rm.GetTexture2D(texInfo[0], &frame);
                 if (tex.id > 0)
                 {
                     if (texName == "u_diffuseMap")
                     {
+                        if (frame > 1)
+                        {
+                            diffuseIsAnimated = true;
+                            diffuseframeCount = frame;
+                            diffuseanimSpeed = (float)texInfo[1];
+                        }
+                        else
+                            diffuseIsAnimated = false;
+
                         diffuseMap = tex;
                         useDiffuseMap = true;
                     }
                     else
+                    {
+                        if (frame > 1)
+                        {
+                            isAnimated[texName] = true;
+                            frameCount[texName] = frame;
+                            animSpeed[texName] = (float)texInfo[1];
+                        }
+                        else
+                            isAnimated[texName] = false;
                         customTextures[texName] = tex;
+                    }
                 }
             }
             // 若有贴图，使用对应shader或者默认贴图shader
@@ -74,18 +102,18 @@ struct RenderMaterial
             baseColor = JsonParser::ToVector4f(config["color"]);
         if (config.contains("blendMode"))
         {
-            std::string blendMode = config["blendMode"];
-            if (blendMode == "ADDITIVE")
+            std::string blend = config["blendMode"];
+            if (blend == "ADDITIVE")
                 blendMode = BlendMode::BLEND_ADDITIVE;
-            else if (blendMode == "ALPHA")
+            else if (blend == "ALPHA")
                 blendMode = BlendMode::BLEND_ALPHA;
-            else if (blendMode == "NONE")
+            else if (blend == "NONE")
                 blendMode = BLEND_OPIQUE;
-            else if (blendMode == "MULTIPLY")
+            else if (blend == "MULTIPLY")
                 blendMode = BLEND_MULTIPLIED;
-            else if (blendMode == "SCREEN")
+            else if (blend == "SCREEN")
                 blendMode = BLEND_SCREEN;
-            else if (blendMode == "SUBTRACT")
+            else if (blend == "SUBTRACT")
                 blendMode = BLEND_SUBTRACT;
             else
                 std::cerr << "[RenderMaterial]: Unknown blend mode: " << blendMode << std::endl;

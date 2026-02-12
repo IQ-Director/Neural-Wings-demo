@@ -42,11 +42,15 @@ public:
 
     void Render(std::unordered_map<std::string, RenderTexture2D> &RTPool, GPUParticleBuffer &gpuBuffer, const Texture2D &sceneDepth, const Matrix4f &modelMat,
                 const Vector3f &viewPos, float realTime, float gameTime,
-                const Matrix4f &VP, const mCamera &camera);
+                const Matrix4f &VP, const Matrix4f &matProj, const mCamera &camera);
 
     Matrix4f GetRenderMatrix(const TransformComponent &parentTf) const;
 
     std::vector<RenderMaterial> &GetRenderPasses();
+
+    unsigned int GetDataTextureID() const;
+    Texture2D &GetDataTexture();
+    void EnsureDataTextureSize(size_t macParticles);
 
 private:
     float m_maxLife = 5.0f;       // 粒子最大生命周期
@@ -68,5 +72,8 @@ private:
 
     void RenderSignlePass(size_t passIndex, const RenderMaterial &pass, std::unordered_map<std::string, RenderTexture2D> &RTPool, GPUParticleBuffer &gpuBuffer, const Texture2D &sceneDepth, const Matrix4f &modelMat,
                           const Vector3f &viewPos, float realTime, float gameTime,
-                          const Matrix4f &VP, const mCamera &camera);
+                          const Matrix4f &VP, const Matrix4f &matProj, const mCamera &camera);
+
+    // 粒子数据纹理
+    Texture2D m_dataTexture = {0};
 };

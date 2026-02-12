@@ -7,3 +7,4 @@ ui/dist/
 .vscode/
 .vscode_copy/
 post-process-editor/node_modules/
+tools/.venv/

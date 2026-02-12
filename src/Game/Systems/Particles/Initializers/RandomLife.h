@@ -19,6 +19,7 @@ public:
             auto &p = gpuParticles[i];
             float life = minLife + (maxLife - minLife) * ((float)rand()) / (float)RAND_MAX;
             p.life = Vector2f(1.0f, 1.0f) * life;
+            p.ID = i;
         }
     }
 };

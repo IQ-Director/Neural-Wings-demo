@@ -21,6 +21,6 @@ struct GPUParticle
 
     Vector2f life = Vector2f(1.0f, 1.0f); // loc 6 (totalLife,remainingLife )
     unsigned int randomID = 0;            // loc 7
-    float padding4 = 0.0f;
+    unsigned int ID = 0;                  // loc 8
 };
 #pragma pack(pop)

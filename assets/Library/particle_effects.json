@@ -50,13 +50,92 @@
                 "blendMode": "NONE",
                 "hint": "粒子没有深度写入功能，仅深度测试",
                 "textures": {
-                    "tex": "assets/textures/test_4.png"
+                    "tex": [
+                        "assets/textures/test_4.png",
+                        1
+                    ]
                 },
-                "uniforms": {
-                    "u_softness": 1.0
-                },
+                "uniforms": {},
                 "outputRT": "Sparks",
                 "depthTest": true
+            }
+        ]
+    },
+    "SPH": {
+        "isBurst": true,
+        "maxParticles": 20000,
+        "emissionRate": 0,
+        "maxLife": 10000.0,
+        "updateShader": "assets/shaders/particles/compute/sph.vs",
+        "initializers": [
+            {
+                "name": "SPHInit",
+                "params": {
+                    "size": [
+                        0.3,
+                        0.3
+                    ],
+                    "maxLife": 15000.0,
+                    "spacing": [
+                        0.2,
+                        0.2,
+                        0.2
+                    ],
+                    "counts": [
+                        20,
+                        150,
+                        20
+                    ],
+                    "direction": [
+                        0,
+                        0,
+                        1
+                    ],
+                    "spawnPos": [
+                        0,
+                        0,
+                        0
+                    ]
+                }
+            }
+        ],
+        "passes": [
+            {
+                "hint": "由于深度共享，对于不能写入深度的pass务必放在写入的前面",
+                "name": "厚度写入RT",
+                "vs": "assets/shaders/particles/render/billboard.vs",
+                "fs": "assets/shaders/particles/render/fluid_thickness.fs",
+                "blendMode": "ADDITIVE",
+                "uniforms": {},
+                "outputRT": "raw_Fluid_Thickness",
+                "depthTest": true,
+                "depthWrite": false
+            },
+            {
+                "name": "深度写入RT",
+                "vs": "assets/shaders/particles/render/billboard.vs",
+                "fs": "assets/shaders/particles/render/fluid_depth.fs",
+                "blendMode": "NONE",
+                "uniforms": {},
+                "outputRT": "raw_Fluid_Depth",
+                "depthTest": true,
+                "depthWrite": true
+            },
+            {
+                "name": "普通RT",
+                "vs": "assets/shaders/particles/render/billboard.vs",
+                "fs": "assets/shaders/particles/render/fluid.fs",
+                "blendMode": "NONE",
+                "textures": {
+                    "tex": [
+                        "assets/textures/sph.png",
+                        1
+                    ]
+                },
+                "uniforms": {},
+                "outputRT": "simple_Fluid",
+                "depthTest": true,
+                "depthWrite": true
             }
         ]
     }

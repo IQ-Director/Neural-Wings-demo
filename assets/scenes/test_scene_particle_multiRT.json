@@ -29,7 +29,7 @@
             "position": [
                 0,
                 0,
-                5
+                0
             ],
             "rotation": [
                 0,
@@ -37,13 +37,13 @@
                 0
             ],
             "scale": [
-                1,
-                1,
-                1
+                4,
+                4,
+                4
             ],
             "physics": {
-                "mass": 100,
-                "elasticity": 0.6
+                "mass": 10000,
+                "elasticity": 1.0
             },
             "render": {
                 "renderScale": [
@@ -107,13 +107,13 @@
             "tag": "cube",
             "prefab": "assets/prefabs/cube.json",
             "position": [
-                5,
-                5,
-                5
+                0,
+                0,
+                30
             ],
             "rotation": [
                 0,
-                0,
+                45,
                 0
             ],
             "scale": [
@@ -123,7 +123,7 @@
             ],
             "physics": {
                 "mass": 100,
-                "elasticity": 0.6
+                "elasticity": 1.0
             },
             "render": {
                 "renderScale": [
@@ -169,95 +169,6 @@
             },
             "scripts": [
                 {
-                    "RotatorScript": {
-                        "angluarVelocity": [
-                            1.0,
-                            0.0,
-                            0
-                        ]
-                    }
-                },
-                {
-                    "CollisionListener": {}
-                }
-            ]
-        },
-        {
-            "name": "cube",
-            "tag": "cube",
-            "prefab": "assets/prefabs/cube.json",
-            "position": [
-                5,
-                0,
-                5
-            ],
-            "rotation": [
-                0,
-                0,
-                0
-            ],
-            "scale": [
-                3,
-                1,
-                1
-            ],
-            "physics": {
-                "mass": 100,
-                "elasticity": 0.6
-            },
-            "render": {
-                "renderScale": [
-                    1,
-                    1,
-                    1
-                ],
-                "isVisible": true,
-                "showWires": false,
-                "showAxes": false,
-                "showAngVol": false,
-                "showVol": false,
-                "showCenter": false,
-                "defaultMaterial": {
-                    "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
-                    "fs": "assets/shaders/default.fs",
-                    "color": [
-                        200,
-                        100,
-                        100,
-                        255
-                    ],
-                    "depthWrite": true,
-                    "depthTest": true
-                },
-                "meshPasses": [
-                    {
-                        "meshIndex": 0,
-                        "name": "Mesh_0",
-                        "passes": [
-                            {
-                                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
-                                "textures": {
-                                    "u_diffuseMap": "assets/textures/test_3.png"
-                                },
-                                "blendMode": "NONE",
-                                "depthWrite": true,
-                                "depthTest": true
-                            }
-                        ]
-                    }
-                ]
-            },
-            "scripts": [
-                {
-                    "RotatorScript": {
-                        "angluarVelocity": [
-                            1.0,
-                            0.0,
-                            0
-                        ]
-                    }
-                },
-                {
                     "CollisionListener": {}
                 }
             ],
@@ -266,56 +177,66 @@
                 "emitters": [
                     {
                         "name": "Core_Thrust",
-                        "maxParticles": 10000,
-                        "emissionRate": 2000.0,
-                        "maxLife": 1.5,
+                        "maxParticles": 1090,
+                        "emissionRate": 20.0,
+                        "maxLife": 15,
                         "space": "WORLD",
                         "updateShader": "assets/shaders/particles/compute/test_update.vs",
                         "initializers": [
                             {
-                                "name": "SpherePosition",
+                                "name": "SphereDir",
                                 "params": {
-                                    "radius": 0.2,
                                     "offset": [
                                         0.0,
                                         0.0,
-                                        -2.5
-                                    ]
-                                }
-                            },
-                            {
-                                "name": "RadialVelocity",
-                                "params": {
-                                    "direction": [
-                                        0.0,
-                                        0.0,
-                                        -1.0
+                                        0.0
                                     ],
-                                    "angle": 5.0,
-                                    "speedMin": 20.0,
-                                    "speedMax": 50.0
+                                    "minSpeed": 0.0,
+                                    "maxSpeed": 2.0,
+                                    "size": [
+                                        0.4,
+                                        0.4
+                                    ]
                                 }
                             },
                             {
                                 "name": "RandomLife",
                                 "params": {
-                                    "min": 0.5,
-                                    "max": 1.2
+                                    "minLife": 0.5,
+                                    "maxLife": 1.5
                                 }
                             }
                         ],
-                        "renderMaterial": {
-                            "vs": "assets/shaders/particles/render/billboard.vs",
-                            "fs": "assets/shaders/particles/soft.fs",
-                            "blendMode": "ADDITIVE",
-                            "depthWrite": false,
-                            "textures": {
-                                "u_sprite": "assets/textures/particles/glow_dot.png"
+                        "passes": [
+                            {
+                                "name": "直接输出size",
+                                "vs": "assets/shaders/particles/render/billboard.vs",
+                                "fs": "assets/shaders/particles/render/soft.fs",
+                                "blendMode": "NONE",
+                                "hint": "粒子没有深度写入功能，仅深度测试",
+                                "textures": {
+                                    "tex": "assets/textures/test_2.png"
+                                },
+                                "uniforms": {
+                                    "u_softness": 1.0
+                                },
+                                "outputRT": "RTTest1"
                             },
-                            "uniforms": {
-                                "u_softness": 1.0
+                            {
+                                "name": "直接输出size",
+                                "vs": "assets/shaders/particles/render/billboard.vs",
+                                "fs": "assets/shaders/particles/render/soft.fs",
+                                "blendMode": "NONE",
+                                "hint": "粒子没有深度写入功能，仅深度测试",
+                                "textures": {
+                                    "tex": "assets/textures/test_3.png"
+                                },
+                                "uniforms": {
+                                    "u_softness": 1.0
+                                },
+                                "outputRT": "RTTest2"
                             }
-                        }
+                        ]
                     }
                 ]
             }

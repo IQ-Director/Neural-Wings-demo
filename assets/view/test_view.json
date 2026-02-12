@@ -1,10 +1,26 @@
 {
     "views": [
         {
+            "name": "follow",
+            "viewport": [
+                0.0,
+                0.0,
+                1,
+                1
+            ],
+            "clearBackground": false,
+            "backgroundColor": [
+                255,
+                255,
+                255,
+                255
+            ]
+        },
+        {
             "name": "main_orbital",
             "viewport": [
-                0,
-                0,
+                0.8,
+                0.8,
                 1,
                 1
             ],
@@ -15,72 +31,111 @@
                 0,
                 255
             ]
-        },
-        {
-            "name": "rear_view",
-            "viewport": [
-                0.8,
-                0.8,
-                1,
-                1
-            ],
-            "clearBackground": true,
-            "backgroundColor": [
-                0,
-                0,
-                0,
-                180
-            ]
         }
     ],
     "postProcess": {
-        "name": "粒子合成",
+        "name": "SPH_SSF",
+        "hints": "rtPool使用accuracy_前缀表示使用浮点纹理",
         "rtPool": [
             "inScreen",
-            "Sparks",
-            "RTTest1",
-            "RTTest2",
-            "outScreen"
+            "outScreen",
+            "accuracy_raw_Fluid_Depth",
+            "accuracy_FluidBlur_1",
+            "accuracy_FluidBlur_2",
+            "accuracy_raw_Normal",
+            "accuracy_raw_Fluid_Thickness",
+            "simple_Fluid"
         ],
-        "hint1": "支持深度共享",
         "depthLinks": [
             {
                 "source": "inScreen",
                 "targets": [
-                    "Sparks",
-                    "RTTest1",
-                    "RTTest2"
+                    "raw_Fluid_Depth",
+                    "raw_Fluid_Thickness",
+                    "raw_Normal",
+                    "simple_Fluid"
                 ]
             }
         ],
-        "hint2": "postProcessGraph务必按照拓扑序！",
+        "hint": "拓扑序",
         "postProcessGraph": [
             {
-                "name": "combinePass",
-                "fs": "assets/shaders/postprocess/particle_test.fs",
+                "name": "DepthBlur",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
                 "inputs": [
                     [
-                        "u_screen",
+                        "u_fluidDepth",
+                        "raw_Fluid_Depth"
+                    ]
+                ],
+                "output": "FluidBlur_1",
+                "uniforms": {
+                    "u_dir": [
+                        1,
+                        0
+                    ]
+                }
+            },
+            {
+                "name": "New DepthBlur",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
+                "inputs": [
+                    [
+                        "u_fluidDepth",
+                        "FluidBlur_1"
+                    ]
+                ],
+                "output": "FluidBlur_2",
+                "uniforms": {
+                    "u_dir": [
+                        0,
+                        1
+                    ]
+                }
+            },
+            {
+                "name": "NormalBuild",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/normalBuild.fs",
+                "inputs": [
+                    [
+                        "u_fluidDepth",
+                        "FluidBlur_2"
+                    ]
+                ],
+                "output": "raw_Normal",
+                "uniforms": {}
+            },
+            {
+                "name": "Shading",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/sph_ssf.fs",
+                "inputs": [
+                    [
+                        "u_sceneTex",
                         "inScreen"
                     ],
                     [
-                        "u_RTTest1",
-                        "RTTest1"
+                        "u_fluidDepth",
+                        "FluidBlur_2"
                     ],
                     [
-                        "u_RTTest2",
-                        "RTTest2"
+                        "u_thickness",
+                        "raw_Fluid_Thickness"
                     ],
                     [
-                        "u_sparks",
-                        "Sparks"
+                        "u_simpleFluid",
+                        "simple_Fluid"
+                    ],
+                    [
+                        "u_normal",
+                        "raw_Normal"
                     ]
                 ],
                 "output": "outScreen",
-                "uniforms": {
-                    "u_bloomIntensity": 1.0,
-                    "u_1": 1.0
-                }
+                "uniforms": {}
             }
         ]
     }

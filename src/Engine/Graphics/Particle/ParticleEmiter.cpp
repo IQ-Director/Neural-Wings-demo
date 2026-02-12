@@ -76,7 +76,6 @@ void ParticleEmitter::LoadFromConfig(const json &config, const ParticleFactory &
             m_passes.push_back(mat);
         }
     }
-    // m_renderMaterial.LoadFromConfig(config["renderMaterial"], rm);
 }
 void ParticleEmitter::Update(float deltaTime, const TransformComponent &ownerTf, GPUParticleBuffer &particleBuffer)
 {
@@ -103,8 +102,9 @@ void ParticleEmitter::Burst(const TransformComponent &ownerTf, GPUParticleBuffer
 void ParticleEmitter::Spawn(int spawnCounts, const TransformComponent &ownerTf, GPUParticleBuffer &particleBuffer)
 {
 
-    if (spawnCounts > 1024)
-        spawnCounts = 1024; // 防止卡顿
+    // TODO
+    // if (spawnCounts > 8192)
+    //     spawnCounts = 8192; // 防止卡顿
     m_spawnBuffer.assign(spawnCounts, GPUParticle());
 
     // 初始化
@@ -116,9 +116,10 @@ void ParticleEmitter::Spawn(int spawnCounts, const TransformComponent &ownerTf, 
     {
         for (auto &particle : m_spawnBuffer)
         {
-            particle.position = (ownerTf.rotation * (particle.position & ownerTf.scale)) + ownerTf.position;
-            particle.velocity = ownerTf.rotation * particle.velocity;
-            particle.acceleration = ownerTf.rotation * particle.acceleration;
+
+            particle.position = (ownerTf.GetWorldRotation() * (particle.position & ownerTf.GetWorldScale())) + ownerTf.GetWorldPosition();
+            particle.velocity = ownerTf.GetWorldRotation() * particle.velocity;
+            particle.acceleration = ownerTf.GetWorldRotation() * particle.acceleration;
         }
     }
 
@@ -194,7 +195,7 @@ std::vector<RenderMaterial> &ParticleEmitter::GetRenderPasses()
 
 void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &pass, std::unordered_map<std::string, RenderTexture2D> &RTPool, GPUParticleBuffer &gpuBuffer, const Texture2D &sceneDepth, const Matrix4f &modelMat,
                                        const Vector3f &viewPos, float realTime, float gameTime,
-                                       const Matrix4f &VP, const mCamera &camera)
+                                       const Matrix4f &VP, const Matrix4f &matProj, const mCamera &camera)
 {
     if (!pass.shader || !pass.shader->IsValid())
         return;
@@ -206,7 +207,6 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
 
     BeginTextureMode(itRT->second);
     {
-        rlClearColor(0, 0, 0, 0);
         rlDrawRenderBatchActive();
         rlEnableVertexArray(0);
         rlSetTexture(0);
@@ -214,30 +214,48 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
 
         Vector3f right = camera.Right();
         Vector3f up = camera.Up();
+        Vector3f dir = camera.Direction();
 
-        int texUnit = 0;
+        int texUnit = 1;
+
+        pass.shader->SetTexture("dataTex", m_dataTexture, texUnit++);
+        pass.shader->SetInt("maxParticles", m_maxParticles);
+
         for (const auto &[name, texture] : pass.customTextures)
         {
             if (texture.id > 0)
             {
                 pass.shader->SetTexture(name, texture, texUnit);
+                if (pass.isAnimated.at(name))
+                {
+                    pass.shader->SetInt(name + "_frameCount", pass.frameCount.at(name));
+                    pass.shader->SetFloat(name + "_animSpeed", pass.animSpeed.at(name));
+                }
+                else
+                {
+                    pass.shader->SetInt(name + "_frameCount", 1);
+                    pass.shader->SetFloat(name + "_animSpeed", 0.0f);
+                }
+
                 texUnit++;
             }
         }
         if (sceneDepth.id > 0)
         {
-            pass.shader->SetTexture("u_sceneDepth", sceneDepth, texUnit);
+            pass.shader->SetTexture("sceneDepth", sceneDepth, texUnit);
             texUnit++;
         }
 
-        pass.shader->SetVec2("u_resolution", Vector2f(GetScreenWidth(), GetScreenHeight()));
-        pass.shader->SetFloat("u_near", camera.getNearPlane());
-        pass.shader->SetFloat("u_far", camera.getFarPlane());
+        pass.shader->SetVec2("resolution", Vector2f(GetScreenWidth(), GetScreenHeight()));
+        pass.shader->SetFloat("near", camera.getNearPlane());
+        pass.shader->SetFloat("far", camera.getFarPlane());
 
-        pass.shader->SetVec3("u_cameraRight", right);
-        pass.shader->SetVec3("u_cameraUp", up);
-        pass.shader->SetMat4("u_vp", VP);
-        pass.shader->SetMat4("u_model", modelMat);
+        pass.shader->SetVec3("cameraDir", dir);
+        pass.shader->SetVec3("cameraRight", right);
+        pass.shader->SetVec3("cameraUp", up);
+        pass.shader->SetMat4("vp", VP);
+        pass.shader->SetMat4("proj", matProj);
+        pass.shader->SetMat4("model", modelMat);
         pass.shader->SetAll(Matrix4f::identity(), Matrix4f::identity(), viewPos, realTime, gameTime,
                             pass.baseColor,
                             pass.customFloats,
@@ -246,28 +264,45 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
                             pass.customVector4);
 
         rlDisableBackfaceCulling();
-        rlEnableDepthTest();
-        rlDisableDepthMask();
 
+        if (pass.depthTest)
+        {
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+        }
+        else
+            glDisable(GL_DEPTH_TEST);
+
+        if (pass.depthWrite)
+            glDepthMask(GL_TRUE);
+        else
+            glDepthMask(GL_FALSE);
+
+        glEnable(GL_BLEND);
         switch (pass.blendMode)
         {
         case BLEND_OPIQUE:
-            rlDisableColorBlend();
+            glDisable(GL_BLEND);
             break;
         case BLEND_MULTIPLIED:
-            rlSetBlendMode(BLEND_CUSTOM);
-            rlSetBlendFactors(RL_DST_COLOR, RL_ZERO, RL_FUNC_ADD);
+            glBlendFunc(GL_DST_COLOR, GL_ZERO);
+            glBlendEquation(GL_FUNC_ADD);
             break;
         case BLEND_SCREEN:
-            rlSetBlendMode(BLEND_CUSTOM);
-            rlSetBlendFactors(RL_ONE, RL_ONE_MINUS_SRC_COLOR, RL_FUNC_ADD);
+            glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_COLOR);
+            glBlendEquation(GL_FUNC_ADD);
             break;
         case BLEND_SUBTRACT:
-            rlSetBlendMode(BLEND_CUSTOM);
-            rlSetBlendFactors(RL_ONE, RL_ONE, RL_FUNC_REVERSE_SUBTRACT);
+            glBlendFunc(GL_ONE, GL_ONE);
+            glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
+            break;
+        case BLEND_ADDITIVE:
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            glBlendEquation(GL_FUNC_ADD);
             break;
         default:
-            BeginBlendMode(pass.blendMode);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glBlendEquation(GL_FUNC_ADD);
             break;
         }
 
@@ -275,6 +310,9 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
 
         glDisable(GL_RASTERIZER_DISCARD);
         glDrawArraysInstanced(GL_TRIANGLES, 0, 6, (GLsizei)m_maxParticles);
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendEquation(GL_FUNC_ADD);
 
         glBindVertexArray(0);
 
@@ -299,11 +337,11 @@ void ParticleEmitter::RenderSignlePass(size_t passIndex, const RenderMaterial &p
 }
 void ParticleEmitter::Render(std::unordered_map<std::string, RenderTexture2D> &RTPool, GPUParticleBuffer &gpuBuffer, const Texture2D &sceneDepth, const Matrix4f &modelMat,
                              const Vector3f &viewPos, float realTime, float gameTime,
-                             const Matrix4f &VP, const mCamera &camera)
+                             const Matrix4f &VP, const Matrix4f &matProj, const mCamera &camera)
 {
     for (size_t i = 0; i < m_passes.size(); ++i)
     {
-        RenderSignlePass(i, m_passes[i], RTPool, gpuBuffer, sceneDepth, modelMat, viewPos, realTime, gameTime, VP, camera);
+        RenderSignlePass(i, m_passes[i], RTPool, gpuBuffer, sceneDepth, modelMat, viewPos, realTime, gameTime, VP, matProj, camera);
     }
 }
 
@@ -312,5 +350,27 @@ Matrix4f ParticleEmitter::GetRenderMatrix(const TransformComponent &parentTf) co
     if (simSpace == SimulationSpace::WORLD)
         return Matrix4f::identity();
     else
-        return parentTf.GetTransformMatrix(); // local space
+        return parentTf.GetLocalMatrix(); // local space
+}
+
+unsigned int ParticleEmitter::GetDataTextureID() const
+{
+    return m_dataTexture.id;
+}
+void ParticleEmitter::EnsureDataTextureSize(size_t maxParticles)
+{
+    if (m_dataTexture.id == 0 || maxParticles != m_dataTexture.height)
+    {
+        m_dataTexture.id = rlLoadTexture(nullptr, 6, maxParticles, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32, 1);
+        m_dataTexture.width = 6;
+        m_dataTexture.height = maxParticles;
+        m_dataTexture.mipmaps = 1;
+        m_dataTexture.format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
+
+        SetTextureFilter(m_dataTexture, TEXTURE_FILTER_POINT);
+    }
+}
+Texture2D &ParticleEmitter::GetDataTexture()
+{
+    return m_dataTexture;
 }

@@ -1,5 +1,62 @@
 #include "ResourceManager.h"
 #include <iostream>
+#include <cctype>
+#include <fstream>
+#include <filesystem>
+#include <nlohmann/json.hpp>
+
+using json = nlohmann::json;
+
+namespace
+{
+bool TryLoadPreprocessedGifAtlas(const std::string &gifPath, Texture2D &outTexture, int &outFrameCount)
+{
+    namespace fs = std::filesystem;
+    fs::path basePath = fs::path(gifPath).replace_extension("");
+    fs::path atlasPath = basePath.string() + ".atlas.png";
+    fs::path metaPath = basePath.string() + ".atlas.json";
+
+    if (!fs::exists(atlasPath) || !fs::exists(metaPath))
+        return false;
+
+    std::ifstream metaFile(metaPath);
+    if (!metaFile.is_open())
+        return false;
+
+    json meta;
+    try
+    {
+        metaFile >> meta;
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    if (!meta.contains("frameCount") || !meta["frameCount"].is_number_integer())
+        return false;
+
+    outFrameCount = meta["frameCount"].get<int>();
+    if (outFrameCount <= 0)
+        return false;
+
+    Texture2D tex = LoadTexture(atlasPath.string().c_str());
+    if (tex.id == 0)
+        return false;
+
+    outTexture = tex;
+    return true;
+}
+
+bool IsGifPath(const std::string &path)
+{
+    namespace fs = std::filesystem;
+    std::string ext = fs::path(path).extension().string();
+    for (char &c : ext)
+        c = (char)tolower(c);
+    return ext == ".gif";
+}
+} // namespace
 
 ResourceManager::~ResourceManager()
 {
@@ -61,16 +118,42 @@ Model ResourceManager::GetModel(const std::string &path)
         std::cerr << "[ResourceManager] Failed to load model: " << path << std::endl;
     return model;
 }
-Texture2D ResourceManager::GetTexture2D(const std::string &path)
+Texture2D ResourceManager::GetTexture2D(const std::string &path, int *outFrameCount)
 {
     auto it = m_textures.find(path);
     if (it != m_textures.end())
+    {
+        if (outFrameCount)
+            *outFrameCount = m_textureFrameCounts[it->second.id];
         return it->second;
+    }
+    // gif贴图
+    if (IsGifPath(path))
+    {
+        Texture2D preprocessed = {0};
+        int frameCount = 0;
+        if (TryLoadPreprocessedGifAtlas(path, preprocessed, frameCount))
+        {
+            m_textures[path] = preprocessed;
+            m_textureFrameCounts[preprocessed.id] = frameCount;
+            if (outFrameCount)
+                *outFrameCount = frameCount;
+            std::cout << "[ResourceManager]: Loaded preprocessed GIF atlas: " << path << " (" << frameCount << " frames)" << std::endl;
+            return preprocessed;
+        }
+
+        std::cerr << "[ResourceManager] Missing preprocessed GIF atlas for: " << path << " (expect .atlas.png + .atlas.json)" << std::endl;
+        return Texture2D{0};
+    }
+    // 静态贴图
     Texture2D textures = LoadTexture(path.c_str());
 
     if (textures.id != 0)
     {
         m_textures[path] = textures;
+        m_textureFrameCounts[textures.id] = 1;
+        if (outFrameCount)
+            *outFrameCount = 1;
         std::cout << "[ResourceManager] Loaded textures " << path << std::endl;
     }
     else
