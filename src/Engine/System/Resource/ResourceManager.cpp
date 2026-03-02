@@ -238,7 +238,7 @@ TextureCubemap ResourceManager::GetCubemap(const std::string &path)
         SetShaderValue(shdr, mapLoc, &value, SHADER_UNIFORM_INT);
         Texture2D panorama = LoadTextureFromImage(img);
 
-        cubemap = GenTextureCubemap(shdr, panorama, 1024, PIXELFORMAT_UNCOMPRESSED_R32G32B32);
+        cubemap = GenTextureCubemap(shdr, panorama, 1024, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
 
         UnloadTexture(panorama);
         UnloadShader(shdr);
@@ -262,6 +262,7 @@ TextureCubemap ResourceManager::GetCubemap(const std::string &path)
     }
     return cubemap;
 }
+
 TextureCubemap ResourceManager::GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format)
 {
     TextureCubemap cubemap = {0};

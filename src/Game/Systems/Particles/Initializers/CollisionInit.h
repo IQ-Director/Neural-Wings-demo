@@ -2,8 +2,9 @@
 #include "Engine/Math/Math.h"
 #include "Engine/Utils/JsonParser.h"
 #include <nlohmann/json.hpp>
+#include <random>
+
 using json = nlohmann::json;
-;
 class CollisionInit : public IParticleInitializer
 {
 public:
@@ -42,13 +43,17 @@ public:
     }
     void Initialize(std::vector<GPUParticle> &gpuParticles, size_t start, size_t count) override
     {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
         for (size_t i = start; i < start + count; ++i)
         {
             if (i >= gpuParticles.size())
                 break;
             auto &p = gpuParticles[i];
             p.position = Vector3f::ZERO; // 在碰撞点的坐标系
-            p.velocity = Vector3f::RandomCycle(normal, SmoothSpeed(impulse) * ((float)(std::rand()) / RAND_MAX));
+            p.velocity = Vector3f::RandomCycle(normal, SmoothSpeed(impulse) * dis(gen));
             p.acceleration = Vector3f::ZERO;
             p.color = Vector4f(1.0f, 0.0f, 0.0f, 1.0f);
             p.size = size / (p.velocity.Length() < 1.0f ? 1.0f : p.velocity.Length());

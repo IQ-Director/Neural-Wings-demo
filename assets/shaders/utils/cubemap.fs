@@ -1,17 +1,18 @@
-#version 330
+#version 300 es 
+precision mediump float;
 
 in vec3 fragPosition;
 out vec4 finalColor;
 
 uniform sampler2D equirectangularMap;
 
-const vec2 invAtan = vec2(0.1591, 0.3183);
+const vec2 invAtan = vec2(0.1591f, 0.3183f);
 
 vec2 SampleSphericalMap(vec3 v) {
     vec2 uv = vec2(atan(v.z, v.x), asin(v.y));
     uv *= invAtan;
-    uv += 0.5;
-    uv.y = 1.0 - uv.y;
+    uv += 0.5f;
+    uv.y = 1.0f - uv.y;
     return uv;
 }
 
@@ -19,5 +20,5 @@ void main() {
     vec2 uv = SampleSphericalMap(normalize(fragPosition));
     // 采样 HDR 颜色
     vec3 color = texture(equirectangularMap, uv).rgb;
-    finalColor = vec4(color, 1.0);
+    finalColor = vec4(color, 1.0f);
 }

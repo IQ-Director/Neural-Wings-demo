@@ -198,7 +198,13 @@
                     ]
                 ],
                 "output": "Screen1",
-                "uniforms": {}
+                "uniforms": {
+                    "lightDir": [
+                        -0.5,
+                        -1.0,
+                        -0.5
+                    ]
+                }
             },
             {
                 "name": "Foggy",
@@ -244,7 +250,7 @@
                     "u_density": 0.1,
                     "MAX_STEPS": 24,
                     "MAX_DIST": 2000,
-                    "STEP_SIZE": 18.0
+                    "STEP_SIZE": 30.0
                 }
             }
         ]

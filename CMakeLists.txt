@@ -49,6 +49,7 @@ set(BUILD_GAMES OFF CACHE BOOL "" FORCE)
 
 
 add_compile_definitions(SUPPORT_FILEFORMAT_HDR)
+set(OPENGL_VERSION "ES 3.0" CACHE STRING "OpenGL version" FORCE)
 FetchContent_MakeAvailable(raylib raygui nlohmann_json)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
@@ -75,11 +76,13 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 if(EMSCRIPTEN)
     set(PLATFORM "Web")
-    add_definitions(-DPLATFORM_WEB)
+    # add_definitions(-DPLATFORM_WEB)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_WEB)
     message(STATUS "Web network backend: nbnet + WebRTC")
 else()
     set(PLATFORM "Desktop")
-    add_definitions(-DPLATFORM_DESKTOP)
+    # add_definitions(-DPLATFORM_DESKTOP)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE PLATFORM_DESKTOP)
 endif()
 
 message(STATUS "当前平台: ${PLATFORM}")
@@ -96,8 +99,21 @@ if(PLATFORM STREQUAL "Web")
     target_link_options(${PROJECT_NAME} PRIVATE
         "-sUSE_GLFW=3"
         "-sASYNCIFY"
+        "-sUSE_WEBGL2=1"
+        "-sMIN_WEBGL_VERSION=2"
+        "-sMAX_WEBGL_VERSION=2"
+        "-sFULL_ES3=1"
+
+        "-sALLOW_MEMORY_GROWTH=1"
+        "-sINITIAL_MEMORY=268435456"
+
+        "--js-library" "${CMAKE_CURRENT_SOURCE_DIR}/src/Engine/Network/Transport/nbnet_bridge.js"
+
         "--shell-file" "${CMAKE_CURRENT_SOURCE_DIR}/src/shell.html"
         "--preload-file" "${CMAKE_CURRENT_SOURCE_DIR}/assets@assets"
+
+        "-sASSERTIONS=1"
+        "-g3"
     )
 
     # Try to find npm to build the Vue UI automatically for web builds.

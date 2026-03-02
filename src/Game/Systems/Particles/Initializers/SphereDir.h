@@ -1,6 +1,7 @@
 #include "Engine/Graphics/Particle/IParticleInitializer.h"
 #include "Engine/Math/Math.h"
 #include "Engine/Utils/JsonParser.h"
+#include <random>
 // 球均匀分布，随机速度，均匀大小
 class SphereDir : public IParticleInitializer
 {
@@ -18,13 +19,17 @@ public:
     }
     void Initialize(std::vector<GPUParticle> &gpuParticles, size_t start, size_t count) override
     {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
         for (size_t i = start; i < start + count; ++i)
         {
             if (i >= gpuParticles.size())
                 break;
             auto &p = gpuParticles[i];
             Vector3f randomDir = Vector3f::RandomSphere();
-            float speed = static_cast<float>(rand()) / RAND_MAX * (maxSpeed - minSpeed) + minSpeed;
+            float speed = dis(gen) * (maxSpeed - minSpeed) + minSpeed;
             p.velocity = randomDir * speed;
             p.position = offset; // 随体系下坐标
             p.randomID = rand() % 10000;

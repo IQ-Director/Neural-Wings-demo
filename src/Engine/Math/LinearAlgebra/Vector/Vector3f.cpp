@@ -293,10 +293,15 @@ Vector3f Vector3f::Max(const Vector3f &a, const Vector3f &b)
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
 #endif
+#include <random>
 Vector3f Vector3f::RandomSphere(float radius)
 {
-    float theta = static_cast<float>(rand()) / RAND_MAX * 2.0f * M_PI;
-    float phi = acos(2.0f * static_cast<float>(rand()) / RAND_MAX - 1.0f);
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+    float theta = dis(gen) * 2.0f * M_PI;
+    float phi = acos(2.0f * dis(gen) - 1.0f);
 
     float x = sin(phi) * cos(theta);
     float y = sin(phi) * sin(theta);
@@ -307,7 +312,11 @@ Vector3f Vector3f::RandomSphere(float radius)
 
 Vector3f Vector3f::RandomCycle(const Vector3f &normal, float radius)
 {
-    float theta = static_cast<float>(rand()) / RAND_MAX * 2.0f * M_PI;
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+    float theta = dis(gen) * 2.0f * M_PI;
 
     float x = cos(theta);
     float y = sin(theta);

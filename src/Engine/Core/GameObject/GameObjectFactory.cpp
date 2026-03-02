@@ -1,4 +1,3 @@
-#pragma once
 #include "GameObjectFactory.h"
 #include "Engine/Math/Math.h"
 #include "Engine/Core/Components/Components.h"

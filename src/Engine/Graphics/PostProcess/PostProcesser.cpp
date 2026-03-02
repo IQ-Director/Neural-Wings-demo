@@ -31,7 +31,12 @@ void PostProcesser::SetUpRTPool(const std::vector<std::string> &names, int width
         if (pos == 0)
         {
             processName = processName.substr(prefix.length());
+#if defined(PLATFORM_WEB)
+            format = PIXELFORMAT_UNCOMPRESSED_R16G16B16A16;
+            filter = TEXTURE_FILTER_POINT;
+#else
             format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
+#endif
         }
         RenderTexture2D rt = Renderer::LoadRT(width, height, format);
         if (rt.id > 0)
@@ -192,7 +197,7 @@ void PostProcesser::PostProcess(GameWorld &gameWorld, CameraManager &cameraManag
 {
     for (auto &pass : m_postProcessPasses)
     {
-        auto &itOut = m_RTPool.find(pass.outputTarget);
+        auto itOut = m_RTPool.find(pass.outputTarget);
         if (itOut == m_RTPool.end())
             continue;
 

@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision mediump float;
 in vec3 fragPosition;
 in vec3 fragNormal;
 in float v_linearDepth;
@@ -12,7 +13,7 @@ uniform float gameTime;
 out vec4 finalColor;
 
 void main() {
-    float range = 20.0;
+    float range = 20.0f;
     float d = v_linearDepth / range;
     finalColor = vec4(vec3(d), 1);
 }

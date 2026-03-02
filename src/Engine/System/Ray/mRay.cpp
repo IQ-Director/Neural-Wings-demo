@@ -56,6 +56,7 @@ mRaycastHit mRay::Raycast(float maxDistance, GameWorld &world, GameObject *ignor
         }
         return closestHit;
     }
+    return closestHit;
 }
 
 bool mRay::IntersectOBB(const TransformComponent &tf, const RigidbodyComponent &rb, float &outDist, Vector3f &outNormal) const

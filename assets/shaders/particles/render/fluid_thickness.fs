@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision mediump float;
 
 in vec2 fragTexCoord;
 in vec4 fragColor;
@@ -43,20 +44,22 @@ uniform sampler2D tex;
 
 void main() {
     // 务必让fragTexCoord参与结果运算，否则内存访问会出错
-    vec2 screenUV = gl_FragCoord.xy / textureSize(sceneDepth, 0).xy;
+    vec2 screenSize = vec2(textureSize(sceneDepth, 0));
+    vec2 screenUV = gl_FragCoord.xy / screenSize;
+
     float depth = texture(sceneDepth, screenUV).r;
 
-    vec2 normalCoords = fragTexCoord * 2.0 - 1;
+    vec2 normalCoords = fragTexCoord * 2.0f - 1.0f;
     float r2 = dot(normalCoords, normalCoords);
-    if(r2 > 1.0)
+    if(r2 > 1.0f)
         discard;
-    float z = sqrt(1.0 - r2);
-    float thickness = 2.0 * vRadius * z;
+    float z = sqrt(1.0f - r2);
+    float thickness = 2.0f * vRadius * z;
 
     vec3 view = vPosition - vViewPos;
     float centerViewZ = dot(view, vDir);
     float pixelViewZ = centerViewZ - z * vRadius;
-    vec4 clipPos = matProj * vec4(0.0, 0.0, -pixelViewZ, 1.0);
-    gl_FragDepth = (clipPos.z / clipPos.w) * 0.5 + 0.5;
-    finalColor = vec4(vec3(thickness), 1.0);
+    vec4 clipPos = matProj * vec4(0.0f, 0.0f, -pixelViewZ, 1.0f);
+    gl_FragDepth = (clipPos.z / clipPos.w) * 0.5f + 0.5f;
+    finalColor = vec4(vec3(thickness), 1.0f);
 }

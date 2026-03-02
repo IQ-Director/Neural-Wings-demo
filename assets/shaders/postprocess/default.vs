@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision mediump float;
 
 in vec3 vertexPosition;
 in vec2 vertexTexCoord;
@@ -16,7 +17,7 @@ out float vFar;
 void main() {
     fragTexCoord = vertexTexCoord;
     fragColor = vertexColor;
-    gl_Position = mvp * vec4(vertexPosition, 1.0);
+    gl_Position = mvp * vec4(vertexPosition, 1.0f);
     vNear = cameraNear;
     vFar = cameraFar;
 }

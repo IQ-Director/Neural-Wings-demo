@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision mediump float;
 
 in vec3 fragPosition;
 in vec2 fragTexCoord;
@@ -23,21 +24,21 @@ void main() {
     vec3 I = normalize(fragPosition - viewPos);
     vec3 R = reflect(I, N);
     vec3 reflectionColor = texture(skyboxMap, R).rgb;
-    reflectionColor = reflectionColor / (reflectionColor + vec3(1.0));
-    reflectionColor = pow(reflectionColor, vec3(1.0 / 2.2));
+    reflectionColor = reflectionColor / (reflectionColor + vec3(1.0f));
+    reflectionColor = pow(reflectionColor, vec3(1.0f / 2.2f));
 
-    float fresnel = 0.54 + 0.94 * pow(1.0 - max(dot(N, -I), 0.0), 5.0);
+    float fresnel = 0.54f + 0.94f * pow(1.0f - max(dot(N, -I), 0.0f), 5.0f);
 
-    float currentFrame = floor(mod(gameTime * u_diffuseMap_animSpeed, u_diffuseMap_frameCount));
+    float currentFrame = floor(mod(gameTime * u_diffuseMap_animSpeed, float(u_diffuseMap_frameCount)));
     vec2 animatedUV = fragTexCoord;
-    animatedUV.y /= u_diffuseMap_frameCount;
-    animatedUV.y += (currentFrame / u_diffuseMap_frameCount);
+    animatedUV.y /= float(u_diffuseMap_frameCount);
+    animatedUV.y += (currentFrame / float(u_diffuseMap_frameCount));
 
     vec4 texColor = texture(u_diffuseMap, animatedUV);
 
-    vec3 ambient = vec3(0.3);
-    vec3 lightDir = normalize(vec3(0.5, 1.0, 0.3));
-    float diff = max(dot(fragNormal, lightDir), 0.0);
+    vec3 ambient = vec3(0.3f);
+    vec3 lightDir = normalize(vec3(0.5f, 1.0f, 0.3f));
+    float diff = max(dot(fragNormal, lightDir), 0.0f);
     vec3 diffuse = vec3(diff);
     vec3 t = (texColor.rgb * baseColor.rgb) * (ambient + diffuse);
 

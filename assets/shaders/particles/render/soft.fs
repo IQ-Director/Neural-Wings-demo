@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision mediump float;
 
 in vec2 fragTexCoord;
 in vec4 fragColor;
@@ -45,24 +46,25 @@ void main() {
     // 务必让fragTexCoord参与结果运算，否则内存访问会出错
     // float depth = texture(sceneDepth, fragTexCoord).r;
 
-    float t = 1.0;
+    float t = 1.0f;
     // 反转y轴
-    vec2 centeredCoord = fragTexCoord * 2 - 1;
+    vec2 centeredCoord = fragTexCoord * 2.0f - 1.0f;
     float dist = length(centeredCoord);
-    if(dist > 1.0) {
+    if(dist > 1.0f) {
         discard;
     }
 
     t = length(GetVel(int(vID)));
-    t = clamp(t / 10, 0, 1);
-    float currentFrame = floor(mod(gameTime * tex_animSpeed, tex_frameCount));
-    vec2 animatedUV = fragTexCoord;
-    animatedUV.y /= tex_frameCount;
+    t = clamp(t / 10.0f, 0.0f, 1.0f);
+    float currentFrame = floor(mod(gameTime * tex_animSpeed, float(tex_frameCount)));
 
-    animatedUV.y += (currentFrame / tex_frameCount);
+    vec2 animatedUV = fragTexCoord;
+    animatedUV.y /= float(tex_frameCount);
+
+    animatedUV.y += (currentFrame / float(tex_frameCount));
 
     vec4 texColor = texture(tex, animatedUV);
 
-    finalColor = (texColor * (1 - t) + vec4(1, 0, 0, 1) * t);
+    finalColor = (texColor * (1.0f - t) + vec4(1.0f, 0.0f, 0.0f, 1.0f) * t);
 
 }

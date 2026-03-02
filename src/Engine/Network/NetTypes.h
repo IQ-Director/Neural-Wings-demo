@@ -39,7 +39,8 @@ struct NetUUIDHash
     std::size_t operator()(const NetUUID &u) const noexcept
     {
         // FNV-1a on the 16 bytes
-        std::size_t h = 14695981039346656037ULL;
+        std::size_t h = static_cast<std::size_t>(14695981039346656037ULL);
+
         for (int i = 0; i < 16; ++i)
         {
             h ^= u.bytes[i];
