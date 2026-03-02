@@ -19,6 +19,18 @@ struct ScriptComponent : public IComponent
         scripts.clear();
     }
 
+    template <typename T>
+    T *GetScrip() const
+    {
+        for (auto &script : scripts)
+        {
+            T *target = dynamic_cast<T *>(script.get());
+            if (target != nullptr)
+                return target;
+        }
+        return nullptr;
+    }
+
     ~ScriptComponent() override
     {
         ExcuteOnDestroy();

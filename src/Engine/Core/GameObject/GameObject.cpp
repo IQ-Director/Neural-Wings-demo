@@ -49,6 +49,8 @@ void GameObject::SetOwnerWorld(GameWorld *world)
 #include "Engine/Graphics/Particle/ParticleSystem.h"
 void GameObject::OnDestroy()
 {
+    if (!this)
+        return;
     if (m_isDestroyed)
         return;
     m_isDestroyed = true;
@@ -145,4 +147,17 @@ AABB GameObject::GetWorldAABB(Vector3f (*outCorners)[8]) const
         newMax = Vector3f::Max(newMax, corners[i]);
     }
     return AABB{newMin, newMax};
+}
+
+void GameObject::SetActive(bool active)
+{
+    if (m_isActive == active)
+        return;
+    m_isActive = active;
+    if (owner_world)
+        owner_world->NotifyActivateStateChanged(this, active);
+}
+bool GameObject::IsActive() const
+{
+    return m_isActive;
 }

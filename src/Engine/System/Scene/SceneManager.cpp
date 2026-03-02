@@ -44,6 +44,14 @@ bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
     {
         ParsePhysics(sceneData["physics"], gameWorld);
     }
+    if (sceneData.contains("objectsPools"))
+    {
+        ParseGameObjectPools(sceneData["objectsPools"], gameWorld);
+    }
+    if (sceneData.contains("skybox"))
+    {
+        ParseSkybox(sceneData["skybox"], gameWorld);
+    }
     if (sceneData.contains("entities"))
     {
         for (const auto &entityData : sceneData["entities"])
@@ -55,6 +63,25 @@ bool SceneManager::LoadScene(const std::string &scenePath, GameWorld &gameWorld)
     gameWorld.UpdateTransforms();
     return true;
 }
+
+void SceneManager::ParseSkybox(const json &sceneData, GameWorld &gameWorld)
+{
+    std::string skyboxPath = sceneData["texture"];
+    Vector4f tintColor = JsonParser::ToVector4f(sceneData.value("tint", json::array({255.0f, 255.0f, 255.0f, 255.0f}))) / 255.0f;
+
+    gameWorld.GetRenderer().SetSkybox(skyboxPath, tintColor, gameWorld);
+}
+void SceneManager::ParseGameObjectPools(const json &objectsPools, GameWorld &gameWorld)
+{
+    for (const auto &poolData : objectsPools)
+    {
+        std::string poolName = poolData["name"];
+        std::string prefab = poolData["prefab"];
+        int poolSize = poolData.value("count", 1);
+        gameWorld.GetOrCreatePool(poolName, prefab, poolSize);
+    }
+}
+
 void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, GameObject *parent)
 {
     std::string prefabPath = entityData["prefab"];
@@ -74,7 +101,7 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
     }
     if (entityData.contains("rotation"))
     {
-        tf.SetLocalRotation(tf.GetLocalRotation() * Quat4f(JsonParser::ToVector3f(entityData["rotation"])));
+        tf.SetLocalRotation(tf.GetLocalRotation() * Quat4f::XYZRotate(DEG2RAD * (JsonParser::ToVector3f(entityData["rotation"]))));
     }
     if (entityData.contains("scale"))
     {
@@ -83,7 +110,8 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
         if (obj.HasComponent<RigidbodyComponent>())
         {
             auto &rb = obj.GetComponent<RigidbodyComponent>();
-            rb.SetHitbox(tf.GetLocalScale());
+            // rb.SetHitbox(rb.Get tf.GetLocalScale());
+            rb.scaleHitboxBox(tf.GetLocalScale());
         }
     }
 
@@ -108,6 +136,7 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
     {
         tf.SetParent(parent);
     }
+
     if (entityData.contains("children"))
     {
         for (const auto &childData : entityData["children"])
@@ -115,6 +144,7 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
             ParseEntity(childData, gameWorld, &obj);
         }
     }
+    obj.SetActive(entityData.value("isActive", true));
 }
 void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, GameWorld &gameWorld)
 {
@@ -130,6 +160,7 @@ void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, Ga
     rd.showAngVol = renderData.value("showAngVol", false);
     rd.showVol = renderData.value("showVol", false);
     rd.showCenter = renderData.value("showCenter", false);
+    rd.castShadows = renderData.value("castShadows", true);
 
     if (renderData.contains("defaultMaterial"))
     {

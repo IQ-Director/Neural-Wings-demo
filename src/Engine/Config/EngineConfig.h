@@ -1,8 +1,9 @@
 #pragma once
 #include "Config.h"
-#include "Engine/System/Screen/GameScreen.h"
+#include "Engine/System/Screen/IGameScreen.h"
 #include <string>
 #include "Engine/System/Screen/ScreenState.h"
+#include "Engine/Network/NetTypes.h"
 
 struct EngineConfig : public Config
 {
@@ -16,11 +17,16 @@ struct EngineConfig : public Config
 
     bool fullScreen = false;
 
+    std::string serverIP = DEFAULT_SERVER_HOST;
+    uint16_t serverPort = DEFAULT_SERVER_PORT;
+    std::string nickname = "";
+
     void toJson(json &j) const
     {
         j = json{
             {"window", {{"width", screenWidth}, {"height", screenHeight}, {"title", windowTitle}, {"fullscreen", fullScreen}}},
             {"performance", {{"targetFPS", targetFPS}}},
+            {"network", {{"serverIP", serverIP}, {"serverPort", serverPort}}},
         };
     }
 
@@ -35,6 +41,14 @@ protected:
         {
             const auto &windowJson = configJson.at("window");
             this->fullScreen = windowJson.value("fullscreen", this->fullScreen);
+        }
+        if (configJson.contains("network"))
+        {
+            const auto &networkJson = configJson.at("network");
+            this->serverIP = networkJson.value("serverIP", this->serverIP);
+            this->serverPort = networkJson.value("serverPort", this->serverPort);
+            // Nickname is server-authoritative and should not be loaded from local config.
+            this->nickname.clear();
         }
         this->initialScreen = SCREEN_STATE_START;
     }

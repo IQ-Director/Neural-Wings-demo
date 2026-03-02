@@ -27,7 +27,7 @@ void PhysicsSystem::Update(GameWorld &world, float fixedDeltaTime)
 
 void PhysicsSystem::Integrate(GameWorld &world, float fixedDeltaTime)
 {
-    for (auto &object : world.GetGameObjects())
+    for (auto *object : world.GetActivateGameObjects())
     {
         if (object->HasComponent<RigidbodyComponent>() && object->HasComponent<TransformComponent>())
         {

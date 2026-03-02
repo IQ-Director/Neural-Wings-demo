@@ -9,6 +9,10 @@ public:
     virtual ~IScriptableComponent() = default;
 
     virtual void OnCreate() {};
+
+    virtual void OnWake() {};  // 从池中取出时调用；
+    virtual void OnSleep() {}; // 放回池中时调用；
+
     virtual void OnUpdate(float deltaTime) {};
     virtual void OnFixedUpdate(float fixedDeltaTime) {};
     virtual void OnDestroy() {};

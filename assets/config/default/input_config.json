@@ -1,68 +1,76 @@
 {
-  "keybindings": [
-      {
-          "action": "Thrust",
-          "keys": [
-              "W",
-              "UP"
-          ]
-      },
-      {
-          "action": "Brake",
-          "keys": [
-              "S",
-              "DOWN"
-          ]
-      },
-      {
-          "action": "RollLeft",
-          "keys": [
-              "A",
-              "LEFT"
-          ]
-      },
-      {
-          "action": "RollRight",
-          "keys": [
-              "D",
-              "RIGHT"
-          ]
-      },
-      {
-          "action": "PitchUp",
-          "keys": [
-              "LEFT_CONTROL"
-          ]
-      },
-      {
-          "action": "PitchDown",
-          "keys": [
-              "SPACE"
-          ]
-      },
-      {
-          "action": "Fire",
-          "keys": [
-              "MOUSE_LEFT_BUTTON"
-          ]
-      }
-  ],
-  "axisbindings": [
-      {
-          "axis": "LookHorizontal",
-          "type": "MouseX",
-          "sensitivity": 0.5
-      },
-      {
-          "axis": "LookVertical",
-          "type": "MouseY",
-          "sensitivity": 0.5,
-          "invert": true
-      },
-      {
-          "axis": "Yaw",
-          "positiveKey": "E",
-          "negativeKey": "Q"
-      }
-  ]
+    "keybindings": [
+        {
+            "action": "Forward",
+            "keys": [
+                "UP"
+            ]
+        },
+        {
+            "action": "Backward",
+            "keys": [
+                "DOWN"
+            ]
+        },
+        {
+            "action": "Left",
+            "keys": [
+                "LEFT"
+            ]
+        },
+        {
+            "action": "Right",
+            "keys": [
+                "RIGHT"
+            ]
+        },
+        {
+            "action": "Thrust",
+            "keys": [
+                "W"
+            ]
+        },
+        {
+            "action": "Brake",
+            "keys": [
+                "S"
+            ]
+        },
+        {
+            "action": "Fire",
+            "keys": [
+                "MOUSE_LEFT_BUTTON"
+            ]
+        },
+        {
+            "action": "Ray",
+            "keys": [
+                "MOUSE_RIGHT_BUTTON"
+            ]
+        },
+        {
+            "action": "Exit",
+            "keys": [
+                "ESC"
+            ]
+        }
+    ],
+    "axisbindings": [
+        {
+            "axis": "LookHorizontal",
+            "type": "MouseX",
+            "sensitivity": 0.2
+        },
+        {
+            "axis": "LookVertical",
+            "type": "MouseY",
+            "sensitivity": 0.2,
+            "invert": true
+        },
+        {
+            "axis": "Yaw",
+            "positiveKey": "E",
+            "negativeKey": "Q"
+        }
+    ]
 }

@@ -39,6 +39,9 @@ public:
     Vector3f getDirection() const;
     Vector3f getLocalLookAtOffset() const;
 
+    void setLocalPosition(Vector3f pos);
+    Vector3f getLocalPosition() const;
+
     float getNearPlane() const;
     float getFarPlane() const;
 
@@ -46,7 +49,7 @@ public:
     void UpdateFromTarget(Vector3f pos, Vector3f tar, Vector3f u, const CameraMode &mode = CAMERA_CUSTOM);
     void UpdateFixed(Vector3f dir, Vector3f u, const CameraMode &mode = CAMERA_CUSTOM);
     void UpdatemCamera(const CameraMode &mode = CAMERA_CUSTOM);
-    void Rotate(float LookHorizontal, float LookVertical);
+    void Rotate(float LookHorizontal, float LookVertical, Vector3f up = Vector3f(0, 0, 0));
 
     Camera3D &GetRawCamera();
     const Camera3D &GetConstRawCamera() const;
@@ -57,7 +60,9 @@ private:
     std::string m_mountTargetName = "";
     GameObject *m_mountTarget = nullptr;
     Vector3f m_localPositionOffset = Vector3f::ZERO;
-    Vector3f m_localLookAtOffset = Vector3f(0, 0, 1);
+    Vector3f m_localDirection = Vector3f(0, 0, 1);
+    Vector3f m_localUp = Vector3f(0, 1, 0);
+    Vector3f m_localRight = Vector3f(-1, 0, 0);
 
     float m_nearPlane = 0.1;
     float m_farPlane = 1000;

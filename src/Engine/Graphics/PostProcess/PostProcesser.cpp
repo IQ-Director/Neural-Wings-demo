@@ -1,6 +1,7 @@
 #include "PostProcesser.h"
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Utils/JsonParser.h"
+#include "Engine/Graphics/Renderer.h"
 void PostProcesser::AddPostProcessPass(const PostProcessPass &pass)
 {
     if (pass.outputTarget.empty())
@@ -11,46 +12,6 @@ void PostProcesser::AddPostProcessPass(const PostProcessPass &pass)
     m_postProcessPasses.push_back(pass);
     std::cout << "[PostProcesser]: Post process pass added: " << pass.name << " output target -> " << pass.outputTarget << std::endl;
 }
-// raylib源码修改，深度不再不可采样
-#include "rlgl.h"
-RenderTexture2D PostProcesser::LoadRT(int width, int height, PixelFormat format)
-{
-    RenderTexture2D target = {0};
-
-    target.id = rlLoadFramebuffer(); // Load an empty framebuffer
-
-    if (target.id > 0)
-    {
-        rlEnableFramebuffer(target.id);
-
-        // Create color texture (default to RGBA)
-        target.texture.id = rlLoadTexture(NULL, width, height, format, 1);
-        target.texture.width = width;
-        target.texture.height = height;
-        target.texture.format = format;
-        target.texture.mipmaps = 1;
-
-        // Create depth renderbuffer/texture
-        target.depth.id = rlLoadTextureDepth(width, height, false);
-        target.depth.width = width;
-        target.depth.height = height;
-        target.depth.format = 19; // DEPTH_COMPONENT_24BIT?
-        target.depth.mipmaps = 1;
-
-        // Attach color texture and depth renderbuffer/texture to FBO
-        rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
-        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
-
-        // Check if fbo is complete with attachments (valid)
-        if (rlFramebufferComplete(target.id))
-            std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
-
-        rlDisableFramebuffer();
-    }
-
-    return target;
-}
-
 void PostProcesser::DefaultSetup()
 {
     std::vector<std::string> names = {"inScreen", "outScreen"};
@@ -72,7 +33,7 @@ void PostProcesser::SetUpRTPool(const std::vector<std::string> &names, int width
             processName = processName.substr(prefix.length());
             format = PIXELFORMAT_UNCOMPRESSED_R32G32B32A32;
         }
-        RenderTexture2D rt = LoadRT(width, height, format);
+        RenderTexture2D rt = Renderer::LoadRT(width, height, format);
         if (rt.id > 0)
         {
             m_RTPool[processName] = rt;
@@ -216,6 +177,17 @@ void PostProcesser::DrawTextureQuad(float width, float height, bool flipY)
     rlEnd();
 }
 #include "Engine/Graphics/Camera/CameraManager.h"
+
+#include "rlgl.h"
+
+#if defined(PLATFORM_WEB)
+#include <GLES3/gl3.h>
+#include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
+#else
+#include "external/glad.h"
+#endif
+
 void PostProcesser::PostProcess(GameWorld &gameWorld, CameraManager &cameraManager)
 {
     for (auto &pass : m_postProcessPasses)
@@ -225,7 +197,8 @@ void PostProcesser::PostProcess(GameWorld &gameWorld, CameraManager &cameraManag
             continue;
 
         BeginTextureMode(itOut->second);
-        ClearBackground(BLANK);
+        // 保留深度
+        rlClearColor(0, 0, 0, 0);
 
         auto &mat = pass.material;
         mat.shader->Begin();
@@ -240,8 +213,8 @@ void PostProcesser::PostProcess(GameWorld &gameWorld, CameraManager &cameraManag
                 if (texUnit == 0)
                     firstInputId = m_RTPool[rtName].texture.id;
                 mat.shader->SetTexture(shaderVarName, m_RTPool[rtName].texture, texUnit);
-                // 仅rawScreen有深度
-                if (rtName == "inScreen")
+
+                if (m_RTPool[rtName].depth.id > 0)
                 {
                     mat.shader->SetTexture(shaderVarName + "_depth", m_RTPool[rtName].depth, texUnit + 1);
                     texUnit++;
@@ -267,7 +240,24 @@ void PostProcesser::PostProcess(GameWorld &gameWorld, CameraManager &cameraManag
 
             texUnit++;
         }
+        auto &skyboxMap = gameWorld.GetRenderer().GetSkybox()->GetTexture();
+        if (skyboxMap.id > 0)
+        {
+            mat.shader->SetCubeMap("skyboxMap", skyboxMap, texUnit);
+            texUnit++;
+        }
+        Camera rawCamera = cameraManager.GetMainCamera()->GetConstRawCamera();
+        Matrix4f matView = GetCameraMatrix(rawCamera);
+
+        Matrix matProj = MatrixPerspective(rawCamera.fovy * DEG2RAD, GetScreenWidth() / (float)GetScreenHeight(), cameraManager.GetMainCamera()->getNearPlane(), cameraManager.GetMainCamera()->getFarPlane());
+        Matrix matVP = MatrixMultiply(matView, matProj);
+        Matrix invVP = MatrixInvert(matVP);
+
         // 上传参数
+        mat.shader->SetMat4("matView", matView);
+        mat.shader->SetMat4("matVP", matVP);
+        mat.shader->SetMat4("invVP", invVP);
+
         mat.shader->SetFloat("gameTime", gameWorld.GetTimeManager().GetGameTime());
         mat.shader->SetFloat("realTime", gameWorld.GetTimeManager().GetRealTime());
         mat.shader->SetFloat("deltaRealTime", gameWorld.GetTimeManager().GetDeltaTime());
@@ -322,6 +312,7 @@ void PostProcesser::LinkDepthBuffer(const std::string &sourceName, const std::st
     if (rlFramebufferComplete(dst.id))
     {
         m_fboDepthTracking[dst.id] = src.depth.id;
+        dst.depth.id = src.depth.id;
     }
     rlDisableFramebuffer();
 }

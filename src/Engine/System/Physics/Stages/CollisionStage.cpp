@@ -8,7 +8,7 @@ void CollisionStage::Initialize(const json &config) {};
 
 void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
 {
-    auto &gameObjects = world.GetGameObjects();
+    auto &gameObjects = world.GetActivateGameObjects();
     // TODO:优化
 
     for (size_t i = 0; i < gameObjects.size(); i++)
@@ -56,10 +56,10 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
             if (isColliding)
             {
                 if (rb1.collisionCallback)
-                    rb1.collisionCallback(go2.get());
+                    rb1.collisionCallback(go2);
                 if (rb2.collisionCallback)
-                    rb2.collisionCallback(go1.get());
-                ResolveCollision(world, go1.get(), go2.get(), normal, penetration, hitPoint);
+                    rb2.collisionCallback(go1);
+                ResolveCollision(world, go1, go2, normal, penetration, hitPoint);
             }
         }
     }
@@ -77,8 +77,8 @@ void CollisionStage::ResolveCollision(GameWorld &world, GameObject *a, GameObjec
     auto &rbA = a->GetComponent<RigidbodyComponent>();
     auto &rbB = b->GetComponent<RigidbodyComponent>();
     // 冲量时无外力
-    rbA.ClearForces();
-    rbB.ClearForces();
+    // rbA.ClearForces();
+    // rbB.ClearForces();
     auto &tfA = a->GetComponent<TransformComponent>();
     auto &tfB = b->GetComponent<TransformComponent>();
     float invMassA = GetInverseMass(rbA);

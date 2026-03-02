@@ -5,6 +5,7 @@
 #include <typeindex>
 #include <stdexcept>
 #include <string>
+#include <sstream>
 
 #include "raylib.h"
 #include "Engine/Math/Math.h"
@@ -31,6 +32,9 @@ public:
     template <typename T>
     bool HasComponent() const;
 
+    template <typename T>
+    T *GetScript() const;
+
     unsigned int GetID() const;
     AABB GetWorldAABB(Vector3f (*outCorners)[8] = nullptr) const;
 
@@ -40,6 +44,9 @@ public:
     std::string GetTag() const;
     GameWorld *GetOwnerWorld() const;
     void SetOwnerWorld(GameWorld *world);
+
+    void SetActive(bool active);
+    bool IsActive() const;
 
 private:
     GameWorld *owner_world = nullptr;
@@ -56,6 +63,8 @@ private:
 
     bool m_isWaitingDestroy = false;
     bool m_isDestroyed = false;
+
+    bool m_isActive = false;
 };
 
 template <typename T, typename... TArgs>
@@ -88,7 +97,12 @@ T &GameObject::GetComponent() const
             return *dynamic_cast<T *>(m_components[i].get());
         }
     }
-    throw std::runtime_error("Component not found!");
+    std::ostringstream oss;
+    oss << "Component not found: type=" << typeid(T).name()
+        << ", objectID=" << m_id
+        << ", objectName=" << m_name;
+    std::cout << oss.str() << std::endl;
+    throw std::runtime_error(oss.str());
 }
 
 template <typename T>
@@ -103,4 +117,13 @@ bool GameObject::HasComponent() const
         }
     }
     return false;
+}
+
+template <typename T>
+T *GameObject::GetScript() const
+{
+    if (!HasComponent<ScriptComponent>())
+        return nullptr;
+
+    return GetComponent<ScriptComponent>().GetScript<T>();
 }

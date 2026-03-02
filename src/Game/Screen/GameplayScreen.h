@@ -4,10 +4,12 @@
 #include "Engine/Graphics/Graphics.h"
 #include "MyScreenState.h"
 
-class GameplayScreen : public GameScreen
+class HudManager;
+
+class GameplayScreen : public IGameScreen
 {
 public:
-    GameplayScreen();
+    GameplayScreen(ScreenManager *sm);
     ~GameplayScreen();
 
     void OnEnter() override;
@@ -22,8 +24,8 @@ private:
     ScreenState m_nextScreenState;
     // 游戏世界系统
     std::unique_ptr<GameWorld> m_world;
+    std::unique_ptr<HudManager> m_hudManager;
     void ConfigCallback(ScriptingFactory &scriptingFactory,
                         PhysicsStageFactory &physicsStageFactory,
                         ParticleFactory &particleFactory);
-    // ...
 };

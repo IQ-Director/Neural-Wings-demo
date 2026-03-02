@@ -3,7 +3,7 @@
 
 void ScriptingSystem::Update(GameWorld &gameWorld, float deltaTime)
 {
-    for (auto &obj : gameWorld.GetGameObjects())
+    for (auto *obj : gameWorld.GetActivateGameObjects())
     {
         if (obj->HasComponent<ScriptComponent>())
         {
@@ -15,7 +15,7 @@ void ScriptingSystem::Update(GameWorld &gameWorld, float deltaTime)
 }
 void ScriptingSystem::FixedUpdate(GameWorld &gameWorld, float FixedDeltaTime)
 {
-    for (auto &obj : gameWorld.GetGameObjects())
+    for (auto *obj : gameWorld.GetActivateGameObjects())
     {
         if (obj->HasComponent<ScriptComponent>())
         {

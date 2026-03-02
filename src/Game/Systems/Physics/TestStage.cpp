@@ -4,7 +4,7 @@
 TestStage::TestStage() {}
 void TestStage::Execute(GameWorld &world, float fixedDeltaTime)
 {
-    auto &gameObjects = world.GetGameObjects();
+    auto &gameObjects = world.GetActivateGameObjects();
     if (gameObjects.empty())
     {
         std::cout << "[TestStage]:Empty Game World" << std::endl;

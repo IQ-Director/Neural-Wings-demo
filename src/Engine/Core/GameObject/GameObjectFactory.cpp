@@ -20,7 +20,7 @@ GameObject &GameObjectFactory::CreateFromPrefab(const std::string &name, const s
     gameObject.SetName(name);
 
     gameObject.SetTag(tag);
-
+    gameObject.SetOwnerWorld(&world);
     if (data.contains("components"))
     {
         // 严格顺序，确保transform在rigid前面
@@ -50,8 +50,66 @@ void GameObjectFactory::ApplyComponent(GameWorld &gameWorld, GameObject &gameObj
         ParseScriptComponent(gameWorld, gameObject, prefab);
     else if (compName == "ParticleEmitterComponent")
         ParseParticleEmitterComponent(gameWorld, gameObject, prefab);
+    else if (compName == "AudioComponent")
+        ParseAudioComponent(gameWorld, gameObject, prefab);
+    else if (compName == "LightComponent")
+        ParseLightComponent(gameWorld, gameObject, prefab);
     else
         std::cerr << "Component " << compName << " not implemented" << std::endl;
+}
+
+void GameObjectFactory::ParseLightComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab)
+{
+    auto &light = gameObject.AddComponent<LightComponent>();
+    light.owner = &gameObject;
+    std::string typeStr = prefab.value("type", "Directional");
+    if (typeStr == "POINT")
+    {
+        light.type = LightType::Point;
+    }
+    else if (typeStr == "DIRECTIONAL")
+    {
+        light.type = LightType::Directional;
+    }
+
+    if (prefab.contains("color"))
+        light.color = JsonParser::ToVector3f(prefab["color"]);
+    light.intensity = prefab.value("intensity", 1.0f);
+
+    // direction属性
+    if (prefab.contains("direction"))
+    {
+        light.direction = JsonParser::ToVector3f(prefab["direction"]);
+    }
+    // point属性
+    light.range = prefab.value("range", 10.0f);
+    light.attenuation = prefab.value("attenuation", 1.0f);
+
+    light.castShadows = prefab.value("shadows", false);
+    light.shadowBias = prefab.value("shadowBias", 0.005f);
+}
+void GameObjectFactory::ParseAudioComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab)
+{
+    auto &audio = gameObject.AddComponent<AudioComponent>();
+    auto &clipsJson = prefab["clips"];
+
+    for (auto &[clipName, clipData] : clipsJson.items())
+    {
+        AudioClip &clip = audio.audioClips[clipName];
+        clip.sound = gameWorld.GetResourceManager().GetSound(clipData["path"]);
+
+        clip.is3D = clipData.value("is3D", true);
+        clip.isLooping = clipData.value("looping", false);
+        clip.baseVolume = clipData.value("volume", 1.0f);
+        clip.minDis = clipData.value("minDist", 5.0f);
+        clip.maxDis = clipData.value("maxDist", 100.0f);
+
+        if (clipData.contains("multiVoice"))
+        {
+            clip.isMulti = true;
+            clip.SetupMultiVoice(clipData["multiVoice"]);
+        }
+    }
 }
 
 void GameObjectFactory::ParseRenderComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab)
@@ -66,6 +124,7 @@ void GameObjectFactory::ParseRenderComponent(GameWorld &gameWorld, GameObject &g
     rd.showAngVol = prefab.value("showAngVol", false);
     rd.showVol = prefab.value("showVol", false);
     rd.showCenter = prefab.value("showCenter", false);
+    rd.castShadows = prefab.value("castShadows", true);
 
     if (prefab.contains("defaultMaterial"))
     {
@@ -100,12 +159,13 @@ void GameObjectFactory::ParseRenderComponent(GameWorld &gameWorld, GameObject &g
 void GameObjectFactory::ParseTransformComponent(GameObject &gameObject, const json &prefab)
 {
     auto &tf = gameObject.AddComponent<TransformComponent>();
+    tf.owner = &gameObject;
     if (prefab.contains("position"))
         tf.SetLocalPosition(JsonParser::ToVector3f(prefab["position"]));
     if (prefab.contains("scale"))
         tf.SetLocalScale(JsonParser::ToVector3f(prefab["scale"]));
     if (prefab.contains("rotation"))
-        tf.SetLocalRotation(Quat4f(JsonParser::ToVector3f(prefab["rotation"])));
+        tf.SetLocalRotation(Quat4f::XYZRotate(DEG2RAD * JsonParser::ToVector3f(prefab["rotation"])));
 }
 void GameObjectFactory::ParseRigidBodyComponent(GameObject &gameObject, const json &prefab)
 {
@@ -133,7 +193,13 @@ void GameObjectFactory::ParseRigidBodyComponent(GameObject &gameObject, const js
         rb.colliderType = ColliderType::SPHERE;
     else
         std::cerr << "Unknown collider type: " << colliderType << std::endl;
-    rb.SetHitbox(tf.GetLocalScale());
+
+    if (prefab.contains("hitBox"))
+    {
+        rb.SetHitbox(JsonParser::ToVector3f(prefab["hitBox"]));
+    }
+    else
+        rb.SetHitbox(tf.GetLocalScale());
 }
 void GameObjectFactory::ParseScriptComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab)
 {

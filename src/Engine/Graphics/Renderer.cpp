@@ -10,6 +10,7 @@
 #include <nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
+#include <memory>
 using json = nlohmann::json;
 
 #define M_PI 3.14159265358979323846
@@ -18,9 +19,18 @@ void Renderer::Init(const std::string &configViewPath, GameWorld &gameWorld)
 {
     m_postProcesser = std::make_unique<PostProcesser>();
     m_renderViewer = std::make_unique<RenderViewer>();
+    m_lightingManager = std::make_unique<LightingManager>();
+    m_lightingManager->InitShadowMaps(4096, 4096, gameWorld.GetResourceManager());
+
     this->LoadViewConfig(configViewPath, gameWorld);
 }
 
+void Renderer::SetSkybox(const std::string &skyboxPath, Vector4f tintColor, GameWorld &gameWorld)
+{
+    m_skybox->Load(skyboxPath, gameWorld.GetResourceManager());
+    m_skybox->SetTintColor(tintColor);
+    m_useSkybox = true;
+}
 bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorld)
 {
     std::ifstream configFile(configPath);
@@ -58,6 +68,7 @@ bool Renderer::LoadViewConfig(const std::string &configPath, GameWorld &gameWorl
 #endif
 Renderer::Renderer()
 {
+    m_skybox = std::make_unique<Skybox>();
     // if (m_dummyDepth.id > 0)
     //     rlUnloadTexture(m_dummyDepth.id);
     // m_dummyDepth.id = rlLoadTextureDepth(GetScreenWidth(), GetScreenHeight(), false);
@@ -115,6 +126,7 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
                 {
                     ClearBackground(view.backgroundColor);
                 }
+
                 float aspect = (float)vw / (float)vh;
 
                 Camera3D rawCamera = camera->GetRawCamera();
@@ -138,18 +150,23 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
                 }
                 rlMatrixMode(RL_MODELVIEW);
 
+                if (m_useSkybox)
+                {
+                    m_skybox->Draw(rawCamera, aspect);
+                }
+
                 DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
 
                 // debug
-                // for (const auto &view1 : m_renderViewer->GetRenderViews())
-                // {
-                //     if (view1.cameraName != view.cameraName)
-                //     {
-                //         mCamera *camera = cameraManager.GetCamera(view1.cameraName);
-                //         if (camera->GetMountTarget() != nullptr)
-                //             DrawVector(camera->getPosition(), camera->getDirection(), 1.0f, 0.05f);
-                //     }
-                // }
+                for (const auto &view1 : m_renderViewer->GetRenderViews())
+                {
+                    if (view1.cameraName != view.cameraName)
+                    {
+                        mCamera *camera = cameraManager.GetCamera(view1.cameraName);
+                        if (camera->GetMountTarget() != nullptr)
+                            DrawVector(camera->getPosition(), camera->getDirection(), 1.0f, 0.05f);
+                    }
+                }
                 EndMode3D();
 
                 // （debug）为视口绘制边框
@@ -165,17 +182,32 @@ void Renderer::RawRenderParticle(GameWorld &gameWorld, CameraManager &cameraMana
 {
     // rlDisableDepthMask();
     // 粒子的BeginTextureMode在每个emitter，每个emitter有自己的输出RT，最后到后处理中处理
+
+    auto &m_RTPool = m_postProcesser->GetRTPool();
+    auto &itScene = m_RTPool["inScreen"];
     for (const auto &view : m_renderViewer->GetRenderViews())
     {
         mCamera *camera = cameraManager.GetCamera(view.cameraName);
         if (camera)
         {
-            BeginScissorMode((int)view.viewport.x, (int)view.viewport.y, (int)view.viewport.width, (int)view.viewport.height);
+            int x1 = (int)view.viewport.x;
+            int y1 = (int)view.viewport.y;
+            int x2 = (int)view.viewport.width;
+            int y2 = (int)view.viewport.height;
+
+            int vx = x1;
+            int vy = y1;
+            int vw = x2 - x1;
+            int vh = y2 - y1;
+
+            float aspect = (float)vw / (float)vh;
+            BeginScissorMode(vx, vy, vw, vh);
 
             Camera3D rawCamera = camera->GetRawCamera();
             BeginMode3D(rawCamera);
+            rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
 
-            DrawParticle(gameWorld, *camera, view.viewport.width / view.viewport.height);
+            DrawParticle(gameWorld, *camera, aspect);
 
             EndMode3D();
             EndScissorMode();
@@ -213,11 +245,21 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
         return;
     }
 
+    if (m_lightingManager)
+    {
+        m_lightingManager->Update(gameWorld);
+        m_lightingManager->RenderShadowMaps(gameWorld, cameraManager.GetMainCamera()->Position());
+    }
+
     RawRenderScene(gameWorld, cameraManager);
     RawRenderParticle(gameWorld, cameraManager);
 
     m_postProcesser->PostProcess(gameWorld, cameraManager);
 
+    // debug
+    // DrawHitbox(gameWorld, cameraManager);
+    // DrawAABB(gameWorld, cameraManager);
+    //
     // 最终输出
     ClearBackground(BLACK);
     if (!isPosetProcess)
@@ -245,7 +287,7 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
     }
     Matrix4f VP = matProj * matView;
 
-    for (const auto &gameObject : world.GetGameObjects())
+    for (const auto *gameObject : world.GetActivateGameObjects())
     {
         if (gameObject->HasComponent<TransformComponent>() && gameObject->HasComponent<RenderComponent>())
         {
@@ -285,12 +327,12 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
                         {
                             const RenderMaterial &pass = (*passes)[p];
 
-                            RenderSinglePass(mesh, render.model, i, pass, MVP, M, camera, world);
+                            RenderSinglePass(mesh, render.model, i, pass, matProj, matView, MVP, M, camera, world);
                         }
                     }
                     else
                     {
-                        RenderSinglePass(mesh, render.model, i, render.defaultMaterial, MVP, M, camera, world);
+                        RenderSinglePass(mesh, render.model, i, render.defaultMaterial, matProj, matView, MVP, M, camera, world);
                     }
                 }
             }
@@ -336,7 +378,8 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
     DrawCoordinateAxes(Vector3f(0.0f), Quat4f::IDENTITY, 2.0f, 0.05f);
 }
 
-void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld)
+void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass,
+                                const Matrix4f &matProj, const Matrix4f &matView, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld)
 {
     rlDrawRenderBatchActive();
 
@@ -378,8 +421,11 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
         }
 
         pass.shader->SetAll(MVP, M, camera.Position(), realTime, gameTime, pass.baseColor, pass.customFloats, pass.customVector2, pass.customVector3, pass.customVector4);
+        pass.shader->SetMat4("matProj", matProj);
+        pass.shader->SetMat4("matView", matView);
 
-        tempRaylibMaterial.shader = pass.shader->GetShader();
+        pass.shader->SetVec3("emissiveColor", pass.emissiveColor / 255.0f);
+        pass.shader->SetFloat("emissiveIntensity", pass.emissiveIntensity);
 
         int texUnit = 1;
         if (pass.useDiffuseMap)
@@ -398,6 +444,10 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
             tempRaylibMaterial.maps[MATERIAL_MAP_DIFFUSE].texture = pass.diffuseMap;
             texUnit++;
         }
+
+        pass.shader->SetCubeMap("skyboxMap", m_skybox->GetTexture(), texUnit);
+        texUnit++;
+
         for (auto const &[name, text] : pass.customTextures)
         {
             pass.shader->SetTexture(name, text, texUnit);
@@ -414,6 +464,8 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
             texUnit++;
         }
 
+        m_lightingManager->UploadToShader(pass.shader, camera.Position(), texUnit);
+
         if (pass.cullFace >= 0)
         {
             rlEnableBackfaceCulling();
@@ -423,6 +475,8 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
             rlDisableDepthTest();
         if (!pass.depthWrite)
             rlDisableDepthMask();
+
+        tempRaylibMaterial.shader = pass.shader->GetShader();
 
         DrawMesh(mesh, tempRaylibMaterial, M);
         rlDrawRenderBatchActive();
@@ -457,8 +511,55 @@ void Renderer::DrawParticle(GameWorld &gameWorld, mCamera &camera, float aspect)
         matProj = MatrixOrtho(-right, right, -top, top, camera.getNearPlane(), camera.getFarPlane());
     }
     Matrix4f VP = matProj * matView;
+
     particleSys.Render(m_RTPool, realTime, gameTime, VP, matProj, gameWorld, camera);
 }
+
+void Renderer::Update(GameWorld &gameworld)
+{
+    m_lightingManager->Update(gameworld);
+}
+
+// raylib源码修改，深度不再不可采样
+#include "rlgl.h"
+RenderTexture2D Renderer::LoadRT(int width, int height, PixelFormat format)
+{
+    RenderTexture2D target = {0};
+
+    target.id = rlLoadFramebuffer(); // Load an empty framebuffer
+
+    if (target.id > 0)
+    {
+        rlEnableFramebuffer(target.id);
+
+        // Create color texture (default to RGBA)
+        target.texture.id = rlLoadTexture(NULL, width, height, format, 1);
+        target.texture.width = width;
+        target.texture.height = height;
+        target.texture.format = format;
+        target.texture.mipmaps = 1;
+
+        // Create depth renderbuffer/texture
+        target.depth.id = rlLoadTextureDepth(width, height, false);
+        target.depth.width = width;
+        target.depth.height = height;
+        target.depth.format = 19; // DEPTH_COMPONENT_24BIT?
+        target.depth.mipmaps = 1;
+
+        // Attach color texture and depth renderbuffer/texture to FBO
+        rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+        rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+
+        // Check if fbo is complete with attachments (valid)
+        if (rlFramebufferComplete(target.id))
+            std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+
+        rlDisableFramebuffer();
+    }
+
+    return target;
+}
+
 // Debug
 #include <iostream>
 void Renderer::DrawCoordinateAxes(Vector3f position, Quat4f rotation, float axisLength, float thickness)
@@ -511,4 +612,183 @@ void Renderer::DrawVector(Vector3f position, Vector3f direction, float axisLengt
     Vector3f tip = position + direction * axisLength;
     DrawCylinderEx(position, end, thickness, thickness, sides, RED);
     DrawCylinderEx(end, tip, coneRadius, 0.0f, sides, WHITE);
+}
+
+void Renderer::DrawHitbox(GameWorld &gameWorld, CameraManager &cameraManager)
+{
+
+    auto &m_RTPool = m_postProcesser->GetRTPool();
+    auto &itScene = m_RTPool["outScreen"];
+    BeginTextureMode(itScene);
+    {
+
+        rlDisableDepthMask();
+        rlDisableDepthTest();
+        {
+            for (const auto &view : m_renderViewer->GetRenderViews())
+            {
+                mCamera *camera = cameraManager.GetCamera(view.cameraName);
+                if (camera)
+                {
+
+                    int x1 = (int)view.viewport.x;
+                    int y1 = (int)view.viewport.y;
+                    int x2 = (int)view.viewport.width;
+                    int y2 = (int)view.viewport.height;
+
+                    int vx = x1;
+                    int vy = y1;
+                    int vw = x2 - x1;
+                    int vh = y2 - y1;
+
+                    BeginScissorMode(vx, vy, vw, vh); //  透明底？
+
+                    float aspect = (float)vw / (float)vh;
+
+                    Camera3D rawCamera = camera->GetRawCamera();
+                    BeginMode3D(rawCamera);
+
+                    rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
+
+                    rlMatrixMode(RL_PROJECTION);
+                    rlLoadIdentity();
+                    if (rawCamera.projection == CAMERA_PERSPECTIVE)
+                    {
+                        double top = 0.01 * tan(rawCamera.fovy * 0.5 * DEG2RAD);
+                        double right = top * aspect;
+                        rlFrustum(-right, right, -top, top, 0.01, 1000.0);
+                    }
+                    else
+                    {
+                        float top = rawCamera.fovy * 0.5f;
+                        float right = top * aspect;
+                        rlOrtho(-right, right, -top, top, 0.01, 1000.0);
+                    }
+                    rlMatrixMode(RL_MODELVIEW);
+
+                    // DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
+                    auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
+                    for (const auto *gameObject : objs)
+                    {
+                        const auto &tf = gameObject->GetComponent<TransformComponent>();
+                        const auto &rb = gameObject->GetComponent<RigidbodyComponent>();
+                        HitBox worldHitbox(tf, rb);
+
+                        if (worldHitbox.colliderType == ColliderType::SPHERE)
+                        {
+                            DrawSphereWires(worldHitbox.center, worldHitbox.boudingRadius, 8, 8, GREEN);
+                        }
+                        else if (worldHitbox.colliderType == ColliderType::BOX)
+                        {
+                            rlPushMatrix();
+                            rlTranslatef(worldHitbox.center.x(), worldHitbox.center.y(), worldHitbox.center.z());
+                            float rotMat[16] = {
+                                worldHitbox.axes[0].x(), worldHitbox.axes[0].y(), worldHitbox.axes[0].z(), 0.0f, // X轴
+                                worldHitbox.axes[1].x(), worldHitbox.axes[1].y(), worldHitbox.axes[1].z(), 0.0f, // Y轴
+                                worldHitbox.axes[2].x(), worldHitbox.axes[2].y(), worldHitbox.axes[2].z(), 0.0f, // Z轴
+                                0.0f, 0.0f, 0.0f, 1.0f                                                           // W
+                            };
+                            rlMultMatrixf(rotMat);
+                            Vector3 size = (worldHitbox.halfExtents * 2.0f);
+                            DrawCubeWiresV(Vector3{0, 0, 0}, size, GREEN);
+
+                            rlPopMatrix();
+                        }
+                    }
+                    EndMode3D();
+                    EndScissorMode();
+                }
+            }
+        }
+        rlViewport(0, 0, itScene.texture.width, itScene.texture.height);
+        rlEnableDepthMask();
+        rlEnableDepthTest();
+    }
+    EndTextureMode();
+}
+
+void Renderer::DrawAABB(GameWorld &gameWorld, CameraManager &cameraManager)
+{
+
+    auto &m_RTPool = m_postProcesser->GetRTPool();
+    auto &itScene = m_RTPool["outScreen"];
+    BeginTextureMode(itScene);
+    {
+
+        rlDisableDepthMask();
+        rlDisableDepthTest();
+        {
+            for (const auto &view : m_renderViewer->GetRenderViews())
+            {
+                mCamera *camera = cameraManager.GetCamera(view.cameraName);
+                if (camera)
+                {
+
+                    int x1 = (int)view.viewport.x;
+                    int y1 = (int)view.viewport.y;
+                    int x2 = (int)view.viewport.width;
+                    int y2 = (int)view.viewport.height;
+
+                    int vx = x1;
+                    int vy = y1;
+                    int vw = x2 - x1;
+                    int vh = y2 - y1;
+
+                    BeginScissorMode(vx, vy, vw, vh); //  透明底？
+
+                    float aspect = (float)vw / (float)vh;
+
+                    Camera3D rawCamera = camera->GetRawCamera();
+                    BeginMode3D(rawCamera);
+
+                    rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
+
+                    // DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
+                    auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
+                    for (const auto *gameObject : objs)
+                    {
+                        const auto &tf = gameObject->GetComponent<TransformComponent>();
+                        const auto &rb = gameObject->GetComponent<RigidbodyComponent>();
+
+                        Vector3f corners[8];
+                        AABB aabb = gameObject->GetWorldAABB(&corners);
+                        Color obbColor = PURPLE;
+                        if (rb.colliderType == ColliderType::BOX)
+                        {
+                            DrawLine3D(corners[0], corners[1], obbColor);
+                            DrawLine3D(corners[1], corners[3], obbColor);
+                            DrawLine3D(corners[3], corners[2], obbColor);
+                            DrawLine3D(corners[2], corners[0], obbColor);
+
+                            DrawLine3D(corners[4], corners[5], obbColor);
+                            DrawLine3D(corners[5], corners[7], obbColor);
+                            DrawLine3D(corners[7], corners[6], obbColor);
+                            DrawLine3D(corners[6], corners[4], obbColor);
+
+                            DrawLine3D(corners[0], corners[4], obbColor);
+                            DrawLine3D(corners[1], corners[5], obbColor);
+                            DrawLine3D(corners[2], corners[6], obbColor);
+                            DrawLine3D(corners[3], corners[7], obbColor);
+                        }
+
+                        Vector3 aabbCenter = {
+                            (aabb.min.x() + aabb.max.x()) * 0.5f,
+                            (aabb.min.y() + aabb.max.y()) * 0.5f,
+                            (aabb.min.z() + aabb.max.z()) * 0.5f};
+                        Vector3 aabbSize = {
+                            aabb.max.x() - aabb.min.x(),
+                            aabb.max.y() - aabb.min.y(),
+                            aabb.max.z() - aabb.min.z()};
+                        DrawCubeWiresV(aabbCenter, aabbSize, YELLOW);
+                    }
+                    EndMode3D();
+                    EndScissorMode();
+                }
+            }
+        }
+        rlViewport(0, 0, itScene.texture.width, itScene.texture.height);
+        rlEnableDepthMask();
+        rlEnableDepthTest();
+    }
+    EndTextureMode();
 }

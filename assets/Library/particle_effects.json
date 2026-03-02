@@ -1,9 +1,9 @@
 {
     "Collision": {
         "isBurst": true,
-        "maxParticles": 500,
+        "maxParticles": 10,
         "emissionRate": 0,
-        "maxLife": 10.0,
+        "maxLife": 3.0,
         "updateShader": "assets/shaders/particles/compute/default.vs",
         "initializers": [
             {
@@ -13,7 +13,7 @@
                         0.5,
                         0.5
                     ],
-                    "maxLife": 10.0,
+                    "maxLife": 1.0,
                     "minSpeed": 2,
                     "maxSpeed": 0,
                     "tau": 1000,
@@ -28,7 +28,7 @@
                         0
                     ],
                     "impulse": 0,
-                    "countFactor": 10,
+                    "countFactor": 1,
                     "direction": [
                         0,
                         0,
@@ -56,14 +56,14 @@
                     ]
                 },
                 "uniforms": {},
-                "outputRT": "Sparks",
+                "outputRT": "inScreen",
                 "depthTest": true
             }
         ]
     },
     "SPH": {
         "isBurst": true,
-        "maxParticles": 20000,
+        "maxParticles": 14000,
         "emissionRate": 0,
         "maxLife": 10000.0,
         "updateShader": "assets/shaders/particles/compute/sph.vs",
@@ -82,9 +82,9 @@
                         0.2
                     ],
                     "counts": [
-                        20,
+                        10,
                         150,
-                        20
+                        10
                     ],
                     "direction": [
                         0,
@@ -118,22 +118,6 @@
                 "blendMode": "NONE",
                 "uniforms": {},
                 "outputRT": "raw_Fluid_Depth",
-                "depthTest": true,
-                "depthWrite": true
-            },
-            {
-                "name": "普通RT",
-                "vs": "assets/shaders/particles/render/billboard.vs",
-                "fs": "assets/shaders/particles/render/fluid.fs",
-                "blendMode": "NONE",
-                "textures": {
-                    "tex": [
-                        "assets/textures/sph.png",
-                        1
-                    ]
-                },
-                "uniforms": {},
-                "outputRT": "simple_Fluid",
                 "depthTest": true,
                 "depthWrite": true
             }

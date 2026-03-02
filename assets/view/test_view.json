@@ -1,10 +1,10 @@
 {
     "views": [
         {
-            "name": "follow",
+            "name": "follow_2",
             "viewport": [
-                0.0,
-                0.0,
+                0,
+                0,
                 1,
                 1
             ],
@@ -15,50 +15,115 @@
                 255,
                 255
             ]
-        },
-        {
-            "name": "main_orbital",
-            "viewport": [
-                0.8,
-                0.8,
-                1,
-                1
-            ],
-            "clearBackground": true,
-            "backgroundColor": [
-                0,
-                0,
-                0,
-                255
-            ]
         }
     ],
     "postProcess": {
-        "name": "SPH_SSF",
+        "name": "GTAO",
         "hints": "rtPool使用accuracy_前缀表示使用浮点纹理",
         "rtPool": [
             "inScreen",
-            "outScreen",
+            "GTAO",
+            "GTAO_Blur_1",
+            "GTAO_Blur_2",
             "accuracy_raw_Fluid_Depth",
             "accuracy_FluidBlur_1",
             "accuracy_FluidBlur_2",
             "accuracy_raw_Normal",
             "accuracy_raw_Fluid_Thickness",
-            "simple_Fluid"
+            "accuracy_rawScreen",
+            "outScreen",
+            "Screen1",
+            "Screen2"
         ],
         "depthLinks": [
             {
                 "source": "inScreen",
                 "targets": [
+                    "rawScreen",
                     "raw_Fluid_Depth",
                     "raw_Fluid_Thickness",
                     "raw_Normal",
-                    "simple_Fluid"
+                    "Screen1",
+                    "Screen2"
                 ]
             }
         ],
         "hint": "拓扑序",
         "postProcessGraph": [
+            {
+                "name": "GTAO",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/GTAO/gtao.fs",
+                "inputs": [
+                    [
+                        "u_rawScreen",
+                        "inScreen"
+                    ]
+                ],
+                "output": "GTAO",
+                "uniforms": {
+                    "u_radius": 0.6,
+                    "u_slices": 10,
+                    "u_intensity": 1.5,
+                    "u_steps": 6,
+                    "u_near": 0.01,
+                    "u_far": 100.0
+                }
+            },
+            {
+                "name": "GTAO_Blur",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
+                "inputs": [
+                    [
+                        "u_Tex",
+                        "GTAO"
+                    ]
+                ],
+                "output": "GTAO_Blur_1",
+                "uniforms": {
+                    "u_dir": [
+                        1.0,
+                        0.0
+                    ],
+                    "u_radius": 2
+                }
+            },
+            {
+                "name": "GTAO_Blur",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
+                "inputs": [
+                    [
+                        "u_Tex",
+                        "GTAO_Blur_1"
+                    ]
+                ],
+                "output": "GTAO_Blur_2",
+                "uniforms": {
+                    "u_dir": [
+                        0.0,
+                        1.0
+                    ],
+                    "u_radius": 2
+                }
+            },
+            {
+                "name": "Combine",
+                "vs": "assets/shaders/postprocess/default.vs",
+                "fs": "assets/shaders/postprocess/GTAO/combine.fs",
+                "inputs": [
+                    [
+                        "u_baseTex",
+                        "inScreen"
+                    ],
+                    [
+                        "u_gtaoTex",
+                        "GTAO_Blur_2"
+                    ]
+                ],
+                "output": "rawScreen"
+            },
             {
                 "name": "DepthBlur",
                 "vs": "assets/shaders/postprocess/default.vs",
@@ -74,7 +139,8 @@
                     "u_dir": [
                         1,
                         0
-                    ]
+                    ],
+                    "u_radius": 20
                 }
             },
             {
@@ -92,7 +158,8 @@
                     "u_dir": [
                         0,
                         1
-                    ]
+                    ],
+                    "u_radius": 20
                 }
             },
             {
@@ -115,7 +182,7 @@
                 "inputs": [
                     [
                         "u_sceneTex",
-                        "inScreen"
+                        "rawScreen"
                     ],
                     [
                         "u_fluidDepth",
@@ -126,16 +193,59 @@
                         "raw_Fluid_Thickness"
                     ],
                     [
-                        "u_simpleFluid",
-                        "simple_Fluid"
-                    ],
-                    [
                         "u_normal",
                         "raw_Normal"
                     ]
                 ],
-                "output": "outScreen",
+                "output": "Screen1",
                 "uniforms": {}
+            },
+            {
+                "name": "Foggy",
+                "fs": "assets/shaders/postprocess/fog/fog.fs",
+                "inputs": [
+                    [
+                        "u_screen",
+                        "Screen1"
+                    ]
+                ],
+                "output": "Screen2",
+                "uniforms": {
+                    "u_density": 0.001,
+                    "u_dustColor": [
+                        1.0,
+                        1.0,
+                        1.0
+                    ]
+                }
+            },
+            {
+                "name": "Cloud",
+                "fs": "assets/shaders/postprocess/cloud/clumpy_cloud.fs",
+                "inputs": [
+                    [
+                        "u_screen",
+                        "Screen2"
+                    ]
+                ],
+                "output": "outScreen",
+                "uniforms": {
+                    "u_cloudFrequency": 0.05,
+                    "u_cloudSize": 0.60,
+                    "u_cloudThickness": 0.1,
+                    "u_windDir": [
+                        1,
+                        0,
+                        1
+                    ],
+                    "u_windSpeed": 10.0,
+                    "u_stretch": 1.0,
+                    "u_distVar": 1.0,
+                    "u_density": 0.1,
+                    "MAX_STEPS": 24,
+                    "MAX_DIST": 2000,
+                    "STEP_SIZE": 18.0
+                }
             }
         ]
     }

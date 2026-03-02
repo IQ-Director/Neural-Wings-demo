@@ -1,5 +1,6 @@
 #pragma once
 #include "Engine/Core/GameObject/GameObject.h"
+#include "Engine/Core/GameObject/GameObjectPool.h"
 #include "Engine/Core/Events/Events.h"
 #include "Engine/Graphics/Graphics.h"
 #include "Engine/System/System.h"
@@ -8,6 +9,11 @@
 #include <memory>
 #include <functional>
 #include <string>
+#include <queue>
+
+#include "Engine/Network/Client/NetworkClient.h"
+#include "Engine/Network/Sync/NetworkSyncSystem.h"
+#include <memory> // shared_ptr for NetworkClient
 
 class ScriptingFactory;
 class ScriptingSystem;
@@ -16,6 +22,8 @@ class GameWorld
 {
 public:
     GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &, ParticleFactory &)> configCallback,
+              ResourceManager *resourceManager,
+              AudioManager *audioManager,
               const std::string &cameraConfigPath = "assets/config/cameras_config.json",
               const std::string &sceneConfigPath = "assets/scenes/test_scene.json",
               const std::string &inputConfigPath = "assets/config/input_config.json",
@@ -31,6 +39,7 @@ public:
     void UpdateTransforms();
 
     const std::vector<std::unique_ptr<GameObject>> &GetGameObjects() const;
+    const std::vector<GameObject *> &GetActivateGameObjects() const;
 
     PhysicsStageFactory &GetPhysicsStageFactory() { return *m_physicsStageFactory; };
     PhysicsSystem &GetPhysicsSystem() { return *m_physicsSystem; };
@@ -49,22 +58,35 @@ public:
 
     ParticleFactory &GetParticleFactory() { return *m_particleFactory; };
     ParticleSystem &GetParticleSystem() { return *m_particleSystem; };
+    AudioManager &GetAudioManager() { return *m_audioManager; }
+
+    NetworkClient &GetNetworkClient() { return *m_networkClient; }
+    NetworkSyncSystem &GetNetworkSyncSystem() { return *m_networkSyncSystem; }
+
+    /// Inject a shared NetworkClient owned by ScreenManager.
+    void SetNetworkClient(std::shared_ptr<NetworkClient> client) { m_networkClient = std::move(client); }
 
     template <typename... Components>
     std::vector<GameObject *> GetEntitiesWith()
     {
         std::vector<GameObject *> results;
-        for (auto &obj : m_gameObjects)
+        for (auto *obj : m_activateGameObjects)
         {
-            if ((obj->HasComponent<Components>() && ...))
+            if (!obj->IsWaitingDestroy() && (obj->HasComponent<Components>() && ...))
             {
-                if (!obj->IsWaitingDestroy())
-                    results.push_back(obj.get());
+                results.push_back(obj);
             }
         }
         return results;
     }
+
+    void SyncActiveEntities();
+    void NotifyActivateStateChanged(GameObject *obj, bool activate);
+
     GameObject *FindEntityByName(const std::string &name) const;
+
+    GameObjectPool &GetOrCreatePool(const std::string &name, const std::string &prefab, size_t preloadCount = 0);
+    GameObjectPool &GetPool(const std::string &name) const;
 
 private:
     void UpdateHierarchyLogic(GameObject *obj, const Matrix4f &parentWorldMatrix);
@@ -74,6 +96,7 @@ private:
 
     unsigned m_nextObjectID = 0;
     std::vector<std::unique_ptr<GameObject>> m_gameObjects;
+    std::vector<GameObject *> m_activateGameObjects;
 
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<CameraManager> m_cameraManager;
@@ -86,10 +109,24 @@ private:
     std::unique_ptr<ScriptingSystem> m_scriptingSystem;
 
     std::unique_ptr<SceneManager> m_sceneManager;
-    std::unique_ptr<ResourceManager> m_resourceManager;
+
+    ResourceManager *m_resourceManager;
 
     std::unique_ptr<EventManager> m_eventManager;
 
     std::unique_ptr<ParticleFactory> m_particleFactory;
     std::unique_ptr<ParticleSystem> m_particleSystem;
+
+    std::shared_ptr<NetworkClient> m_networkClient;
+    std::unique_ptr<NetworkSyncSystem> m_networkSyncSystem;
+
+    struct ActiveChange
+    {
+        GameObject *obj;
+        bool newState;
+    };
+    std::queue<ActiveChange> m_activeChanges;
+    std::unordered_map<std::string, std::unique_ptr<GameObjectPool>> m_pools;
+
+    AudioManager *m_audioManager;
 };

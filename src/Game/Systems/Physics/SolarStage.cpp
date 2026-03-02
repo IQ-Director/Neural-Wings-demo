@@ -13,7 +13,7 @@ void SolarStage::Initialize(const json &config)
 }
 void SolarStage::Execute(GameWorld &world, float fixedDeltaTime)
 {
-    auto &gameObjects = world.GetGameObjects();
+    auto &gameObjects = world.GetActivateGameObjects();
     if (gameObjects.empty())
     {
         std::cout << "[SloarStage]:Empty Game World" << std::endl;
@@ -27,17 +27,22 @@ void SolarStage::Execute(GameWorld &world, float fixedDeltaTime)
             auto &transform = gameObject->GetComponent<TransformComponent>();
             for (auto &otherGameObject : gameObjects)
             {
-                if (gameObject != otherGameObject)
-                {
-                    auto &otherRb = otherGameObject->GetComponent<RigidbodyComponent>();
-                    auto &otherTransform = otherGameObject->GetComponent<TransformComponent>();
+                if (gameObject == otherGameObject)
+                    continue;
+                if (!otherGameObject->HasComponent<RigidbodyComponent>() ||
+                    !otherGameObject->HasComponent<TransformComponent>())
+                    continue;
 
-                    auto distance = Vector3f::Distance(transform.GetWorldPosition(), otherTransform.GetWorldPosition());
+                auto &otherRb = otherGameObject->GetComponent<RigidbodyComponent>();
+                auto &otherTransform = otherGameObject->GetComponent<TransformComponent>();
 
-                    auto f = m_G * rb.mass * otherRb.mass / (distance * distance);
-                    auto F = (otherTransform.GetWorldPosition() - transform.GetWorldPosition()).Normalized() * f;
-                    rb.AddForce(F);
-                }
+                auto distance = Vector3f::Distance(transform.GetWorldPosition(), otherTransform.GetWorldPosition());
+                if (distance <= 1e-5f)
+                    continue;
+
+                auto f = m_G * rb.mass * otherRb.mass / (distance * distance);
+                auto F = (otherTransform.GetWorldPosition() - transform.GetWorldPosition()).Normalized() * f;
+                rb.AddForce(F);
             }
         }
     }

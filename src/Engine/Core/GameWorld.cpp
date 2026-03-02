@@ -5,26 +5,31 @@
 #include <string>
 
 GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory &, ParticleFactory &)> configCallback,
+                     ResourceManager *resourceManager,
+                     AudioManager *audioManager,
                      const std::string &cameraConfigPath,
                      const std::string &sceneConfigPath,
                      const std::string &inputConfigPath,
                      const std::string &renderView,
                      const std::string &effectLibPath)
+    : m_resourceManager(resourceManager),
+      m_audioManager(audioManager),
+      m_nextObjectID(0)
 {
     m_timeManager = std::make_unique<TimeManager>();
-
-    m_nextObjectID = 0;
     m_cameraManager = std::make_unique<CameraManager>();
     m_inputManager = std::make_unique<InputManager>();
     m_physicsSystem = std::make_unique<PhysicsSystem>();
     m_physicsStageFactory = std::make_unique<PhysicsStageFactory>();
-    m_resourceManager = std::make_unique<ResourceManager>();
     m_scriptingFactory = std::make_unique<ScriptingFactory>();
     m_scriptingSystem = std::make_unique<ScriptingSystem>();
     m_eventManager = std::make_unique<EventManager>();
     m_renderer = std::make_unique<Renderer>();
     m_particleFactory = std::make_unique<ParticleFactory>();
     m_particleSystem = std::make_unique<ParticleSystem>(this);
+
+    // NetworkClient is injected by ScreenManager via SetNetworkClient().
+    m_networkSyncSystem = std::make_unique<NetworkSyncSystem>();
 
     configCallback(*m_scriptingFactory, *m_physicsStageFactory, *m_particleFactory);
 
@@ -53,6 +58,9 @@ void GameWorld::OnDestroy()
     }
     DestroyWaitingObjects();
     m_gameObjects.clear();
+
+    m_audioManager->ClearOneShots();
+    m_resourceManager->GameWorldUnloadAll();
 }
 
 GameObject &GameWorld::CreateGameObject()
@@ -69,8 +77,11 @@ bool GameWorld::FixedUpdate(float fixedDeltaTime)
     m_timeManager->TickGame(fixedDeltaTime);
 
     m_scriptingSystem->FixedUpdate(*this, fixedDeltaTime);
+    this->SyncActiveEntities();
     this->UpdateTransforms();
+
     m_physicsSystem->Update(*this, fixedDeltaTime);
+    this->SyncActiveEntities();
     this->UpdateTransforms();
 
     this->DestroyWaitingObjects();
@@ -80,9 +91,29 @@ bool GameWorld::FixedUpdate(float fixedDeltaTime)
 bool GameWorld::Update(float DeltaTime)
 {
     m_timeManager->Tick();
+
     m_scriptingSystem->Update(*this, DeltaTime);
+    this->SyncActiveEntities();
+
     m_particleSystem->Update(*this, DeltaTime);
     this->UpdateTransforms();
+
+    mCamera *activeCam = m_cameraManager->GetMainCamera();
+    if (activeCam)
+    {
+        m_audioManager->Update(*this, *activeCam);
+    }
+
+    m_renderer->Update(*this);
+
+    // Network: poll incoming packets and sync transforms.
+    if (m_networkClient)
+    {
+        m_networkClient->Poll();
+        if (m_networkSyncSystem)
+            m_networkSyncSystem->Update(*this, *m_networkClient, DeltaTime);
+    }
+
     return true;
 }
 
@@ -121,7 +152,10 @@ const std::vector<std::unique_ptr<GameObject>> &GameWorld::GetGameObjects() cons
 {
     return m_gameObjects;
 }
-
+const std::vector<GameObject *> &GameWorld::GetActivateGameObjects() const
+{
+    return m_activateGameObjects;
+}
 void GameWorld::DestroyWaitingObjects()
 {
     bool anyObjectDestroyed = false;
@@ -131,6 +165,8 @@ void GameWorld::DestroyWaitingObjects()
         {
             // 先释放脚本等组件，防止析构时先析构其他组件导致脚本崩溃
             obj->OnDestroy();
+            if (obj->IsActive())
+                NotifyActivateStateChanged(obj.get(), false);
             anyObjectDestroyed = true;
         }
     }
@@ -152,6 +188,43 @@ void GameWorld::Render()
     m_renderer->RenderScene(*this, *m_cameraManager);
 }
 
+void GameWorld::NotifyActivateStateChanged(GameObject *obj, bool active)
+{
+    m_activeChanges.push({obj, active});
+    // if (activate)
+    // {
+    //     m_activateGameObjects.push_back(obj);
+    // }
+    // else
+    // {
+    //     auto it = std::find(m_activateGameObjects.begin(), m_activateGameObjects.end(), obj);
+    //     if (it != m_activateGameObjects.end())
+    //     {
+    //         *it = m_activateGameObjects.back();
+    //         m_activateGameObjects.pop_back();
+    //     }
+    // }
+}
+void GameWorld::SyncActiveEntities()
+{
+    while (!m_activeChanges.empty())
+    {
+        auto change = m_activeChanges.front();
+        m_activeChanges.pop();
+        auto it = std::find(m_activateGameObjects.begin(), m_activateGameObjects.end(), change.obj);
+        bool currentlyInList = (it != m_activateGameObjects.end());
+        if (change.newState && !currentlyInList)
+        {
+            m_activateGameObjects.push_back(change.obj);
+        }
+        else if (!change.newState && currentlyInList)
+        {
+            *it = m_activateGameObjects.back();
+            m_activateGameObjects.pop_back();
+        }
+    }
+}
+
 GameObject *GameWorld::FindEntityByName(const std::string &name) const
 {
     for (auto &obj : m_gameObjects)
@@ -160,4 +233,25 @@ GameObject *GameWorld::FindEntityByName(const std::string &name) const
             return obj.get();
     }
     return nullptr;
+}
+GameObjectPool &GameWorld::GetOrCreatePool(const std::string &name, const std::string &prefabPath, size_t preloadCount)
+{
+    if (m_pools.find(name) == m_pools.end())
+    {
+        auto pool = std::make_unique<GameObjectPool>(prefabPath, *this);
+        if (preloadCount > 0)
+            pool->Preload(preloadCount);
+        m_pools[name] = std::move(pool);
+        std::cout << "[GameWorld]: Created pool: " << name << " using prefab: " << prefabPath << std::endl;
+    }
+    return *m_pools[name];
+}
+GameObjectPool &GameWorld::GetPool(const std::string &name) const
+{
+    auto it = m_pools.find(name);
+    if (it != m_pools.end())
+    {
+        return *it->second;
+    }
+    throw std::runtime_error("[GameWorld]:Pool not found: " + name);
 }
