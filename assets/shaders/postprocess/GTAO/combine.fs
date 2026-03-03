@@ -1,9 +1,10 @@
-#version 330
+#version 300 es 
+precision highp float;
 
 in vec2 fragTexCoord;
 out vec4 fragColor;
 
-uniform sampler2D u_baseTex;
+uniform highp sampler2D u_baseTex;
 uniform sampler2D u_gtaoTex;
 
 void main() {

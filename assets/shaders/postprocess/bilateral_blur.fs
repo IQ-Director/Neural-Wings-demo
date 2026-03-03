@@ -1,29 +1,30 @@
-#version 330
+#version 300 es 
+precision highp float;
 in vec2 fragTexCoord;
 in float vNear;
 in float vFar;
 
 out vec4 finalColor;
 
-uniform sampler2D u_Tex;
+uniform highp sampler2D u_Tex;
 uniform vec2 u_dir;
 
 uniform float u_radius;
-float sigma_s = 10.0; // 空间权重的标准差
-float sigma_r = 10.5; // 范围权重的标准差
+float sigma_s = 10.0f; // 空间权重的标准差
+float sigma_r = 10.5f; // 范围权重的标准差
 
 void main() {
     // vec4 centerColor = texture(rawScreen, fragTexCoord);
     float centerDepth = texture(u_Tex, fragTexCoord).r;
-    if(centerDepth <= 0.0 || centerDepth >= 5000.0) {
-        finalColor = vec4(centerDepth, 0.0, 0.0, 1.0);
+    if(centerDepth <= 0.0f || centerDepth >= 5000.0f) {
+        finalColor = vec4(centerDepth, 0.0f, 0.0f, 1.0f);
         return;
     }
-    float sum = 0.0;
-    float weightSum = 0.0;
+    float sum = 0.0f;
+    float weightSum = 0.0f;
 
-    float twoSigmaS2 = 2.0 * sigma_s * sigma_s;
-    float twoSigmaR2 = 2.0 * sigma_r * sigma_r;
+    float twoSigmaS2 = 2.0f * sigma_s * sigma_s;
+    float twoSigmaR2 = 2.0f * sigma_r * sigma_r;
 
     vec2 texSize = vec2(textureSize(u_Tex, 0));
     for(float i = -u_radius; i <= u_radius; i++) {
@@ -31,7 +32,7 @@ void main() {
         float sampleDepth = texture(u_Tex, sampleCoord).r;
 
         //vec4 sampleColor = texture(rawScreen, sampleCoord);
-        if(sampleDepth <= 0.0 || sampleDepth >= 10000.0)
+        if(sampleDepth <= 0.0f || sampleDepth >= 10000.0f)
             continue;
         float depthDiff = sampleDepth - centerDepth;
         float rangeWeight = exp(-(depthDiff * depthDiff) / twoSigmaR2);
@@ -41,10 +42,10 @@ void main() {
         sum += sampleDepth * weight;
         weightSum += weight;
     }
-    if(weightSum > 0.0) {
-        finalColor = vec4(sum / weightSum, sum / weightSum, sum / weightSum, 1.0);
+    if(weightSum > 0.0f) {
+        finalColor = vec4(sum / weightSum, sum / weightSum, sum / weightSum, 1.0f);
     } else {
-        finalColor = vec4(centerDepth, centerDepth, centerDepth, 1.0);
+        finalColor = vec4(centerDepth, centerDepth, centerDepth, 1.0f);
     }
     //finalColor = vec4(centerDepth, centerDepth, centerDepth, 1);
 }

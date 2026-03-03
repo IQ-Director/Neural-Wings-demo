@@ -20,7 +20,7 @@ struct ScriptComponent : public IComponent
     }
 
     template <typename T>
-    T *GetScrip() const
+    T *GetScript() const
     {
         for (auto &script : scripts)
         {

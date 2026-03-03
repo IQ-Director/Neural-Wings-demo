@@ -2,7 +2,7 @@
   "cameras": [
     {
       "name": "observer",
-      "isMain": false,
+      "isMain": true,
       "position": [
         15.0,
         15.0,
@@ -18,7 +18,7 @@
         1.0,
         0.0
       ],
-      "fovy": 45.0,
+      "fovy": 75.0,
       "projection": "PERSPECTIVE",
       "nearPlane": 0.1,
       "farPlane": 1000.0
@@ -55,7 +55,7 @@
     },
     {
       "name": "follow_2",
-      "isMain": true,
+      "isMain": false,
       "position": [
         15.0,
         15.0,

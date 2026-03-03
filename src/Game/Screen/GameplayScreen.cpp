@@ -129,7 +129,7 @@ void GameplayScreen::OnEnter()
         // Keep gameplay overlays mounted in stable order.
         m_hudManager->AddHud(ENTITY_PLATE_HUD);
         m_hudManager->AddHud(CHAT_HUD);
-        // m_hudManager->AddHud(ATTITUDE_HUD);
+        m_hudManager->AddHud(ATTITUDE_HUD);
     }
 
     // 监听事件

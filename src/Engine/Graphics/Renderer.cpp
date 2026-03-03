@@ -102,8 +102,10 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
     auto &itScene = m_RTPool["inScreen"];
     BeginTextureMode(itScene);
     {
-
+        rlEnableDepthTest();
         rlEnableDepthMask();
+        glClear(GL_DEPTH_BUFFER_BIT);
+
         // ClearBackground(BLUE);
         for (const auto &view : m_renderViewer->GetRenderViews())
         {
@@ -124,6 +126,7 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
                 BeginScissorMode(vx, vy, vw, vh); //  透明底？
                 if (view.clearBackground)
                 {
+                    rlEnableDepthMask();
                     ClearBackground(view.backgroundColor);
                 }
 
@@ -232,8 +235,8 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
         m_postProcesser->DefaultSetup();
     }
 
-    auto &itScene = m_RTPool.find("inScreen");
-    auto &itFinal = m_RTPool.find("outScreen");
+    auto itScene = m_RTPool.find("inScreen");
+    auto itFinal = m_RTPool.find("outScreen");
     if (itScene == m_RTPool.end())
     {
         std::cerr << "[Renderer]: No inScreen render target found!!!" << std::endl;
@@ -539,20 +542,58 @@ RenderTexture2D Renderer::LoadRT(int width, int height, PixelFormat format)
         target.texture.format = format;
         target.texture.mipmaps = 1;
 
+        rlTextureParameters(target.texture.id, RL_TEXTURE_MAG_FILTER, RL_TEXTURE_FILTER_NEAREST);
+        rlTextureParameters(target.texture.id, RL_TEXTURE_MIN_FILTER, RL_TEXTURE_FILTER_NEAREST);
+        rlTextureParameters(target.texture.id, RL_TEXTURE_WRAP_S, RL_TEXTURE_WRAP_CLAMP);
+        rlTextureParameters(target.texture.id, RL_TEXTURE_WRAP_T, RL_TEXTURE_WRAP_CLAMP);
+
         // Create depth renderbuffer/texture
+
+#if defined(PLATFORM_WEB)
+        GLuint depthTexId = 0;
+        glGenTextures(1, &depthTexId);
+        target.depth.id = depthTexId;
+
+        rlActiveTextureSlot(0);
+        glBindTexture(GL_TEXTURE_2D, target.depth.id);
+        {
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width, height, 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_NONE);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+        }
+        glBindTexture(GL_TEXTURE_2D, 0);
+#else
         target.depth.id = rlLoadTextureDepth(width, height, false);
+#endif
         target.depth.width = width;
         target.depth.height = height;
-        target.depth.format = 19; // DEPTH_COMPONENT_24BIT?
+        target.depth.format = 19; // DEPTH_COMPONENT_24BIT
         target.depth.mipmaps = 1;
 
         // Attach color texture and depth renderbuffer/texture to FBO
         rlFramebufferAttach(target.id, target.texture.id, RL_ATTACHMENT_COLOR_CHANNEL0, RL_ATTACHMENT_TEXTURE2D, 0);
+
+#if defined(PLATFORM_WEB)
+        glBindFramebuffer(GL_FRAMEBUFFER, target.id);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, target.depth.id, 0);
+#else
         rlFramebufferAttach(target.id, target.depth.id, RL_ATTACHMENT_DEPTH, RL_ATTACHMENT_TEXTURE2D, 0);
+#endif
 
         // Check if fbo is complete with attachments (valid)
         if (rlFramebufferComplete(target.id))
             std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+        else
+        {
+            int err = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            std::cerr << "[PostProcesser]: FBO Failed. WebGL Error Code: 0x" << err << std::endl;
+        }
 
         rlDisableFramebuffer();
     }
@@ -667,7 +708,7 @@ void Renderer::DrawHitbox(GameWorld &gameWorld, CameraManager &cameraManager)
                     rlMatrixMode(RL_MODELVIEW);
 
                     // DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
-                    auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
+                    const auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
                     for (const auto *gameObject : objs)
                     {
                         const auto &tf = gameObject->GetComponent<TransformComponent>();
@@ -744,7 +785,7 @@ void Renderer::DrawAABB(GameWorld &gameWorld, CameraManager &cameraManager)
                     rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
 
                     // DrawWorldObjects(gameWorld, rawCamera, *camera, aspect);
-                    auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
+                    const auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
                     for (const auto *gameObject : objs)
                     {
                         const auto &tf = gameObject->GetComponent<TransformComponent>();

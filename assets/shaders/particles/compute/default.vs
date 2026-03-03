@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision highp float;
 
 // 标准输入
 in vec3 pPosition;
@@ -22,7 +23,7 @@ out vec4 outSizeRotation; // (s1,s2,rotation,padding)
 out vec4 outLifeRand; // (totalLife,remainingLife,randomID,ID )
 
 // 引擎内置参数
-uniform sampler2D dataTex;
+uniform highp sampler2D dataTex;
 uniform int maxParticles;
 uniform float deltaTime;
 uniform float gameTime;
@@ -50,17 +51,17 @@ vec4 GetLife(int id) {
 void main() {
     float dt = deltaTime;
     vec3 newVelocity = pVelocity + (pAcceleration) * dt;
-    newVelocity *= 0.99;
+    newVelocity *= 0.99f;
     float vel = length(newVelocity);
     vec3 newPosition = pPosition + newVelocity * dt;
     float remaingLife = pLife.y - dt;
-    vec2 newSize = pSize * 0.99;
+    vec2 newSize = pSize * 0.99f;
 
     outPosition = vec4(newPosition, 0);
     outVelocity = vec4(newVelocity, 0);
     outAcceleration = vec4(pAcceleration, 0);
 
     outColor = pColor;
-    outSizeRotation = vec4(newSize, pRotation + 10 * vel * dt, 0);
+    outSizeRotation = vec4(newSize, pRotation + 10.0f * vel * dt, 0.0f);
     outLifeRand = vec4(pLife.x, remaingLife, pRandomID, pID);
 }

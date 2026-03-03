@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision highp float;
 
 // raylib提供
 in vec3 vertexPosition; // loc 0
@@ -45,13 +46,13 @@ out float vNear;
 out float vFar;
 
 void main() {
-    float lifeRatio = clamp(pLife.y / pLife.x, 0.0, 1.0);
-    if(pLife.y <= 0.00001) {
-        gl_Position = vec4(100.0, 100.0, 100.0, 1.0);
+    float lifeRatio = clamp(pLife.y / pLife.x, 0.0f, 1.0f);
+    if(pLife.y <= 0.00001f) {
+        gl_Position = vec4(100.0f, 100.0f, 100.0f, 1.0f);
         return;
     }
     // 计算局部系还是世界系。
-    vec3 centerWorld = (model * vec4(pPosition, 1.0)).xyz;
+    vec3 centerWorld = (model * vec4(pPosition, 1.0f)).xyz;
     vec2 localOffset = vertexPosition.xy * pSize;
     float c = cos(pRotation);
     float s = sin(pRotation);
@@ -62,7 +63,7 @@ void main() {
     vec3 finalOffset = cameraRight * rotatedOffset.x + cameraUp * rotatedOffset.y;
     vec3 finalPos = centerWorld + finalOffset;
 
-    gl_Position = vp * vec4(finalPos, 1.0);
+    gl_Position = vp * vec4(finalPos, 1.0f);
     fragTexCoord = vec2(vertexTexCoord.x, vertexTexCoord.y);
     fragColor = pColor;
     fragLifeRatio = lifeRatio;
@@ -72,7 +73,7 @@ void main() {
     vRemainingLife = pLife.y;
     vViewPos = viewPos;
     vDir = cameraDir;
-    vRadius = pSize.x * 0.5;
+    vRadius = pSize.x * 0.5f;
     vNear = near;
     vFar = far;
 }

@@ -49,6 +49,22 @@ ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::vector<std::s
     unsigned int programId = glCreateProgram();
     glAttachShader(programId, vShaderId);
 
+#if defined(PLATFORM_WEB)
+    const char *dummyFsCode =
+        "#version 300 es\n"
+        "precision highp float;\n"
+        "void main() {}\n";
+
+    unsigned int fShaderId = rlCompileShader(dummyFsCode, RL_FRAGMENT_SHADER);
+    if (fShaderId != 0)
+    {
+        glAttachShader(programId, fShaderId);
+    }
+    else
+    {
+        std::cerr << "[ShaderWrapper] Failed to compile dummy Fragment Shader for TFB." << std::endl;
+    }
+#endif
     // 编写shader时规范，顶点着色器包含这些变量
     glBindAttribLocation(programId, 0, "pPosition");     // vec3
     glBindAttribLocation(programId, 1, "pVelocity");     // vec3
@@ -85,6 +101,12 @@ ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::vector<std::s
         }
 
         glDeleteProgram(programId);
+#if defined(PLATFORM_WEB)
+        if (fShaderId != 0)
+        {
+            glDeleteShader(fShaderId);
+        }
+#endif
         programId = 0;
     }
     else
@@ -188,6 +210,7 @@ void ShaderWrapper::SetTexture(const std::string &name, Texture2D texture, int u
         rlActiveTextureSlot(unit);
         rlEnableTexture(texture.id);
         SetShaderValue(m_shader, loc, &unit, SHADER_UNIFORM_INT);
+        rlActiveTextureSlot(0);
     }
 }
 void ShaderWrapper::SetCubeMap(const std::string &name, TextureCubemap cubemap, int unit)

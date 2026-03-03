@@ -36,6 +36,7 @@ void MainMenuScreen::FixedUpdate(float fixedDeltaTime)
 }
 
 // 每帧更新逻辑
+#include <random>
 void MainMenuScreen::Update(float deltaTime)
 {
     // 检查 Vue 路由是否已变化
@@ -50,16 +51,19 @@ void MainMenuScreen::Update(float deltaTime)
         }
 
         std::string currentRoute = screenManager->GetUILayer()->GetCurrentRoute();
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
 
         if (currentRoute == "#/" + GAMEPLAY.getName())
         {
-            audioManager->Play2D("pipdown", 1.0f, (1.0f * rand() / RAND_MAX) * 0.7f + 0.8f);
+            audioManager->Play2D("pipdown", 1.0f, dis(gen) * 0.7f + 0.8f);
             m_nextScreenState = GAMEPLAY;
             return;
         }
         else if (currentRoute == "#/" + OPTIONS.getName())
         {
-            audioManager->Play2D("pipdown", 1.0f, (1.0f * rand() / RAND_MAX) * 0.7f + 0.8f);
+            audioManager->Play2D("pipdown", 1.0f, dis(gen) * 0.7f + 0.8f);
             m_nextScreenState = OPTIONS;
             return;
         }

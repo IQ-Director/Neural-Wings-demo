@@ -10,13 +10,40 @@
 // ────────────────────────────────────────────────────────────────────
 
 #include <stdio.h>
+#include <time.h>
 
 // nbnet logging – redirect to printf (Raylib's TraceLog is C++ in our build)
-#define NBN_LogInfo(...)    do { printf("[nbnet INFO] ");    printf(__VA_ARGS__); printf("\n"); } while(0)
-#define NBN_LogError(...)   do { fprintf(stderr, "[nbnet ERROR] "); fprintf(stderr, __VA_ARGS__); fprintf(stderr, "\n"); } while(0)
-#define NBN_LogWarning(...) do { printf("[nbnet WARN] ");    printf(__VA_ARGS__); printf("\n"); } while(0)
-#define NBN_LogDebug(...)   (void)0
-#define NBN_LogTrace(...)   (void)0
+#define NBN_LogInfo(...)         \
+    do                           \
+    {                            \
+        printf("[nbnet INFO] "); \
+        printf(__VA_ARGS__);     \
+        printf("\n");            \
+    } while (0)
+#define NBN_LogError(...)                  \
+    do                                     \
+    {                                      \
+        fprintf(stderr, "[nbnet ERROR] "); \
+        fprintf(stderr, __VA_ARGS__);      \
+        fprintf(stderr, "\n");             \
+    } while (0)
+#define NBN_LogWarning(...)      \
+    do                           \
+    {                            \
+        printf("[nbnet WARN] "); \
+        printf(__VA_ARGS__);     \
+        printf("\n");            \
+    } while (0)
+#define NBN_LogDebug(...) (void)0
+#define NBN_LogTrace(...) (void)0
+
+#if defined(PLATFORM_WEB)
+#include <emscripten.h>
+#ifdef CLOCK_MONOTONIC_RAW
+#undef CLOCK_MONOTONIC_RAW
+#endif
+#define CLOCK_MONOTONIC_RAW CLOCK_MONOTONIC
+#endif
 
 #define NBNET_IMPL
 

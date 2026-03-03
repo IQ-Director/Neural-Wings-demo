@@ -2,7 +2,7 @@
 
 #include "Engine/Core/GameObject/GameObject.h"
 #include "Engine/Core/Components/TransformComponent.h"
-#include "Engine/Core/Components/RigidbodyComponent.h"
+#include "Engine/Core/Components/RigidBodyComponent.h"
 #include "Engine/System/Input/InputManager.h"
 #include "Engine/Core/GameWorld.h"
 
@@ -134,7 +134,7 @@ void PlayerControlScript::CalculatePhysics(float dt)
 
         // camera_2
 
-        if (camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("follow_2"))
+        if ((camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("follow_2")))
         {
             auto &planeTf = owner->GetComponent<TransformComponent>();
             Vector3f planePos = planeTf.GetWorldPosition();

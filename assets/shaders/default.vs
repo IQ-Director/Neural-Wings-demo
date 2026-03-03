@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision highp float;
 in vec3 vertexPosition;
 in vec2 vertexTexCoord;
 in vec3 vertexNormal;
@@ -12,9 +13,9 @@ out vec3 fragNormal;
 out float v_linearDepth;
 
 void main() {
-    fragPosition = vec3(transform * vec4(vertexPosition, 1.0));
+    fragPosition = vec3(transform * vec4(vertexPosition, 1.0f));
     fragTexCoord = vertexTexCoord;
-    fragNormal = normalize(vec3(transform * vec4(vertexNormal, 0.0)));
-    gl_Position = u_mvp * vec4(vertexPosition, 1.0);
+    fragNormal = normalize(vec3(transform * vec4(vertexNormal, 0.0f)));
+    gl_Position = u_mvp * vec4(vertexPosition, 1.0f);
     v_linearDepth = gl_Position.w;
 }

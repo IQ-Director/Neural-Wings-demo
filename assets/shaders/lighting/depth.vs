@@ -1,8 +1,9 @@
-#version 330
+#version 300 es 
+precision highp float;
 in vec3 vertexPosition;
 uniform mat4 lightVP;
 uniform mat4 model;
 
 void main() {
-    gl_Position = lightVP * model * vec4(vertexPosition, 1.0);
+    gl_Position = lightVP * model * vec4(vertexPosition, 1.0f);
 }

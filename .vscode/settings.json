@@ -8,6 +8,12 @@
     "editor.defaultFormatter": "Vue.volar"
   },
   "files.associations": {
+    "*.vert": "glsl",
+    "*.frag": "glsl",
+    "*.comp": "glsl",
+    "*.geom": "glsl",
+    "*.vs": "glsl",
+    "*.fs": "glsl",
     "*.asm": "assembly",
     "memory": "cpp",
     "array": "cpp",
@@ -104,6 +110,7 @@
     "xtr1common": "cpp",
     "xtree": "cpp",
     "xutility": "cpp",
-    "*.m": "cpp"
+    "*.m": "cpp",
+    "webrtc.h": "c"
   }
 }

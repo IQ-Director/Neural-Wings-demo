@@ -1,4 +1,5 @@
-#version 330
+#version 300 es 
+precision highp float;
 
 in vec3 fragPosition;
 in vec3 fragNormal;
@@ -24,7 +25,7 @@ struct Light {
 #define MAX_POINT_SHADOWS 6
 
 uniform samplerCube pointShadowMaps[MAX_POINT_SHADOWS];
-uniform sampler2D shadowMaps[MAX_SHADOW_CASTERS];
+uniform highp sampler2D shadowMaps[MAX_SHADOW_CASTERS];
 
 uniform mat4 lightVPs[MAX_SHADOW_CASTERS];
 uniform Light lights[MAX_LIGHTS];
@@ -35,7 +36,7 @@ uniform float emissiveIntensity;
 uniform vec3 viewPos;
 uniform vec4 baseColor;
 
-uniform sampler2D u_diffuseMap;
+uniform highp sampler2D u_diffuseMap;
 uniform int u_diffuseMap_frameCount;
 uniform float u_diffuseMap_animSpeed;
 uniform float gameTime;
@@ -74,7 +75,7 @@ float SampleShadowMap(int index, vec2 coords) {
     //     return texture(shadowMaps[14], coords).r;
     // if(index == 15)
     //     return texture(shadowMaps[15], coords).r;
-    return 1.0;
+    return 1.0f;
 }
 
 float SamplePointShadowMap(int index, vec3 dir) {
@@ -110,36 +111,36 @@ float SamplePointShadowMap(int index, vec3 dir) {
     //     return texture(pointShadowMaps[14], dir).r;
     // if(index == 15)
     //     return texture(pointShadowMaps[15], dir).r;
-    return 1.0;
+    return 1.0f;
 }
 
 float CalculateDirShadow(int shadowIndex, vec3 worldPos, float bias) {
     if(shadowIndex < 0 || shadowIndex >= MAX_SHADOW_CASTERS)
-        return 0.0;
+        return 0.0f;
 
-    vec4 fragPosLightSpace = lightVPs[shadowIndex] * vec4(worldPos, 1.0);
+    vec4 fragPosLightSpace = lightVPs[shadowIndex] * vec4(worldPos, 1.0f);
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
-    projCoords = projCoords * 0.5 + 0.5;
+    projCoords = projCoords * 0.5f + 0.5f;
 
-    if(projCoords.z > 1.0 || projCoords.x < 0.0 || projCoords.x > 1.0 || projCoords.y < 0.0 || projCoords.y > 1.0)
-        return 0.0;
+    if(projCoords.z > 1.0f || projCoords.x < 0.0f || projCoords.x > 1.0f || projCoords.y < 0.0f || projCoords.y > 1.0f)
+        return 0.0f;
 
     float currentDepth = projCoords.z;
-    float shadow = 0.0;
-    vec2 texSize = 1.0 / vec2(textureSize(shadowMaps[0], 0));
+    float shadow = 0.0f;
+    vec2 texSize = 1.0f / vec2(textureSize(shadowMaps[0], 0));
 
     // PCF 3x3 滤波
     for(int x = -1; x <= 1; ++x) {
         for(int y = -1; y <= 1; ++y) {
             float pcfDepth = SampleShadowMap(shadowIndex, projCoords.xy + vec2(x, y) * texSize);
-            shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;
+            shadow += currentDepth - bias > pcfDepth ? 1.0f : 0.0f;
         }
     }
-    return shadow / 9.0;
+    return shadow / 9.0f;
 }
 float CalculatePointShadow(int shadowIndex, vec3 worldPos, vec3 lightPos, float farPlane, float bias) {
     if(shadowIndex < 0 || shadowIndex >= MAX_POINT_SHADOWS)
-        return 0.0;
+        return 0.0f;
 
     vec3 fragToLight = worldPos - lightPos;
     float currentDepth = length(fragToLight);
@@ -151,11 +152,11 @@ float CalculatePointShadow(int shadowIndex, vec3 worldPos, vec3 lightPos, float 
     closestDepth *= farPlane;
 
     // 简单硬阴影比较
-    return (currentDepth - bias > closestDepth) ? 1.0 : 0.0;
+    return (currentDepth - bias > closestDepth) ? 1.0f : 0.0f;
 }
 vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, float shadow) {
     vec3 lightDir;
-    float attenuation = 1.0;
+    float attenuation = 1.0f;
 
     if(light.type == 0) { // Directional
         lightDir = normalize(-light.direction);
@@ -163,39 +164,39 @@ vec3 CalcLight(Light light, vec3 normal, vec3 fragPos, vec3 viewDir, float shado
         lightDir = normalize(light.position - fragPos);
         float dist = length(light.position - fragPos);
         if(dist > light.range)
-            return vec3(0.0);
+            return vec3(0.0f);
         // 使用 range 相关的平方衰减
-        attenuation = clamp(1.0 - (dist * dist) / (light.range * light.range), 0.0, 1.0);
+        attenuation = clamp(1.0f - (dist * dist) / (light.range * light.range), 0.0f, 1.0f);
     }
 
     // Diffuse
-    float diff = max(dot(normal, lightDir), 0.0);
+    float diff = max(dot(normal, lightDir), 0.0f);
 
     // Specular (Blinn-Phong)
     vec3 halfwayDir = normalize(lightDir + viewDir);
-    float spec = pow(max(dot(normal, halfwayDir), 0.0), 32.0);
+    float spec = pow(max(dot(normal, halfwayDir), 0.0f), 32.0f);
 
     vec3 radiance = light.color * light.intensity * attenuation;
-    return (diff + spec) * radiance * (1.0 - shadow);
+    return (diff + spec) * radiance * (1.0f - shadow);
 }
 void main() {
     vec3 norm = normalize(fragNormal);
     vec3 viewDir = normalize(viewPos - fragPosition);
-    vec3 totalLight = vec3(0.0); // 基础环境光 0.1
+    vec3 totalLight = vec3(0.0f); // 基础环境光 0.1
 
     for(int i = 0; i < MAX_LIGHTS; i++) {
         if(i >= lightCounts) {
             break;
         }
-        if(lights[i].intensity <= 0.001)
+        if(lights[i].intensity <= 0.001f)
             continue;
-        float shadow = 0.0;
+        float shadow = 0.0f;
 
         if(lights[i].shadowIndex >= 0) {
             if(lights[i].type == 0) {
                 shadow = CalculateDirShadow(lights[i].shadowIndex, fragPosition, lights[i].shadowBias);
             } else {
-                if(lights[i].range > 0.0) {
+                if(lights[i].range > 0.0f) {
                     shadow = CalculatePointShadow(lights[i].shadowIndex, fragPosition, lights[i].position, lights[i].range, lights[i].shadowBias);
                 }
             }
@@ -207,15 +208,14 @@ void main() {
 
     float currentFrame = floor(mod(gameTime * u_diffuseMap_animSpeed, float(u_diffuseMap_frameCount)));
     vec2 animatedUV = fragTexCoord;
-    animatedUV.y /= u_diffuseMap_frameCount;
-
-    animatedUV.y += (currentFrame / u_diffuseMap_frameCount);
+    animatedUV.y /= float(u_diffuseMap_frameCount);
+    animatedUV.y += currentFrame / float(u_diffuseMap_frameCount);
 
     vec4 texColor = texture(u_diffuseMap, animatedUV);
 
     vec3 albedo = texture(u_diffuseMap, animatedUV).rgb * baseColor.rgb;
 
-    float brightness = dot(texColor.rgb, vec3(0.2126, 0.7152, 0.0722));
+    float brightness = dot(texColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
     vec3 emission = albedo * emissiveColor * emissiveIntensity * brightness;
 
     finalColor = vec4(totalLight * albedo + emission, texColor.a * baseColor.a);

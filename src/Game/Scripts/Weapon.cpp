@@ -18,6 +18,7 @@ void WeaponScript::Initialize(const json &data)
     if (data.contains("velocity"))
         m_bulletVelocity = data["velocity"];
 }
+#include <random>
 void WeaponScript::OnUpdate(float deltaTime)
 {
     auto &input = owner->GetOwnerWorld()->GetInputManager();
@@ -38,8 +39,13 @@ void WeaponScript::OnUpdate(float deltaTime)
             rb.velocity = tf.GetForward() * m_bulletVelocity;
 
             auto &audio = owner->GetComponent<AudioComponent>();
-            float randomPitch = 0.3f + (static_cast<float>(rand()) / RAND_MAX) * 1.5f;
-            float randomVol = 0.8f + (static_cast<float>(rand()) / RAND_MAX) * 0.2f;
+
+            static std::random_device rd;
+            static std::mt19937 gen(rd());
+            static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+
+            float randomPitch = 0.3f + dis(gen) * 1.5f;
+            float randomVol = 0.8f + dis(gen) * 0.2f;
             audio.Play("Fire", randomVol, randomPitch);
 
             // world->GetParticleSystem().Spawn(...);

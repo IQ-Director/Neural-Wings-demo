@@ -262,6 +262,7 @@ TextureCubemap ResourceManager::GetCubemap(const std::string &path)
     }
     return cubemap;
 }
+
 TextureCubemap ResourceManager::GenTextureCubemap(Shader shader, Texture2D panorama, int size, int format)
 {
     TextureCubemap cubemap = {0};

@@ -6,6 +6,8 @@
 #include "rlgl.h"
 
 #if defined(PLATFORM_WEB)
+#include <GL/glew.h>
+#include <GL/gl.h>
 #include <GLES3/gl3.h>
 #include <emscripten/emscripten.h>
 #include <emscripten/html5.h>
@@ -146,9 +148,20 @@ void LightingManager::UploadToShader(std::shared_ptr<ShaderWrapper> shader, cons
 void LightingManager::InitShadowMaps(int width, int height, ResourceManager &rm)
 {
     m_shadowMaps.resize(MAX_SHADOW_CASTERS);
+
+#if defined(PLATFORM_WEB)
+    width = 2048;
+    height = 2048;
+#endif
     for (int i = 0; i < MAX_SHADOW_CASTERS; ++i)
     {
+
+#if defined(PLATFORM_WEB)
         m_shadowMaps[i] = Renderer::LoadRT(width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+        SetTextureFilter(m_shadowMaps[i].texture, TEXTURE_FILTER_POINT);
+#else
+        m_shadowMaps[i] = Renderer::LoadRT(width, height, PIXELFORMAT_UNCOMPRESSED_R32G32B32A32);
+#endif
     }
     m_depthShader = rm.GetShader("assets/shaders/lighting/depth.vs", "assets/shaders/lighting/depth.fs");
 
@@ -165,8 +178,8 @@ void LightingManager::InitShadowMaps(int width, int height, ResourceManager &rm)
 
         for (unsigned int face = 0; face < 6; ++face)
         {
-            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_DEPTH_COMPONENT,
-                         psm.resolution, psm.resolution, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+            glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + face, 0, GL_DEPTH_COMPONENT24,
+                         psm.resolution, psm.resolution, 0, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, NULL);
         }
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -175,11 +188,27 @@ void LightingManager::InitShadowMaps(int width, int height, ResourceManager &rm)
         glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
 
         glBindFramebuffer(GL_FRAMEBUFFER, psm.fboId);
+
         glEnable(GL_DEPTH_TEST);
         glDepthMask(GL_TRUE);
 
+#if defined(PLATFORM_WEB)
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_CUBE_MAP_POSITIVE_X, psm.cubemapId, 0);
+
+        GLenum drawBuffers[] = {GL_NONE};
+        glDrawBuffers(1, drawBuffers);
+        int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+        {
+            std::cerr << "FBO Error! Status code: " << std::hex << fboStatus << std::endl;
+        }
+#else
         glFramebufferTexture(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, psm.cubemapId, 0);
         glDrawBuffer(GL_NONE);
+#endif
+
+        // glDrawBuffer(GL_NONE);
+
         glReadBuffer(GL_NONE);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
@@ -252,6 +281,12 @@ void LightingManager::RenderShadowMaps(GameWorld &world, const Vector3f &centerP
 
             glViewport(0, 0, psm.resolution, psm.resolution);
             glBindFramebuffer(GL_FRAMEBUFFER, psm.fboId);
+
+            int fboStatus = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+            if (fboStatus != GL_FRAMEBUFFER_COMPLETE)
+            {
+                std::cerr << "FBO Error! Status code: " << std::hex << fboStatus << std::endl;
+            }
 
             Matrix matProj = MatrixPerspective(90.0f * DEG2RAD, 1.0f, 0.1f, farPlane);
 
