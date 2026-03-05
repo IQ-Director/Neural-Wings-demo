@@ -1,0 +1,94 @@
+name: Build And Release
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    env:
+      RAYLIB_REF: "5.5"
+      RAYGUI_REF: "1c2365a"
+      NLOHMANN_JSON_REF: "553c314fb"
+      NBNET_REF: "master"
+      ULTRALIGHT_REF: "1b4b800"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Setup third_party
+        run: ./tools/setup_third_party.ps1 -Force
+
+      - name: Build UI
+        working-directory: ui
+        run: |
+          npm ci
+          npm run build
+
+      - name: Configure CMake
+        run: cmake -S . -B build -A x64
+
+      - name: Build Release
+        run: cmake --build build --config Release --parallel
+
+      - name: Package
+        run: |
+          $buildOut = "build/Release"
+          if (-not (Test-Path (Join-Path $buildOut "Neural_Wings-demo.exe"))) {
+            throw "Release build output not found: $buildOut"
+          }
+
+          if (Test-Path (Join-Path $buildOut "ui")) {
+            Remove-Item (Join-Path $buildOut "ui") -Recurse -Force
+          }
+          New-Item -ItemType Directory -Path (Join-Path $buildOut "ui") -Force | Out-Null
+          Copy-Item "ui/dist" (Join-Path $buildOut "ui/dist") -Recurse -Force
+
+          $nameSuffix = if ("${{ github.ref_type }}" -eq "tag") { "${{ github.ref_name }}" } else { "manual-${{ github.run_number }}" }
+          $packageName = "Neural_Wings-demo-windows-x64-$nameSuffix"
+          $stageRoot = Join-Path $env:RUNNER_TEMP "package"
+          $stageDir = Join-Path $stageRoot $packageName
+          New-Item -ItemType Directory -Path $stageDir -Force | Out-Null
+
+          Get-ChildItem $buildOut -Force | Where-Object { $_.Name -ne "ultralight.log" } | ForEach-Object {
+            Copy-Item $_.FullName $stageDir -Recurse -Force
+          }
+
+          $zipPath = Join-Path $env:GITHUB_WORKSPACE "$packageName.zip"
+          if (Test-Path $zipPath) {
+            Remove-Item $zipPath -Force
+          }
+          Compress-Archive -Path (Join-Path $stageDir "*") -DestinationPath $zipPath -CompressionLevel Optimal
+
+          "PACKAGE_NAME=$packageName" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          "ZIP_PATH=$zipPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PACKAGE_NAME }}
+          path: ${{ env.ZIP_PATH }}
+
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.ZIP_PATH }}
+          generate_release_notes: true

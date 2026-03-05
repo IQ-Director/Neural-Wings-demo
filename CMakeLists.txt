@@ -159,6 +159,15 @@ else()
     # nbnet UDP driver needs Winsock on Windows
     if(WIN32)
         target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 winmm)
+
+        # Build Windows Desktop Release as a GUI app to avoid opening a console window.
+        if(MSVC)
+            set_target_properties(${PROJECT_NAME} PROPERTIES
+                LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS /ENTRY:mainCRTStartup")
+        else()
+            set_target_properties(${PROJECT_NAME} PROPERTIES
+                LINK_FLAGS_RELEASE "-mwindows")
+        endif()
     endif()
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
