@@ -1,5 +1,5 @@
 {
-    "name": "Cube",
+    "name": "test_bulllet",
     "components": [
         {
             "TransformComponent": {
@@ -9,9 +9,9 @@
                     0
                 ],
                 "scale": [
-                    1,
-                    1,
-                    1
+                    1.5,
+                    1.5,
+                    2.5
                 ],
                 "rotation": [
                     0,
@@ -22,13 +22,7 @@
         },
         {
             "RenderComponent": {
-                "model": "assets/models/plane.obj",
-                "isVisible": true,
-                "showWires": true,
-                "showAxes": false,
-                "showAngVol": false,
-                "showVol": false,
-                "showCenter": false,
+                "model": "primitive://cube",
                 "castShadows": true,
                 "defaultMaterial": {
                     "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
@@ -53,92 +47,65 @@
                                         1
                                     ]
                                 },
+                                "blendMode": "NONE",
+                                "depthWrite": true,
+                                "depthTest": true,
                                 "fs": "assets/shaders/lighting/lighting.fs",
                                 "emissive": {
                                     "color": [
-                                        100,
-                                        100,
-                                        100
+                                        255,
+                                        0,
+                                        0
                                     ],
                                     "intensity": 0.5
-                                },
-                                "blendMode": "NONE",
-                                "depthWrite": true,
-                                "depthTest": true
-                            },
-                            {
-                                "name": "outline(描边需要剔除正面,使用uniforms来自定义传入shader的参数,支持vec3,vec4,float)",
-                                "vs": "assets/shaders/outline/outline.vs",
-                                "fs": "assets/shaders/outline/outline.fs",
-                                "blendMode": "ALPHA",
-                                "cullFace": "FRONT",
-                                "uniforms": {
-                                    "u_outlineWidth": 0.1,
-                                    "u_color": [
-                                        255,
-                                        50,
-                                        50,
-                                        255
-                                    ]
-                                },
-                                "depthWrite": true,
-                                "depthTest": true
+                                }
                             }
                         ]
                     }
                 ],
                 "scale": [
-                    1,
-                    1,
-                    1
+                    1.4,
+                    1.4,
+                    1.4
                 ]
             }
         },
         {
             "RigidBodyComponent": {
-                "mass": 10,
-                "drag": 0.00,
-                "angularDrag": 0.7,
-                "elasticity": 1.0,
-                "velocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "angularVlocity": [
-                    0,
-                    0,
-                    0
-                ],
-                "colliderType": "BOX",
-                "hitBox": [
-                    5,
-                    0.5,
-                    7
-                ]
+                "mass": 1.0,
+                "elasticity": 0.9,
+                "isCollidable": true,
+                "colliderType": "BOX"
             }
         },
         {
-            "AudioComponent": {
-                "clips": {
-                    "Test_Velocity": {
-                        "path": "assets/sounds/vel.wav",
-                        "is3D": true,
-                        "looping": true,
-                        "volume": 1.0,
-                        "minDist": 5.0,
-                        "maxDist": 100.0
-                    },
-                    "Fire": {
-                        "path": "assets/sounds/fire.wav",
-                        "is3D": true,
-                        "looping": false,
-                        "volume": 0.2,
-                        "minDist": 1.0,
-                        "maxDist": 40.0,
-                        "multiVoice": 12
-                    }
+            "ScriptComponent": {
+                "TrackingBulletScript": {
+                    "thrust": 40,
+                    "lifeTime": 10.0,
+                    "steer": 100,
+                    "damping": 5
                 }
+            }
+        },
+        {
+            "LightComponent": {
+                "type": "POINT",
+                "color": [
+                    255,
+                    50,
+                    50
+                ],
+                "direction": [
+                    0,
+                    0,
+                    1
+                ],
+                "intensity": 0.9,
+                "range": 120.0,
+                "attenuation": 1.0,
+                "shadows": true,
+                "shadowBias": 0.01
             }
         },
         {
@@ -147,8 +114,8 @@
                 "emitters": [
                     {
                         "name": "Core_Thrust",
-                        "maxParticles": 1090,
-                        "emissionRate": 20.0,
+                        "maxParticles": 300,
+                        "emissionRate": 40.0,
                         "maxLife": 15,
                         "space": "WORLD",
                         "updateShader": "assets/shaders/particles/compute/default.vs",
@@ -159,13 +126,13 @@
                                     "offset": [
                                         0.0,
                                         0.0,
-                                        -5.0
+                                        0.0
                                     ],
                                     "minSpeed": 0.0,
                                     "maxSpeed": 1.0,
                                     "size": [
-                                        1.0,
-                                        1.0
+                                        3.0,
+                                        3.0
                                     ]
                                 }
                             },

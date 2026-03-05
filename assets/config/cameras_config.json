@@ -2,7 +2,7 @@
   "cameras": [
     {
       "name": "observer",
-      "isMain": true,
+      "isMain": false,
       "position": [
         15.0,
         15.0,
@@ -55,7 +55,7 @@
     },
     {
       "name": "follow_2",
-      "isMain": false,
+      "isMain": true,
       "position": [
         15.0,
         15.0,

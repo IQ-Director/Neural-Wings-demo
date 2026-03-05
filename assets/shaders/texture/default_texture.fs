@@ -7,6 +7,7 @@ uniform highp sampler2D u_diffuseMap;
 uniform int u_diffuseMap_frameCount;
 uniform float u_diffuseMap_animSpeed;
 uniform vec4 baseColor;
+uniform vec4 totalBaseColor;
 uniform float gameTime;
 uniform float realTime;
 
@@ -26,7 +27,7 @@ void main() {
     vec3 lightDir = normalize(vec3(0.5f, 1.0f, 0.3f));
     float diff = max(dot(fragNormal, lightDir), 0.0f);
     vec3 diffuse = vec3(diff);
-    vec3 t = (texColor.rgb * baseColor.rgb) * (ambient + diffuse);
+    vec3 t = (texColor.rgb * baseColor.rgb * totalBaseColor.rgb) * (ambient + diffuse);
 
-    finalColor = vec4(t, texColor.a * baseColor.a);
+    finalColor = vec4(t, texColor.a * baseColor.a * totalBaseColor.a);
 }

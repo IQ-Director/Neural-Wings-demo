@@ -53,6 +53,24 @@
             "keys": [
                 "LEFT_CONTROL"
             ]
+        },
+        {
+            "action": "MainView",
+            "keys": [
+                "MOUSE_MIDDLE_BUTTON"
+            ]
+        },
+        {
+            "action": "SwitchWeaponPrev",
+            "keys": [
+                "Z"
+            ]
+        },
+        {
+            "action": "SwitchWeaponNext",
+            "keys": [
+                "X"
+            ]
         }
     ],
     "axisbindings": [

@@ -124,7 +124,10 @@ void GameObjectFactory::ParseRenderComponent(GameWorld &gameWorld, GameObject &g
     rd.showVol = prefab.value("showVol", false);
     rd.showCenter = prefab.value("showCenter", false);
     rd.castShadows = prefab.value("castShadows", true);
-
+    if (prefab.contains("baseColor"))
+    {
+        rd.totalBaseColor = JsonParser::ToVector4f(prefab["baseColor"]);
+    }
     if (prefab.contains("defaultMaterial"))
     {
         auto &matData = prefab["defaultMaterial"];

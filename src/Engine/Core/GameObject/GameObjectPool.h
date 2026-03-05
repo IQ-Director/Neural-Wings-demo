@@ -11,8 +11,8 @@ public:
     GameObjectPool(std::string preafab_path, GameWorld &world);
     ~GameObjectPool();
 
-    void Preload(size_t count);
-    GameObject *Spawn(const std::string &name, const Vector3f &position, const Quat4f &rotation);
+    void Preload(size_t count, const std::string &tag);
+    GameObject *Spawn(const std::string &name, const std::string &tag, const Vector3f &position, const Quat4f &rotation);
     void Recycle(GameObject *obj);
 
     const std::string &GetPrefabPath() const { return m_prefab_path; }

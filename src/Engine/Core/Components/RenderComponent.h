@@ -20,6 +20,7 @@ struct RenderComponent : public IComponent
     bool showAngVol = false;
     bool showVol = false;
 
+    Vector4f totalBaseColor = Vector4f(255.0f);  // 基础颜色
     Vector3f scale = Vector3f(1.0f, 1.0f, 1.0f); // 渲染缩放
     bool castShadows = true;
 

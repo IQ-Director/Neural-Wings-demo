@@ -5,3 +5,4 @@
 #include "LocalPlayerSyncScript.h"
 #include "AudioScript.h"
 #include "PlayerControlScript.h"
+#include "HealthScript.h"

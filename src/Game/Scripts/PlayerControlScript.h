@@ -37,4 +37,7 @@ private:
     Vector3f m_camDir = Vector3f(0, 0, 1);
     Vector3f m_focusPos;
     float m_smoothedDist = 0.0f;
+    float m_alignmentStrength = 15.0f;
+    float m_alignmentTheta = 30.0f;
+    float m_alignmentDamping = 0.5f;
 };

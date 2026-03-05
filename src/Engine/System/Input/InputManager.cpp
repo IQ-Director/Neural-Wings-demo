@@ -267,7 +267,8 @@ int InputManager::KeyNameToKeyCode(const std::string &keyName) const
         return KEY_MW_UP;
     if (keyName == "MOUSE_WHEEL_DOWN")
         return KEY_MW_DOWN;
-
+    if (keyName == "MOUSE_MIDDLE_BUTTON")
+        return MOUSE_BUTTON_MIDDLE;
     std::cerr << "Warning: [InputManager] Unknown key name: " << keyName << std::endl;
     return -1;
 }

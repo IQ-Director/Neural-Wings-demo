@@ -77,8 +77,9 @@ void SceneManager::ParseGameObjectPools(const json &objectsPools, GameWorld &gam
     {
         std::string poolName = poolData["name"];
         std::string prefab = poolData["prefab"];
+        std::string tag = poolData.value("tag", "Untagged");
         int poolSize = poolData.value("count", 1);
-        gameWorld.GetOrCreatePool(poolName, prefab, poolSize);
+        gameWorld.GetOrCreatePool(poolName, tag, prefab, poolSize);
     }
 }
 
@@ -153,6 +154,8 @@ void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, Ga
 
     if (renderData.contains("renderScale"))
         rd.scale = rd.scale & JsonParser::ToVector3f(renderData["renderScale"]);
+    if (renderData.contains("baseColor"))
+        rd.totalBaseColor = JsonParser::ToVector4f(renderData["baseColor"]);
 
     rd.isVisible = renderData.value("isVisible", true);
     rd.showWires = renderData.value("showWires", false);

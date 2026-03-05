@@ -9,9 +9,9 @@
                     0
                 ],
                 "scale": [
-                    0.9,
-                    0.9,
-                    0.9
+                    0.5,
+                    0.5,
+                    1.5
                 ],
                 "rotation": [
                     0,
@@ -72,7 +72,7 @@
         },
         {
             "RigidBodyComponent": {
-                "mass": 20.0,
+                "mass": 2.0,
                 "elasticity": 0.9,
                 "isCollidable": true,
                 "colliderType": "BOX"
@@ -80,22 +80,9 @@
         },
         {
             "ScriptComponent": {
-                "BulletScript": {}
-            }
-        },
-        {
-            "LightComponent": {
-                "type": "POINT",
-                "color": [
-                    255,
-                    0,
-                    0
-                ],
-                "intensity": 0.5,
-                "range": 40.0,
-                "attenuation": 5.0,
-                "shadows": false,
-                "shadowBias": 0.005
+                "BulletScript": {
+                    "lifeTime": 1.0
+                }
             }
         }
     ]

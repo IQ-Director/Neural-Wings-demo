@@ -330,12 +330,12 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
                         {
                             const RenderMaterial &pass = (*passes)[p];
 
-                            RenderSinglePass(mesh, render.model, i, pass, matProj, matView, MVP, M, camera, world);
+                            RenderSinglePass(mesh, render.model, i, pass, matProj, matView, MVP, M, camera, world, render.totalBaseColor);
                         }
                     }
                     else
                     {
-                        RenderSinglePass(mesh, render.model, i, render.defaultMaterial, matProj, matView, MVP, M, camera, world);
+                        RenderSinglePass(mesh, render.model, i, render.defaultMaterial, matProj, matView, MVP, M, camera, world, render.totalBaseColor);
                     }
                 }
             }
@@ -382,7 +382,7 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
 }
 
 void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass,
-                                const Matrix4f &matProj, const Matrix4f &matView, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld)
+                                const Matrix4f &matProj, const Matrix4f &matView, const Matrix4f &MVP, const Matrix4f &M, const mCamera &camera, GameWorld &gameWorld, const Vector4f &totalBaseColor)
 {
     rlDrawRenderBatchActive();
 
@@ -424,6 +424,7 @@ void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int 
         }
 
         pass.shader->SetAll(MVP, M, camera.Position(), realTime, gameTime, pass.baseColor, pass.customFloats, pass.customVector2, pass.customVector3, pass.customVector4);
+        pass.shader->SetVec4("totalBaseColor", totalBaseColor / 255.0f);
         pass.shader->SetMat4("matProj", matProj);
         pass.shader->SetMat4("matView", matView);
 

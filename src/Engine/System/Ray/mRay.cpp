@@ -54,7 +54,6 @@ mRaycastHit mRay::Raycast(float maxDistance, GameWorld &world, GameObject *ignor
         {
             std::cerr << "[Ray]: Unknown collider type for entity: " << entity->GetName() << std::endl;
         }
-        return closestHit;
     }
     return closestHit;
 }

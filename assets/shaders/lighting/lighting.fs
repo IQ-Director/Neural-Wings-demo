@@ -35,6 +35,7 @@ uniform float emissiveIntensity;
 
 uniform vec3 viewPos;
 uniform vec4 baseColor;
+uniform vec4 totalBaseColor;
 
 uniform highp sampler2D u_diffuseMap;
 uniform int u_diffuseMap_frameCount;
@@ -213,10 +214,10 @@ void main() {
 
     vec4 texColor = texture(u_diffuseMap, animatedUV);
 
-    vec3 albedo = texture(u_diffuseMap, animatedUV).rgb * baseColor.rgb;
+    vec3 albedo = texture(u_diffuseMap, animatedUV).rgb * baseColor.rgb * totalBaseColor.rgb;
 
     float brightness = dot(texColor.rgb, vec3(0.2126f, 0.7152f, 0.0722f));
     vec3 emission = albedo * emissiveColor * emissiveIntensity * brightness;
 
-    finalColor = vec4(totalLight * albedo + emission, texColor.a * baseColor.a);
+    finalColor = vec4(totalLight * albedo + emission, texColor.a * baseColor.a * totalBaseColor.a);
 }

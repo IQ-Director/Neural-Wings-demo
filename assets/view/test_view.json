@@ -1,7 +1,7 @@
 {
     "views": [
         {
-            "name": "observer",
+            "name": "follow_2",
             "viewport": [
                 0,
                 0,
@@ -237,7 +237,7 @@
                 "output": "outScreen",
                 "uniforms": {
                     "u_cloudFrequency": 0.05,
-                    "u_cloudSize": 0.60,
+                    "u_cloudSize": 0.65,
                     "u_cloudThickness": 0.1,
                     "u_windDir": [
                         1,

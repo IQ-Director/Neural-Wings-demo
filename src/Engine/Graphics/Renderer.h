@@ -42,7 +42,7 @@ private:
 
     void RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass,
                           const Matrix4f &matProj, const Matrix4f &matView, const Matrix4f &MVP, const Matrix4f &M,
-                          const mCamera &camera, GameWorld &gameWorld);
+                          const mCamera &camera, GameWorld &gameWorld, const Vector4f &totalBaseColor);
     void DrawWorldObjects(GameWorld &gameWorld, Camera3D &rawCamera, mCamera &camera, float aspect);
     void DrawParticle(GameWorld &gameWorld, mCamera &camera, float aspect);
 

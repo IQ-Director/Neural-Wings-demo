@@ -20,7 +20,7 @@
         ],
         "ground": -20.0,
         "e_ground": 0.5,
-        "mu": 0.04,
+        "mu": 0.09,
         "enable": true
       }
     }
@@ -38,7 +38,14 @@
   "objectsPools": [
     {
       "name": "bullet",
+      "tag": "bullet",
       "prefab": "assets/prefabs/bullet.json",
+      "count": 1
+    },
+    {
+      "name": "missile",
+      "tag": "bullet",
+      "prefab": "assets/prefabs/tracking_bullet.json",
       "count": 1
     }
   ],
@@ -67,6 +74,12 @@
         "elasticity": 1.0
       },
       "render": {
+        "baseColor": [
+          255,
+          255,
+          255,
+          255
+        ],
         "renderScale": [
           1,
           1,
@@ -115,6 +128,105 @@
               0.0,
               0.1
             ]
+          }
+        },
+        {
+          "HealthScript": {
+            "maxHP": 1000,
+            "flashDuration": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "name": "texture_sphere",
+      "tag": "sphere",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        100,
+        150,
+        100
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        80,
+        80,
+        80
+      ],
+      "physics": {
+        "mass": 500,
+        "elasticity": 1.0,
+        "velocity": [
+          0,
+          0,
+          50
+        ]
+      },
+      "render": {
+        "baseColor": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "defaultMaterial": {
+          "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    10
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    100,
+                    255,
+                    100
+                  ],
+                  "intensity": 1.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.0,
+              0.0,
+              0.1
+            ]
+          }
+        },
+        {
+          "HealthScript": {
+            "maxHP": 1000,
+            "flashDuration": 0.1
           }
         }
       ]
@@ -192,6 +304,12 @@
               0.1
             ]
           }
+        },
+        {
+          "HealthScript": {
+            "maxHP": 100,
+            "flashDuration": 0.1
+          }
         }
       ]
     },
@@ -224,7 +342,10 @@
         },
         {
           "WeaponScript": {
-            "velocity": 10
+            "velocity_0": 200,
+            "velocity_1": 30,
+            "fireRate_0": 0.05,
+            "fireRate_1": 0.3
           }
         },
         {
@@ -233,6 +354,22 @@
         {
           "LocalPlayerSyncScript": {
             "netObjectID": 1
+          }
+        },
+        {
+          "PlayerControlScript": {
+            "Thrust": 4000,
+            "LiftCoefficient": 0.01,
+            "DragCoefficient": 0.1,
+            "PitchPower": 300,
+            "YawPower": 200,
+            "RollPower": 200,
+            "ZoomSpeed": 0.1,
+            "MinCamDist": 1,
+            "MaxCamDist": 45,
+            "AlignmentStrength": 200,
+            "AlignmentTheta": 45,
+            "AlignmentDamping": 0.5
           }
         }
       ]
@@ -244,7 +381,7 @@
       "position": [
         10,
         2,
-        0
+        5
       ],
       "rotation": [
         0,

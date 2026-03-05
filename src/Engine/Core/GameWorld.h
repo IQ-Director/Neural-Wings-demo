@@ -55,6 +55,7 @@ public:
     EventManager &GetEventManager() { return *m_eventManager; };
 
     TimeManager &GetTimeManager() { return *m_timeManager; };
+    TimerManager &GetTimerManager() { return *m_timerManager; };
 
     ParticleFactory &GetParticleFactory() { return *m_particleFactory; };
     ParticleSystem &GetParticleSystem() { return *m_particleSystem; };
@@ -85,7 +86,7 @@ public:
 
     GameObject *FindEntityByName(const std::string &name) const;
 
-    GameObjectPool &GetOrCreatePool(const std::string &name, const std::string &prefab, size_t preloadCount = 0);
+    GameObjectPool &GetOrCreatePool(const std::string &name, const std::string &tag, const std::string &prefab, size_t preloadCount = 0);
     GameObjectPool &GetPool(const std::string &name) const;
 
 private:
@@ -93,6 +94,7 @@ private:
     void DestroyWaitingObjects();
 
     std::unique_ptr<TimeManager> m_timeManager;
+    std::unique_ptr<TimerManager> m_timerManager;
 
     unsigned m_nextObjectID = 0;
     std::vector<std::unique_ptr<GameObject>> m_gameObjects;

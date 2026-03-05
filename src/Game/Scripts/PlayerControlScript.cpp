@@ -43,6 +43,9 @@ void PlayerControlScript::Initialize(const json &data)
         m_minCamDist = data["MinCamDist"];
     if (data.contains("MaxCamDist"))
         m_maxCamDist = data["MaxCamDist"];
+    m_alignmentStrength = data.value("AlignmentStrength", 1.5f);
+    m_alignmentTheta = data.value("AlignmentTheta", 30.0f);
+    m_alignmentDamping = data.value("AlignmentDamping", 0.5f);
 }
 
 void PlayerControlScript::OnCreate()
@@ -166,8 +169,24 @@ void PlayerControlScript::CalculatePhysics(float dt)
             m_smoothedDist = Lerp(m_smoothedDist, finalDist, 0.1f);
             Vector3f finalCamPos = m_focusPos - (m_camDir * m_smoothedDist);
 
+            if (input.IsActionDown("MainView"))
+            {
+                Vector3f tarCamDir = planeTf.GetForward();
+                m_camDir = Vector3f::Lerp(m_camDir, tarCamDir, 0.1f);
+            }
             camera->UpdateFromDirection(finalCamPos, m_camDir, Vector3f::UP);
             camera->setFovy(60.0f * (1.0f + speedFactor));
+
+            // 鼠标微操
+            float dot = m_camDir * forward;
+            float alignThreshold = std::cosf(m_alignmentTheta * 3.1415926535f / 180.0f);
+            if (dot > alignThreshold)
+            {
+                Vector3f rotationError = (forward ^ m_camDir);
+                Vector3f dampingTorque = rb.angularVelocity * m_alignmentDamping;
+                Vector3f autoTorque = (rotationError * m_alignmentStrength - dampingTorque) * speedFactor;
+                rb.AddTorque(autoTorque);
+            }
         }
     }
 }

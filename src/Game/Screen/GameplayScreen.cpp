@@ -15,6 +15,8 @@
 #include "Engine/System/HUD/HudFactory.h"
 #include "Engine/System/HUD/HudManager.h"
 
+#include "Game/Events/CombatEvents.h"
+
 #include "raymath.h"
 #include "Engine/Engine.h"
 #include <iostream>
@@ -74,6 +76,8 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                               { return std::make_unique<WeaponScript>(); });
     scriptingFactory.Register("BulletScript", []()
                               { return std::make_unique<BulletScript>(); });
+    scriptingFactory.Register("TrackingBulletScript", []()
+                              { return std::make_unique<TrackingBulletScript>(); });
     scriptingFactory.Register("RayScript", []()
                               { return std::make_unique<RayScript>(); });
     scriptingFactory.Register("LocalPlayerSyncScript", []()
@@ -82,8 +86,9 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                               { return std::make_unique<AudioScript>(); });
     scriptingFactory.Register("PlayerControlScript", []()
                               { return std::make_unique<PlayerControlScript>(); });
+    scriptingFactory.Register("HealthScript", []()
+                              { return std::make_unique<HealthScript>(); });
 
-    // 注
     // 注册粒子初始化器
     particleFactory.Register("SphereDir", []()
                              { return std::make_unique<SphereDir>(); });
@@ -137,7 +142,7 @@ void GameplayScreen::OnEnter()
                                                          {
                                                              std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
                                                              //  e.hitpoint.print();
-                                                             std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
+                                                             //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
                                                              if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)
                                                                  return;
                                                              auto &particleSys = m_world->GetParticleSystem();
@@ -148,6 +153,18 @@ void GameplayScreen::OnEnter()
                                                                                "impulse", e.impulse,
                                                                                "maxSpeed", e.relativeVelocity.Length() / 4);
                                                              float randomPitch = 0.5f + (float)GetRandomValue(0, 100) / 100.0f;
+
+                                                             if (e.m_object2->GetTag() == "bullet" && e.m_object1->GetScript<HealthScript>())
+                                                             {
+                                                                 m_world->GetEventManager().Emit(DamageEvent(e.m_object1, 10.0f, e.hitpoint));
+                                                                 e.m_object2->SetIsWaitingDestroy(true);
+                                                             }
+                                                             if (e.m_object1->GetTag() == "bullet" && e.m_object2->GetScript<HealthScript>())
+                                                             {
+                                                                 m_world->GetEventManager().Emit(DamageEvent(e.m_object2, 10.0f, e.hitpoint));
+                                                                 e.m_object1->SetIsWaitingDestroy(true);
+                                                             }
+
                                                              //  m_world->GetAudioManager().PlaySpatial("explosion", e.hitpoint, 5.0f, 50.0f, e.relativeVelocity.Length() / 4, randomPitch);
                                                          });
     m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
