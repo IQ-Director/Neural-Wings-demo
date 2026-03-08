@@ -74,7 +74,7 @@
             "RigidBodyComponent": {
                 "mass": 2.0,
                 "elasticity": 0.9,
-                "isCollidable": true,
+                "isCollidable": false,
                 "colliderType": "BOX"
             }
         },

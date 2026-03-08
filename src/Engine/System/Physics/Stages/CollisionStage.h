@@ -20,3 +20,8 @@ public:
 private:
     float epsilon = 0.0001f;
 };
+struct CollisionEntry
+{
+    uint32_t cellKey;
+    uint32_t objIdx;
+};

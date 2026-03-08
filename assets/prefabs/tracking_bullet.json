@@ -115,7 +115,7 @@
                     {
                         "name": "Core_Thrust",
                         "maxParticles": 100,
-                        "emissionRate": 40.0,
+                        "emissionRate": 20.0,
                         "maxLife": 15,
                         "space": "WORLD",
                         "updateShader": "assets/shaders/particles/compute/default.vs",

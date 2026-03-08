@@ -3,66 +3,134 @@
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Core/Components/Components.h"
 #include <limits>
+#include <omp.h>
 
 void CollisionStage::Initialize(const json &config) {};
 
 void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
 {
-    auto &gameObjects = world.GetActivateGameObjects();
-    // TODO:优化
-
-    for (size_t i = 0; i < gameObjects.size(); i++)
+    auto &gameObjects = world.GetEntitiesWith<RigidbodyComponent, TransformComponent>();
+    size_t n = gameObjects.size();
+    if (n < 2)
+        return;
+    struct CollisionCandidate
     {
-        auto &go1 = gameObjects[i];
-        if (!go1->HasComponent<RigidbodyComponent>() || !go1->HasComponent<TransformComponent>())
-            continue;
+        GameObject *go;
+        RigidbodyComponent *rb;
+        TransformComponent *tf;
+        AABB aabb;
+    };
+    static std::vector<CollisionCandidate> candidates;
+    candidates.clear();
+    candidates.reserve(gameObjects.size());
 
-        auto &rb1 = go1->GetComponent<RigidbodyComponent>();
-        if (!rb1.Collidable)
-            continue;
+#pragma omp parallel
+    {
+        std::vector<CollisionCandidate> local_candidates;
+        local_candidates.reserve(gameObjects.size() / omp_get_num_threads());
 
-        for (size_t j = i + 1; j < gameObjects.size(); j++)
+#pragma omp for nowait
+        for (size_t i = 0; i < gameObjects.size(); ++i)
         {
-            auto &go2 = gameObjects[j];
-            if (go1 == go2)
-                continue;
-            if (!go2->HasComponent<RigidbodyComponent>() || !go2->HasComponent<TransformComponent>())
+            auto *go = gameObjects[i];
+            auto &rb = go->GetComponent<RigidbodyComponent>();
+            if (rb.Collidable)
+            {
+                local_candidates.push_back({go,
+                                            &rb,
+                                            &go->GetComponent<TransformComponent>(),
+                                            go->GetWorldAABB()});
+            }
+        }
+
+#pragma omp critical
+        {
+            candidates.insert(candidates.end(),
+                              local_candidates.begin(),
+                              local_candidates.end());
+        }
+    }
+
+    for (size_t i = 0; i < candidates.size(); i++)
+    {
+        for (size_t j = i + 1; j < candidates.size(); j++)
+        {
+            auto &c1 = candidates[i];
+            auto &c2 = candidates[j];
+
+            if (!AABB::IsCollide(c1.aabb, c2.aabb))
                 continue;
 
-            auto &rb2 = go2->GetComponent<RigidbodyComponent>();
-            if (!rb2.Collidable)
-                continue;
-
-            auto &tf1 = go1->GetComponent<TransformComponent>();
-            auto &tf2 = go2->GetComponent<TransformComponent>();
-
-            // TODO:实现更多BoundBox,优化碰撞检测
-            bool isColliding = false;
             Vector3f normal;
             Vector3f hitPoint;
             float penetration = 0.0f;
 
-            // Broad Phase
-            AABB aabb1 = go1->GetWorldAABB();
-            AABB aabb2 = go2->GetWorldAABB();
-            if (!AABB::IsCollide(aabb1, aabb2))
-                continue;
-            // Narrow Phase
-            HitBox box1(tf1, rb1);
-            HitBox box2(tf2, rb2);
+            HitBox box1(*c1.tf, *c1.rb);
+            HitBox box2(*c2.tf, *c2.rb);
 
-            isColliding = HitBox::GetCollisionInfo(box1, box2, normal, penetration, hitPoint);
-
-            if (isColliding)
+            if (HitBox::GetCollisionInfo(box1, box2, normal, penetration, hitPoint))
             {
-                if (rb1.collisionCallback)
-                    rb1.collisionCallback(go2);
-                if (rb2.collisionCallback)
-                    rb2.collisionCallback(go1);
-                ResolveCollision(world, go1, go2, normal, penetration, hitPoint);
+                if (c1.rb->collisionCallback)
+                    c1.rb->collisionCallback(c2.go);
+                if (c2.rb->collisionCallback)
+                    c2.rb->collisionCallback(c1.go);
+                ResolveCollision(world, c1.go, c2.go, normal, penetration, hitPoint);
             }
         }
     }
+
+    // for (size_t i = 0; i < gameObjects.size(); i++)
+    // {
+    //     auto &go1 = gameObjects[i];
+    //     if (!go1->HasComponent<RigidbodyComponent>() || !go1->HasComponent<TransformComponent>())
+    //         continue;
+
+    //     auto &rb1 = go1->GetComponent<RigidbodyComponent>();
+    //     if (!rb1.Collidable)
+    //         continue;
+
+    //     for (size_t j = i + 1; j < gameObjects.size(); j++)
+    //     {
+    //         auto &go2 = gameObjects[j];
+    //         if (go1 == go2)
+    //             continue;
+    //         if (!go2->HasComponent<RigidbodyComponent>() || !go2->HasComponent<TransformComponent>())
+    //             continue;
+
+    //         auto &rb2 = go2->GetComponent<RigidbodyComponent>();
+    //         if (!rb2.Collidable)
+    //             continue;
+
+    //         auto &tf1 = go1->GetComponent<TransformComponent>();
+    //         auto &tf2 = go2->GetComponent<TransformComponent>();
+
+    //         // TODO:实现更多BoundBox,优化碰撞检测
+    //         bool isColliding = false;
+    //         Vector3f normal;
+    //         Vector3f hitPoint;
+    //         float penetration = 0.0f;
+
+    //         // Broad Phase
+    //         AABB aabb1 = go1->GetWorldAABB();
+    //         AABB aabb2 = go2->GetWorldAABB();
+    //         if (!AABB::IsCollide(aabb1, aabb2))
+    //             continue;
+    //         // Narrow Phase
+    //         HitBox box1(tf1, rb1);
+    //         HitBox box2(tf2, rb2);
+
+    //         isColliding = HitBox::GetCollisionInfo(box1, box2, normal, penetration, hitPoint);
+
+    //         if (isColliding)
+    //         {
+    //             if (rb1.collisionCallback)
+    //                 rb1.collisionCallback(go2);
+    //             if (rb2.collisionCallback)
+    //                 rb2.collisionCallback(go1);
+    //             ResolveCollision(world, go1, go2, normal, penetration, hitPoint);
+    //         }
+    //     }
+    // }
 }
 float GetInverseMass(const RigidbodyComponent &rb)
 {
