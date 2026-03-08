@@ -108,6 +108,8 @@ if(PLATFORM STREQUAL "Web")
         "-sMAX_WEBGL_VERSION=2"
         "-sFULL_ES3=1"
 
+        "-sNO_DISABLE_EXCEPTION_CATCHING"
+
         "-sFORCE_FILESYSTEM=1"
 
         "-sALLOW_MEMORY_GROWTH=1"

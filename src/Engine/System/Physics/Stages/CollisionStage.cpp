@@ -3,13 +3,15 @@
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Core/Components/Components.h"
 #include <limits>
+#if !defined(PLATFORM_WEB)
 #include <omp.h>
+#endif
 
 void CollisionStage::Initialize(const json &config) {};
 
 void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
 {
-    auto &gameObjects = world.GetEntitiesWith<RigidbodyComponent, TransformComponent>();
+    const auto &gameObjects = world.GetEntitiesWith<RigidbodyComponent, TransformComponent>();
     size_t n = gameObjects.size();
     if (n < 2)
         return;
@@ -24,6 +26,20 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
     candidates.clear();
     candidates.reserve(gameObjects.size());
 
+#if defined(PLATFORM_WEB)
+    for (size_t i = 0; i < gameObjects.size(); ++i)
+    {
+        auto *go = gameObjects[i];
+        auto &rb = go->GetComponent<RigidbodyComponent>();
+        if (rb.Collidable)
+        {
+            candidates.push_back({go,
+                                  &rb,
+                                  &go->GetComponent<TransformComponent>(),
+                                  go->GetWorldAABB()});
+        }
+    }
+#else
 #pragma omp parallel
     {
         std::vector<CollisionCandidate> local_candidates;
@@ -50,6 +66,7 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
                               local_candidates.end());
         }
     }
+#endif
 
     for (size_t i = 0; i < candidates.size(); i++)
     {
