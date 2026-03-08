@@ -11,6 +11,8 @@
 #include "Game/Systems/Particles/Initializers/SphereDir.h"
 #include "Game/Systems/Particles/Initializers/CollisionInit.h"
 #include "Game/Systems/Particles/Initializers/SPHInit.h"
+#include "Game/Systems/Particles/Initializers/ExplosionInit.h"
+
 #include "Game/Scripts/Scripts.h"
 #include "Engine/System/HUD/HudFactory.h"
 #include "Engine/System/HUD/HudManager.h"
@@ -78,6 +80,9 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                               { return std::make_unique<BulletScript>(); });
     scriptingFactory.Register("TrackingBulletScript", []()
                               { return std::make_unique<TrackingBulletScript>(); });
+    scriptingFactory.Register("MineScript", []()
+                              { return std::make_unique<MineScript>(); });
+
     scriptingFactory.Register("RayScript", []()
                               { return std::make_unique<RayScript>(); });
     scriptingFactory.Register("LocalPlayerSyncScript", []()
@@ -100,6 +105,8 @@ void GameplayScreen::ConfigCallback(ScriptingFactory &scriptingFactory, PhysicsS
                              { return std::make_unique<CollisionInit>(); });
     particleFactory.Register("SPHInit", []()
                              { return std::make_unique<SPHInit>(); });
+    particleFactory.Register("ExplosionInit", []()
+                             { return std::make_unique<ExplosionInit>(); });
 }
 
 // 当进入游戏场景时调用

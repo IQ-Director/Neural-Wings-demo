@@ -35,6 +35,24 @@ private:
     float m_damping = 0.5f;
 };
 
+class MineScript : public IScriptableComponent
+{
+public:
+    void Initialize(const json &data) override;
+    void OnWake() override;
+    void OnFixedUpdate(float fixedDeltaTime) override;
+
+private:
+    void Explode(GameObject *target);
+
+    float m_timer = 0.0f;
+    float m_delay = 1.5f;
+    float m_explosionDamage = 200.0f;
+    float m_detectionRadius = 10.0f;
+    bool m_isArmed = false;
+    float m_expForce = 100.0f;
+};
+
 class WeaponScript : public IScriptableComponent
 {
 public:
@@ -48,10 +66,12 @@ public:
     float m_bulletVelocity_0 = 0.0f;
     float m_fireRate_1 = 0.15f;
     float m_bulletVelocity_1 = 0.0f;
+    float m_fireRate_2 = 0.15f;
 
     int bulletType = 0;
-    int bulletTypeCount = 2;
+    int bulletTypeCount = 3;
 
     void Bullet0(const InputManager &input);
     void Bullet1(const InputManager &input);
+    void Bullet2(const InputManager &input);
 };

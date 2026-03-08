@@ -17,6 +17,7 @@ uniform highp sampler2D dataTex;
 uniform int maxParticles;
 uniform float gameTime;
 uniform float realTime;
+uniform vec4 baseColor;
 
 vec4 GetPos(int id) {
     return texelFetch(dataTex, ivec2(0, id), 0);
@@ -63,7 +64,7 @@ void main() {
 
     animatedUV.y += (currentFrame / float(tex_frameCount));
 
-    vec4 texColor = texture(tex, animatedUV);
+    vec4 texColor = texture(tex, animatedUV) * baseColor;
 
     finalColor = (texColor * (1.0f - t) + vec4(1.0f, 0.0f, 0.0f, 1.0f) * t);
 

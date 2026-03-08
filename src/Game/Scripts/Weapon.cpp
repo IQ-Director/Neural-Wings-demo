@@ -2,6 +2,7 @@
 #include "Engine/Core/GameObject/GameObject.h"
 #include "Engine/Core/GameWorld.h"
 #include "Engine/System/Ray/mRay.h"
+#include "Game/Events/CombatEvents.h"
 #include <limits>
 void BulletScript::OnFixedUpdate(float fixedDeltaTime)
 {
@@ -74,6 +75,66 @@ void TrackingBulletScript::OnFixedUpdate(float dt)
     }
 }
 
+// mine bullet
+void MineScript::Initialize(const json &data)
+{
+    m_delay = data.value("delay", 1.5f);
+    m_explosionDamage = data.value("damage", 200.0f);
+    m_detectionRadius = data.value("radius", 30.0f);
+    m_expForce = data.value("expForce", 100.0f);
+}
+
+void MineScript::OnWake()
+{
+    m_timer = 0.0f;
+    m_isArmed = false;
+}
+void MineScript::OnFixedUpdate(float dt)
+{
+    m_timer += dt;
+
+    auto &rb = owner->GetComponent<RigidbodyComponent>();
+    rb.velocity *= 0.58f;
+    rb.angularVelocity *= 0.99f;
+
+    if (!m_isArmed && m_timer >= m_delay)
+        m_isArmed = true;
+    if (!m_isArmed)
+        return;
+
+    Vector3f minePos = owner->GetComponent<TransformComponent>().GetWorldPosition();
+    for (auto *gameObject : owner->GetOwnerWorld()->GetActivateGameObjects())
+    {
+        if (gameObject->GetTag() == "mine")
+            continue;
+        Vector3f pos = gameObject->GetComponent<TransformComponent>().GetWorldPosition();
+        if ((pos - minePos).Length() < m_detectionRadius)
+        {
+            Explode(gameObject);
+        }
+    }
+}
+
+void MineScript::Explode(GameObject *target)
+{
+    auto &world = *owner->GetOwnerWorld();
+    Vector3f pos = owner->GetComponent<TransformComponent>().GetWorldPosition();
+    world.GetEventManager().Emit(DamageEvent(target, m_explosionDamage, pos));
+
+    world.GetParticleSystem().Spawn("Explosion", pos);
+    // world.GetAudioManager().PlaySpatial("Explosion_Large", pos);
+
+    Vector3f targetPos = target->GetComponent<TransformComponent>().GetWorldPosition();
+    Vector3f force = (targetPos - pos).Normalized() * m_expForce;
+    if (target->HasComponent<RigidbodyComponent>())
+    {
+        auto &rb = target->GetComponent<RigidbodyComponent>();
+        rb.AddForce(force * rb.mass);
+    }
+
+    world.GetPool("mine").Recycle(owner);
+}
+
 void WeaponScript::Initialize(const json &data)
 {
     if (data.contains("velocity_0"))
@@ -82,6 +143,7 @@ void WeaponScript::Initialize(const json &data)
         m_bulletVelocity_1 = data["velocity_1"];
     m_fireRate_0 = data.value("fireRate_0", 0.15f);
     m_fireRate_1 = data.value("fireRate_1", 0.15f);
+    m_fireRate_2 = data.value("fireRate_2", 0.15f);
 }
 #include <random>
 void WeaponScript::OnUpdate(float deltaTime)
@@ -90,6 +152,7 @@ void WeaponScript::OnUpdate(float deltaTime)
     if (input.IsActionPressed("SwitchWeaponNext"))
     {
         bulletType = (bulletType + 1) % bulletTypeCount;
+
         std::cout << "Bullet Type: " << bulletType << std::endl;
     }
     else if (input.IsActionPressed("SwitchWeaponPrev"))
@@ -106,7 +169,37 @@ void WeaponScript::OnUpdate(float deltaTime)
         break;
     case 1:
         Bullet1(input);
+        break;
+    case 2:
+        Bullet2(input);
+        break;
     }
+}
+
+void WeaponScript::Bullet2(const InputManager &input)
+{
+    if (input.IsActionDown("Fire"))
+    {
+        static std::random_device rd;
+        static std::mt19937 gen(rd());
+        static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+        while (m_fireTimer > m_fireRate_2)
+        {
+            m_fireTimer -= m_fireRate_2;
+
+            auto &tf = owner->GetComponent<TransformComponent>();
+            auto &rb = owner->GetComponent<RigidbodyComponent>();
+            Vector3f spawnPos = tf.GetWorldPosition() - tf.GetForward() * 6.0f - tf.GetUp() * 2.0f;
+            GameObject *mine = owner->GetOwnerWorld()->GetPool("mine").Spawn("mine_" + std::to_string(rand()), "mine", spawnPos, tf.GetWorldRotation());
+            if (mine)
+            {
+                auto &mineRb = mine->GetComponent<RigidbodyComponent>();
+                mineRb.velocity = rb.velocity * 0.5f;
+            }
+        }
+    }
+    else
+        m_fireTimer = m_fireRate_2 - std::numeric_limits<float>::min();
 }
 void WeaponScript::Bullet1(const InputManager &input)
 {
