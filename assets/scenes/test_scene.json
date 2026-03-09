@@ -57,11 +57,11 @@
   ],
   "entities": [
     {
-      "name": "texture_sphere",
-      "tag": "sphere",
-      "prefab": "assets/prefabs/light_sphere.json",
+      "name": "david",
+      "tag": "david",
+      "prefab": "assets/prefabs/david.json",
       "position": [
-        -100,
+        -40,
         100,
         0
       ],
@@ -71,13 +71,13 @@
         0
       ],
       "scale": [
-        40,
-        40,
-        40
+        20,
+        20,
+        20
       ],
       "physics": {
-        "mass": 500,
-        "elasticity": 1.0
+        "mass": 100000,
+        "elasticity": 0.2
       },
       "render": {
         "baseColor": [
@@ -115,11 +115,11 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    100,
+                    255,
                     255,
                     100
                   ],
-                  "intensity": 1.0
+                  "intensity": 0.5
                 }
               }
             ]
@@ -127,15 +127,6 @@
         ]
       },
       "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.0,
-              0.0,
-              0.1
-            ]
-          }
-        },
         {
           "HealthScript": {
             "maxHP": 1000,
@@ -325,7 +316,7 @@
       "prefab": "assets/prefabs/plane.json",
       "position": [
         50,
-        40,
+        60,
         0
       ],
       "rotation": [
@@ -348,7 +339,7 @@
         },
         {
           "WeaponScript": {
-            "velocity_0": 200,
+            "velocity_0": 300,
             "velocity_1": 30,
             "fireRate_0": 0.05,
             "fireRate_1": 0.3,
