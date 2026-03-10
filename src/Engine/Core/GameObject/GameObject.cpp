@@ -8,7 +8,7 @@ GameObject::GameObject(unsigned int s_nextID, std::string name, std::string tag)
 }
 GameObject::~GameObject()
 {
-    std::cout << "Destroying GameObject " << m_id << std::endl;
+    std::cout << "[~]Destroying GameObject " << m_name << std::endl;
 }
 
 unsigned int GameObject::GetID() const
@@ -49,8 +49,7 @@ void GameObject::SetOwnerWorld(GameWorld *world)
 #include "Engine/Graphics/Particle/ParticleSystem.h"
 void GameObject::OnDestroy()
 {
-    if (this == nullptr)
-        return;
+    std::cerr << "Destroying GameObject: " << m_name << std::endl;
     if (m_isDestroyed)
         return;
     m_isDestroyed = true;
@@ -66,7 +65,7 @@ void GameObject::OnDestroy()
         sc.scripts.clear();
     }
     // 挂载遗留粒子
-    if (this->HasComponent<ParticleEmitterComponent>() && this->HasComponent<TransformComponent>())
+    if (this->IsActive() && this->HasComponent<ParticleEmitterComponent>() && this->HasComponent<TransformComponent>())
     {
         auto &ec = this->GetComponent<ParticleEmitterComponent>();
         const auto &tf = this->GetComponent<TransformComponent>();
@@ -147,6 +146,48 @@ AABB GameObject::GetWorldAABB(Vector3f (*outCorners)[8]) const
         newMax = Vector3f::Max(newMax, corners[i]);
     }
     return AABB{newMin, newMax};
+}
+renderAABB GameObject::GetWorldRenderAABB() const
+{
+    if (!HasComponent<RenderComponent>() || !HasComponent<TransformComponent>())
+    {
+        return renderAABB();
+    }
+
+    const auto &rd = GetComponent<RenderComponent>();
+    const auto &tf = GetComponent<TransformComponent>();
+
+    Vector3f min = rd.localAABB.min;
+    Vector3f max = rd.localAABB.max;
+
+    Vector3f s = rd.scale;
+    min = min & s;
+    max = max & s;
+
+    Vector4f corners[8] = {
+        Vector4f(min.x(), min.y(), min.z(), 1.0f),
+        Vector4f(min.x(), min.y(), max.z(), 1.0f),
+        Vector4f(min.x(), max.y(), min.z(), 1.0f),
+        Vector4f(min.x(), max.y(), max.z(), 1.0f),
+        Vector4f(max.x(), min.y(), min.z(), 1.0f),
+        Vector4f(max.x(), min.y(), max.z(), 1.0f),
+        Vector4f(max.x(), max.y(), min.z(), 1.0f),
+        Vector4f(max.x(), max.y(), max.z(), 1.0f)};
+
+    Matrix4f worldMat = tf.GetWorldMatrix();
+
+    Vector3f worldMin(FLT_MAX, FLT_MAX, FLT_MAX);
+    Vector3f worldMax(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+    for (int i = 0; i < 8; i++)
+    {
+        Vector3f worldCorner = (worldMat * corners[i]).xyz();
+
+        worldMin = Vector3f::Min(worldMin, worldCorner);
+        worldMax = Vector3f::Max(worldMax, worldCorner);
+    }
+
+    return renderAABB(worldMin, worldMax);
 }
 
 void GameObject::SetActive(bool active)

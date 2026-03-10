@@ -109,6 +109,8 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
         // ClearBackground(BLUE);
         for (const auto &view : m_renderViewer->GetRenderViews())
         {
+            if (!view.enable)
+                continue;
             mCamera *camera = cameraManager.GetCamera(view.cameraName);
             if (camera)
             {
@@ -190,6 +192,8 @@ void Renderer::RawRenderParticle(GameWorld &gameWorld, CameraManager &cameraMana
     auto &itScene = m_RTPool["inScreen"];
     for (const auto &view : m_renderViewer->GetRenderViews())
     {
+        if (!view.enable)
+            continue;
         mCamera *camera = cameraManager.GetCamera(view.cameraName);
         if (camera)
         {
@@ -262,6 +266,7 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
     // debug
     // DrawHitbox(gameWorld, cameraManager);
     // DrawAABB(gameWorld, cameraManager);
+    // DrawRenderAABB(gameWorld, cameraManager);
     //
     // 最终输出
     ClearBackground(BLACK);
@@ -289,11 +294,16 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
         matProj = MatrixOrtho(-right, right, -top, top, camera.getNearPlane(), camera.getFarPlane());
     }
     Matrix4f VP = matProj * matView;
-
+    Frustum frustum;
+    frustum.Extract(VP);
     for (const auto *gameObject : world.GetActivateGameObjects())
     {
         if (gameObject->HasComponent<TransformComponent>() && gameObject->HasComponent<RenderComponent>())
         {
+            renderAABB worldAABB = gameObject->GetWorldRenderAABB();
+            if (!frustum.IsBoxVisible(worldAABB))
+                continue;
+
             const auto &tf = gameObject->GetComponent<TransformComponent>();
             const auto &render = gameObject->GetComponent<RenderComponent>();
 
@@ -812,6 +822,99 @@ void Renderer::DrawAABB(GameWorld &gameWorld, CameraManager &cameraManager)
                             DrawLine3D(corners[2], corners[6], obbColor);
                             DrawLine3D(corners[3], corners[7], obbColor);
                         }
+
+                        Vector3 aabbCenter = {
+                            (aabb.min.x() + aabb.max.x()) * 0.5f,
+                            (aabb.min.y() + aabb.max.y()) * 0.5f,
+                            (aabb.min.z() + aabb.max.z()) * 0.5f};
+                        Vector3 aabbSize = {
+                            aabb.max.x() - aabb.min.x(),
+                            aabb.max.y() - aabb.min.y(),
+                            aabb.max.z() - aabb.min.z()};
+                        DrawCubeWiresV(aabbCenter, aabbSize, YELLOW);
+                    }
+                    EndMode3D();
+                    EndScissorMode();
+                }
+            }
+        }
+        rlViewport(0, 0, itScene.texture.width, itScene.texture.height);
+        rlEnableDepthMask();
+        rlEnableDepthTest();
+    }
+    EndTextureMode();
+}
+void Renderer::DrawRenderAABB(GameWorld &gameWorld, CameraManager &cameraManager)
+{
+
+    auto &m_RTPool = m_postProcesser->GetRTPool();
+    auto &itScene = m_RTPool["outScreen"];
+    BeginTextureMode(itScene);
+    {
+
+        rlDisableDepthMask();
+        rlDisableDepthTest();
+        {
+            for (const auto &view : m_renderViewer->GetRenderViews())
+            {
+                if (!view.enable)
+                    continue;
+                mCamera *camera = cameraManager.GetCamera(view.cameraName);
+                if (camera)
+                {
+
+                    int x1 = (int)view.viewport.x;
+                    int y1 = (int)view.viewport.y;
+                    int x2 = (int)view.viewport.width;
+                    int y2 = (int)view.viewport.height;
+
+                    int vx = x1;
+                    int vy = y1;
+                    int vw = x2 - x1;
+                    int vh = y2 - y1;
+
+                    BeginScissorMode(vx, vy, vw, vh); //  透明底？
+
+                    float aspect = (float)vw / (float)vh;
+
+                    Camera3D rawCamera = camera->GetRawCamera();
+                    BeginMode3D(rawCamera);
+
+                    rlViewport(vx, itScene.texture.height - (vy + vh), vw, vh);
+
+                    const auto &objs = gameWorld.GetEntitiesWith<TransformComponent, RigidbodyComponent>();
+                    for (const auto *gameObject : objs)
+                    {
+                        renderAABB aabb = gameObject->GetWorldRenderAABB();
+
+                        Vector3f min = aabb.min;
+                        Vector3f max = aabb.max;
+                        Vector3f corners[8] = {
+                            Vector3f(min.x(), min.y(), min.z()),
+                            Vector3f(min.x(), min.y(), max.z()),
+                            Vector3f(min.x(), max.y(), min.z()),
+                            Vector3f(min.x(), max.y(), max.z()),
+                            Vector3f(max.x(), min.y(), min.z()),
+                            Vector3f(max.x(), min.y(), max.z()),
+                            Vector3f(max.x(), max.y(), min.z()),
+                            Vector3f(max.x(), max.y(), max.z()),
+                        };
+                        Color obbColor = RED;
+
+                        DrawLine3D(corners[0], corners[1], obbColor);
+                        DrawLine3D(corners[1], corners[3], obbColor);
+                        DrawLine3D(corners[3], corners[2], obbColor);
+                        DrawLine3D(corners[2], corners[0], obbColor);
+
+                        DrawLine3D(corners[4], corners[5], obbColor);
+                        DrawLine3D(corners[5], corners[7], obbColor);
+                        DrawLine3D(corners[7], corners[6], obbColor);
+                        DrawLine3D(corners[6], corners[4], obbColor);
+
+                        DrawLine3D(corners[0], corners[4], obbColor);
+                        DrawLine3D(corners[1], corners[5], obbColor);
+                        DrawLine3D(corners[2], corners[6], obbColor);
+                        DrawLine3D(corners[3], corners[7], obbColor);
 
                         Vector3 aabbCenter = {
                             (aabb.min.x() + aabb.max.x()) * 0.5f,

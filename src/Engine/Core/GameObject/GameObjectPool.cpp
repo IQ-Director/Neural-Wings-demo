@@ -8,19 +8,14 @@ GameObjectPool::GameObjectPool(std::string prefab_path, GameWorld &world) : m_pr
 }
 GameObjectPool::~GameObjectPool()
 {
-    for (auto *obj : m_pool)
-    {
-        if (obj)
-            obj->OnDestroy();
-    }
     m_pool.clear();
     std::cout << "[ObjectPool]: Pool destroyed and objects marked for cleanup." << std::endl;
 }
-void GameObjectPool::Preload(size_t count, const std::string &tag)
+void GameObjectPool::Preload(size_t count, const std::string name, const std::string &tag)
 {
     for (size_t i = 0; i < count; ++i)
     {
-        GameObject &obj = GameObjectFactory::CreateFromPrefab("PoolObj", tag, m_prefab_path, m_world);
+        GameObject &obj = GameObjectFactory::CreateFromPrefab(name + "_" + std::to_string(i), tag, m_prefab_path, m_world);
         obj.SetActive(false);
         m_pool.push_back(&obj);
     }

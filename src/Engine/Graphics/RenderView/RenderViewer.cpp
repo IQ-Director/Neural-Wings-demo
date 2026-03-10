@@ -48,5 +48,7 @@ RenderView RenderViewer::ParseViews(const json &viewData)
         view.backgroundColor = JsonParser::ToColor(viewData["backgroundColor"]);
     else
         view.backgroundColor = WHITE;
+    view.enable = viewData.value("enable", true);
+
     return view;
 }

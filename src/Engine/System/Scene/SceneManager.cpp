@@ -114,6 +114,11 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
             // rb.SetHitbox(rb.Get tf.GetLocalScale());
             rb.scaleHitboxBox(tf.GetLocalScale());
         }
+        // if (obj.HasComponent<RenderComponent>())
+        // {
+        //     auto &render = obj.GetComponent<RenderComponent>();
+        //     render.scale = render.scale & tf.GetLocalScale();
+        // }
     }
 
     if (entityData.contains("physics"))
@@ -240,7 +245,7 @@ void SceneManager::AddRigidbody(GameObject &gameObject, const json &rigidData)
     rb.drag = rigidData.value("drag", rb.drag);
     rb.angularDrag = rigidData.value("angularDrag", rb.angularDrag);
     rb.elasticity = rigidData.value("elasticity", rb.elasticity);
-
+    rb.Collidable = rigidData.value("collidable", rb.Collidable);
     if (rigidData.contains("velocity"))
         rb.velocity = JsonParser::ToVector3f(rigidData["velocity"]);
     if (rigidData.contains("angularVelocity"))

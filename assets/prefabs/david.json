@@ -70,9 +70,9 @@
         },
         {
             "RigidBodyComponent": {
-                "mass": 100,
-                "drag": 0.0,
-                "angularDrag": 0.0,
+                "mass": 1000,
+                "drag": 0.4,
+                "angularDrag": 0.5,
                 "elasticity": 1.0,
                 "velocity": [
                     0,

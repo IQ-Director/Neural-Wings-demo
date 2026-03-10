@@ -5,7 +5,8 @@
 #include <string>
 
 using json = nlohmann::json;
-
+class renderAABB;
+class Mesh;
 class GameObjectFactory
 {
 public:
@@ -20,4 +21,6 @@ private:
     static void ParseParticleEmitterComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab);
     static void ParseAudioComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab);
     static void ParseLightComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab);
+
+    static renderAABB GetMeshAABB(const Mesh &mesh);
 };

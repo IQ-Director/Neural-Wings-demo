@@ -176,7 +176,7 @@ void GameplayScreen::OnEnter()
 
                                                              //  m_world->GetAudioManager().PlaySpatial("explosion", e.hitpoint, 5.0f, 50.0f, e.relativeVelocity.Length() / 4, randomPitch);
                                                          });
-    m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
+    // m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
 }
 
 // 当离开游戏场景时调用

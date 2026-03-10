@@ -59,6 +59,7 @@ void GameWorld::OnDestroy()
     }
     DestroyWaitingObjects();
     m_gameObjects.clear();
+    m_activateGameObjects.clear();
 
     m_audioManager->ClearOneShots();
     m_resourceManager->GameWorldUnloadAll();
@@ -180,7 +181,7 @@ void GameWorld::DestroyWaitingObjects()
                 m_gameObjects.end(),
                 [](const std::unique_ptr<GameObject> &object)
                 {
-                    return object->IsWaitingDestroy();
+                    return object && object->IsWaitingDestroy();
                 }),
             m_gameObjects.end());
     }
@@ -242,7 +243,7 @@ GameObjectPool &GameWorld::GetOrCreatePool(const std::string &name, const std::s
     {
         auto pool = std::make_unique<GameObjectPool>(prefabPath, *this);
         if (preloadCount > 0)
-            pool->Preload(preloadCount, tag);
+            pool->Preload(preloadCount, name, tag);
         m_pools[name] = std::move(pool);
         std::cout << "[GameWorld]: Created pool: " << name << " using prefab: " << prefabPath << std::endl;
     }
