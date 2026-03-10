@@ -8,7 +8,7 @@ GameObject::GameObject(unsigned int s_nextID, std::string name, std::string tag)
 }
 GameObject::~GameObject()
 {
-    std::cout << "Destroying GameObject " << m_id << std::endl;
+    std::cout << "[~]Destroying GameObject " << m_name << std::endl;
 }
 
 unsigned int GameObject::GetID() const
@@ -49,8 +49,7 @@ void GameObject::SetOwnerWorld(GameWorld *world)
 #include "Engine/Graphics/Particle/ParticleSystem.h"
 void GameObject::OnDestroy()
 {
-    if (this == nullptr)
-        return;
+    std::cerr << "Destroying GameObject: " << m_name << std::endl;
     if (m_isDestroyed)
         return;
     m_isDestroyed = true;
@@ -66,7 +65,7 @@ void GameObject::OnDestroy()
         sc.scripts.clear();
     }
     // 挂载遗留粒子
-    if (this->HasComponent<ParticleEmitterComponent>() && this->HasComponent<TransformComponent>())
+    if (this->IsActive() && this->HasComponent<ParticleEmitterComponent>() && this->HasComponent<TransformComponent>())
     {
         auto &ec = this->GetComponent<ParticleEmitterComponent>();
         const auto &tf = this->GetComponent<TransformComponent>();

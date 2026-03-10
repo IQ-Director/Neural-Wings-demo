@@ -240,7 +240,7 @@ void SceneManager::AddRigidbody(GameObject &gameObject, const json &rigidData)
     rb.drag = rigidData.value("drag", rb.drag);
     rb.angularDrag = rigidData.value("angularDrag", rb.angularDrag);
     rb.elasticity = rigidData.value("elasticity", rb.elasticity);
-
+    rb.Collidable = rigidData.value("collidable", rb.Collidable);
     if (rigidData.contains("velocity"))
         rb.velocity = JsonParser::ToVector3f(rigidData["velocity"]);
     if (rigidData.contains("angularVelocity"))

@@ -25,26 +25,16 @@
             "GTAO",
             "GTAO_Blur_1",
             "GTAO_Blur_2",
-            "accuracy_raw_Fluid_Depth",
-            "accuracy_FluidBlur_1",
-            "accuracy_FluidBlur_2",
-            "accuracy_raw_Normal",
-            "accuracy_raw_Fluid_Thickness",
-            "accuracy_rawScreen",
-            "outScreen",
             "Screen1",
             "Screen2",
             "Screen3",
-            "Screen4"
+            "Screen4",
+            "outScreen"
         ],
         "depthLinks": [
             {
                 "source": "inScreen",
                 "targets": [
-                    "rawScreen",
-                    "raw_Fluid_Depth",
-                    "raw_Fluid_Thickness",
-                    "raw_Normal",
                     "Screen1",
                     "Screen2",
                     "Screen3",
@@ -126,89 +116,7 @@
                         "GTAO_Blur_2"
                     ]
                 ],
-                "output": "rawScreen"
-            },
-            {
-                "name": "DepthBlur",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "raw_Fluid_Depth"
-                    ]
-                ],
-                "output": "FluidBlur_1",
-                "uniforms": {
-                    "u_dir": [
-                        1,
-                        0
-                    ],
-                    "u_radius": 20
-                }
-            },
-            {
-                "name": "New DepthBlur",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_1"
-                    ]
-                ],
-                "output": "FluidBlur_2",
-                "uniforms": {
-                    "u_dir": [
-                        0,
-                        1
-                    ],
-                    "u_radius": 20
-                }
-            },
-            {
-                "name": "NormalBuild",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/normalBuild.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_2"
-                    ]
-                ],
-                "output": "raw_Normal",
-                "uniforms": {}
-            },
-            {
-                "name": "Shading",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/sph_ssf.fs",
-                "inputs": [
-                    [
-                        "u_sceneTex",
-                        "rawScreen"
-                    ],
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_2"
-                    ],
-                    [
-                        "u_thickness",
-                        "raw_Fluid_Thickness"
-                    ],
-                    [
-                        "u_normal",
-                        "raw_Normal"
-                    ]
-                ],
-                "output": "Screen1",
-                "uniforms": {
-                    "lightDir": [
-                        -0.5,
-                        -1.0,
-                        -0.5
-                    ]
-                }
+                "output": "Screen1"
             },
             {
                 "name": "Foggy",
@@ -276,7 +184,7 @@
                     "u_fontSize": 8.0,
                     "u_edgeThreshold": 40.0,
                     "u_ditherSoftness": 1.0,
-                    "u_lineWidth": 0.2,
+                    "u_lineWidth": 0.25,
                     "u_charCount": 10
                 },
                 "textures": {
