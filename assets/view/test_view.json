@@ -129,7 +129,7 @@
                 ],
                 "output": "Screen2",
                 "uniforms": {
-                    "u_density": 0.0001,
+                    "u_density": 0.00000,
                     "u_dustColor": [
                         1.0,
                         1.0,
@@ -148,8 +148,8 @@
                 ],
                 "output": "Screen3",
                 "uniforms": {
-                    "u_cloudFrequency": 0.05,
-                    "u_cloudSize": 0.7,
+                    "u_cloudFrequency": 0.02,
+                    "u_cloudSize": 0.6,
                     "u_cloudThickness": 0.1,
                     "u_windDir": [
                         1,
@@ -163,8 +163,8 @@
                     ],
                     "u_windSpeed": 30.0,
                     "u_stretch": 1.0,
-                    "u_distVar": 1.2,
-                    "u_density": 0.03,
+                    "u_distVar": 2.0,
+                    "u_density": 0.005,
                     "MAX_STEPS": 24,
                     "MAX_DIST": 2000,
                     "STEP_SIZE": 30.0

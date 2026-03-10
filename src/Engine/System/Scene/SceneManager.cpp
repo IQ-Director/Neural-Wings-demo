@@ -114,6 +114,11 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
             // rb.SetHitbox(rb.Get tf.GetLocalScale());
             rb.scaleHitboxBox(tf.GetLocalScale());
         }
+        // if (obj.HasComponent<RenderComponent>())
+        // {
+        //     auto &render = obj.GetComponent<RenderComponent>();
+        //     render.scale = render.scale & tf.GetLocalScale();
+        // }
     }
 
     if (entityData.contains("physics"))

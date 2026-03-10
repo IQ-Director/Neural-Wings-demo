@@ -111,11 +111,40 @@ void GameObjectFactory::ParseAudioComponent(GameWorld &gameWorld, GameObject &ga
     }
 }
 
+renderAABB GameObjectFactory::GetMeshAABB(const Mesh &mesh)
+{
+    renderAABB aabb;
+
+    std::cout << "[GameObjectFactory]:mesh vertex count: " << mesh.vertexCount << std::endl;
+    if (mesh.vertices != NULL)
+    {
+        aabb.min = Vector3f::Min(aabb.min, Vector3f(mesh.vertices[0], mesh.vertices[1], mesh.vertices[2]));
+        aabb.max = Vector3f::Max(aabb.max, Vector3f(mesh.vertices[0], mesh.vertices[1], mesh.vertices[2]));
+
+        for (int i = 1; i < mesh.vertexCount; i++)
+        {
+            aabb.min = Vector3f::Min(aabb.min, Vector3f(mesh.vertices[i * 3], mesh.vertices[i * 3 + 1], mesh.vertices[i * 3 + 2]));
+            aabb.max = Vector3f::Max(aabb.max, Vector3f(mesh.vertices[i * 3], mesh.vertices[i * 3 + 1], mesh.vertices[i * 3 + 2]));
+        }
+    }
+
+    return aabb;
+}
 void GameObjectFactory::ParseRenderComponent(GameWorld &gameWorld, GameObject &gameObject, const json &prefab)
 {
     auto &rd = gameObject.AddComponent<RenderComponent>();
     auto &rm = gameWorld.GetResourceManager();
     rd.model = rm.GetModel(prefab.value("model", "primitive://cube"));
+    if (rd.model.meshCount > 0)
+    {
+        rd.localAABB = GetMeshAABB(rd.model.meshes[0]);
+        for (int i = 1; i < rd.model.meshCount; i++)
+        {
+            renderAABB mBox = GetMeshAABB(rd.model.meshes[i]);
+            rd.localAABB.min = Vector3f::Min(rd.localAABB.min, mBox.min);
+            rd.localAABB.max = Vector3f::Max(rd.localAABB.max, mBox.max);
+        }
+    }
 
     rd.isVisible = prefab.value("isVisible", true);
     rd.showWires = prefab.value("showWires", false);

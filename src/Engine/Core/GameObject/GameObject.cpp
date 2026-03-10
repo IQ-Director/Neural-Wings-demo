@@ -147,6 +147,48 @@ AABB GameObject::GetWorldAABB(Vector3f (*outCorners)[8]) const
     }
     return AABB{newMin, newMax};
 }
+renderAABB GameObject::GetWorldRenderAABB() const
+{
+    if (!HasComponent<RenderComponent>() || !HasComponent<TransformComponent>())
+    {
+        return renderAABB();
+    }
+
+    const auto &rd = GetComponent<RenderComponent>();
+    const auto &tf = GetComponent<TransformComponent>();
+
+    Vector3f min = rd.localAABB.min;
+    Vector3f max = rd.localAABB.max;
+
+    Vector3f s = rd.scale;
+    min = min & s;
+    max = max & s;
+
+    Vector4f corners[8] = {
+        Vector4f(min.x(), min.y(), min.z(), 1.0f),
+        Vector4f(min.x(), min.y(), max.z(), 1.0f),
+        Vector4f(min.x(), max.y(), min.z(), 1.0f),
+        Vector4f(min.x(), max.y(), max.z(), 1.0f),
+        Vector4f(max.x(), min.y(), min.z(), 1.0f),
+        Vector4f(max.x(), min.y(), max.z(), 1.0f),
+        Vector4f(max.x(), max.y(), min.z(), 1.0f),
+        Vector4f(max.x(), max.y(), max.z(), 1.0f)};
+
+    Matrix4f worldMat = tf.GetWorldMatrix();
+
+    Vector3f worldMin(FLT_MAX, FLT_MAX, FLT_MAX);
+    Vector3f worldMax(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+    for (int i = 0; i < 8; i++)
+    {
+        Vector3f worldCorner = (worldMat * corners[i]).xyz();
+
+        worldMin = Vector3f::Min(worldMin, worldCorner);
+        worldMax = Vector3f::Max(worldMax, worldCorner);
+    }
+
+    return renderAABB(worldMin, worldMax);
+}
 
 void GameObject::SetActive(bool active)
 {

@@ -98,6 +98,11 @@
         },
         {
           "RayScript": {}
+        },
+        {
+          "LocalPlayerSyncScript": {
+            "netObjectID": 1
+          }
         }
       ]
     },
@@ -106,19 +111,19 @@
       "tag": "obstacle",
       "prefab": "assets/prefabs/david.json",
       "position": [
-        168.58,
-        393.03,
-        -894.23
+        -613.23,
+        1223.49,
+        98.24
       ],
       "rotation": [
-        69.03,
-        346.09,
-        329.19
+        257.23,
+        237.02,
+        256.05
       ],
       "scale": [
-        75.22937629844714,
-        75.22937629844714,
-        75.22937629844714
+        204.12633860106573,
+        204.12633860106573,
+        204.12633860106573
       ],
       "render": {
         "renderScale": [
@@ -150,11 +155,11 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    255,
-                    255,
-                    0
+                    128,
+                    0,
+                    255
                   ],
-                  "intensity": 0.7314164712245883
+                  "intensity": 1.3822507426210644
                 }
               }
             ]
@@ -171,9 +176,9 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.3148103585148725,
-              0.9777592507290738,
-              -7.275852828427096
+              0.020781164729124085,
+              -0.08368955141517109,
+              0.05868581379885196
             ]
           }
         }
@@ -184,253 +189,19 @@
       "tag": "obstacle",
       "prefab": "assets/prefabs/david.json",
       "position": [
-        372.9,
-        -432.02,
-        168.47
+        -1211.18,
+        -388.05,
+        688.6
       ],
       "rotation": [
-        308.79,
-        1.71,
-        91.95
+        146.25,
+        229.3,
+        0.11
       ],
       "scale": [
-        23.04595016102321,
-        23.04595016102321,
-        23.04595016102321
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/1.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 0.9674605644794041
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "HealthScript": {
-            "maxHP": 2000,
-            "flashDuration": 0.1
-          }
-        },
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -3.458612284837031,
-              0.29549601315359375,
-              4.893640420412806
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "statue_david_2",
-      "tag": "obstacle",
-      "prefab": "assets/prefabs/david.json",
-      "position": [
-        -277.13,
-        233.9,
-        -986.55
-      ],
-      "rotation": [
-        37.72,
-        47.66,
-        127.71
-      ],
-      "scale": [
-        38.817818905883385,
-        38.817818905883385,
-        38.817818905883385
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/1.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 0.3939615773745707
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "HealthScript": {
-            "maxHP": 2000,
-            "flashDuration": 0.1
-          }
-        },
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              3.6341708351005924,
-              -2.78029596915845,
-              6.470250003846932
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "statue_david_3",
-      "tag": "obstacle",
-      "prefab": "assets/prefabs/david.json",
-      "position": [
-        902.19,
-        149.85,
-        -776.71
-      ],
-      "rotation": [
-        157.94,
-        64.73,
-        50.73
-      ],
-      "scale": [
-        38.24553950214128,
-        38.24553950214128,
-        38.24553950214128
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/6.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    0,
-                    255
-                  ],
-                  "intensity": 0.4618634816714009
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "HealthScript": {
-            "maxHP": 2000,
-            "flashDuration": 0.1
-          }
-        },
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -6.337015219193285,
-              -6.061960954297154,
-              -3.0971034867525233
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "statue_david_4",
-      "tag": "obstacle",
-      "prefab": "assets/prefabs/david.json",
-      "position": [
-        676.13,
-        -154.95,
-        943.45
-      ],
-      "rotation": [
-        19.52,
-        24.9,
-        317.24
-      ],
-      "scale": [
-        10.707851190467085,
-        10.707851190467085,
-        10.707851190467085
+        18.836285013648876,
+        18.836285013648876,
+        18.836285013648876
       ],
       "render": {
         "renderScale": [
@@ -452,7 +223,7 @@
                 "textures": {
                   "u_diffuseMap": [
                     "assets/textures/gif/1.gif",
-                    12
+                    11
                   ]
                 },
                 "vs": "assets/shaders/default.vs",
@@ -462,11 +233,11 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    0,
                     255,
-                    128
+                    0,
+                    255
                   ],
-                  "intensity": 0.5596375690863498
+                  "intensity": 0.50481573594279
                 }
               }
             ]
@@ -483,36 +254,33 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -5.600390356533548,
-              -7.652660116769074,
-              1.1327765487288683
+              0.04457212268156857,
+              -0.02612409173645623,
+              0.0022374218624758163
             ]
           }
         }
       ]
     },
     {
-      "name": "cyber_planet_0",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
+      "name": "statue_david_2",
+      "tag": "obstacle",
+      "prefab": "assets/prefabs/david.json",
       "position": [
-        -488.29,
-        144.75,
-        -503.49
+        1211.36,
+        -586.81,
+        1137.69
+      ],
+      "rotation": [
+        188.28,
+        225.23,
+        28.4
       ],
       "scale": [
-        73.6103329639071,
-        73.6103329639071,
-        73.6103329639071
+        232.23859412404073,
+        232.23859412404073,
+        232.23859412404073
       ],
-      "physics": {
-        "mass": 736.103329639071,
-        "velocity": [
-          4.8,
-          1.74,
-          -2.0
-        ]
-      },
       "render": {
         "renderScale": [
           1,
@@ -545,9 +313,246 @@
                   "color": [
                     255,
                     0,
+                    0
+                  ],
+                  "intensity": 1.0574242329654515
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "HealthScript": {
+            "maxHP": 2000,
+            "flashDuration": 0.1
+          }
+        },
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.05867213493710907,
+              0.022029437002092325,
+              -0.012731906609112123
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "statue_david_3",
+      "tag": "obstacle",
+      "prefab": "assets/prefabs/david.json",
+      "position": [
+        274.35,
+        -1066.83,
+        120.53
+      ],
+      "rotation": [
+        304.24,
+        79.3,
+        16.49
+      ],
+      "scale": [
+        272.77483936016574,
+        272.77483936016574,
+        272.77483936016574
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    11
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
                     255
                   ],
-                  "intensity": 3.420461622157949
+                  "intensity": 0.3212566879760492
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "HealthScript": {
+            "maxHP": 2000,
+            "flashDuration": 0.1
+          }
+        },
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.0626375155961942,
+              0.0717401205345364,
+              5.0804337450444104e-05
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "statue_david_4",
+      "tag": "obstacle",
+      "prefab": "assets/prefabs/david.json",
+      "position": [
+        -122.96,
+        660.46,
+        -784.61
+      ],
+      "rotation": [
+        262.42,
+        3.74,
+        157.23
+      ],
+      "scale": [
+        124.18375413534702,
+        124.18375413534702,
+        124.18375413534702
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/6.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    85,
+                    0
+                  ],
+                  "intensity": 0.5719084837162386
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "HealthScript": {
+            "maxHP": 2000,
+            "flashDuration": 0.1
+          }
+        },
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.06523796198154197,
+              0.07136929221998914,
+              0.07798745462110993
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_0",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -610.5,
+        80.87,
+        -1047.0
+      ],
+      "scale": [
+        301.34916020427517,
+        301.34916020427517,
+        301.34916020427517
+      ],
+      "physics": {
+        "mass": 3013.4916020427518,
+        "velocity": [
+          2.52,
+          -0.92,
+          1.04
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/4.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    180,
+                    150,
+                    255
+                  ],
+                  "intensity": 3.4228372541314704
                 }
               }
             ]
@@ -558,9 +563,9 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -0.1,
-              -0.09,
-              0.05
+              0.01,
+              0.03,
+              0.01
             ]
           }
         }
@@ -571,21 +576,21 @@
       "tag": "planet",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        219.58,
-        473.92,
-        -871.11
+        1078.15,
+        -1279.34,
+        -691.23
       ],
       "scale": [
-        305.11869741847823,
-        305.11869741847823,
-        305.11869741847823
+        430.7610574475932,
+        430.7610574475932,
+        430.7610574475932
       ],
       "physics": {
-        "mass": 3051.1869741847822,
+        "mass": 4307.610574475932,
         "velocity": [
-          -1.01,
-          -0.03,
-          -3.82
+          -0.27,
+          -1.7,
+          1.97
         ]
       },
       "render": {
@@ -618,11 +623,11 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    180,
-                    150,
+                    85,
+                    0,
                     255
                   ],
-                  "intensity": 2.304225786013497
+                  "intensity": 1.4506308172168567
                 }
               }
             ]
@@ -633,9 +638,9 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.07,
-              0.05,
-              -0.02
+              -0.03,
+              0.04,
+              -0.03
             ]
           }
         }
@@ -646,21 +651,21 @@
       "tag": "planet",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -785.83,
-        -317.58,
-        -953.07
+        219.82,
+        -1195.12,
+        334.34
       ],
       "scale": [
-        222.2156938080757,
-        222.2156938080757,
-        222.2156938080757
+        460.2020667819415,
+        460.2020667819415,
+        460.2020667819415
       ],
       "physics": {
-        "mass": 2222.1569380807573,
+        "mass": 4602.0206678194145,
         "velocity": [
-          2.08,
-          0.02,
-          3.34
+          -3.26,
+          -0.05,
+          -1.44
         ]
       },
       "render": {
@@ -682,7 +687,7 @@
                 "name": "main_pass",
                 "textures": {
                   "u_diffuseMap": [
-                    "assets/textures/random/2.png",
+                    "assets/textures/random/1.png",
                     1
                   ]
                 },
@@ -693,11 +698,11 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    0,
-                    255,
+                    180,
+                    150,
                     255
                   ],
-                  "intensity": 3.7727092814946994
+                  "intensity": 2.458139349686972
                 }
               }
             ]
@@ -708,8 +713,8 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.01,
-              0.07,
+              0.03,
+              0.03,
               -0.07
             ]
           }
@@ -721,21 +726,96 @@
       "tag": "planet",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -985.83,
-        209.88,
-        561.06
+        76.76,
+        629.03,
+        -450.39
       ],
       "scale": [
-        140.6048679051283,
-        140.6048679051283,
-        140.6048679051283
+        226.37039061246438,
+        226.37039061246438,
+        226.37039061246438
       ],
       "physics": {
-        "mass": 1406.0486790512828,
+        "mass": 2263.7039061246437,
         "velocity": [
-          -3.88,
-          1.53,
-          -3.88
+          4.11,
+          -4.52,
+          -1.38
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/3.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    0,
+                    170,
+                    255
+                  ],
+                  "intensity": 3.1745121258738096
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.06,
+              -0.01,
+              0.09
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_4",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -1293.97,
+        -470.3,
+        -1071.63
+      ],
+      "scale": [
+        339.2615611734401,
+        339.2615611734401,
+        339.2615611734401
+      ],
+      "physics": {
+        "mass": 3392.6156117344008,
+        "velocity": [
+          -4.73,
+          -3.6,
+          -2.37
         ]
       },
       "render": {
@@ -758,7 +838,7 @@
                 "textures": {
                   "u_diffuseMap": [
                     "assets/textures/gif/1.gif",
-                    14
+                    8
                   ]
                 },
                 "vs": "assets/shaders/default.vs",
@@ -772,7 +852,7 @@
                     0,
                     255
                   ],
-                  "intensity": 3.6461542278852854
+                  "intensity": 1.5901956591900115
                 }
               }
             ]
@@ -783,84 +863,9 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.02,
-              0.1,
-              -0.08
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_4",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -225.3,
-        46.87,
-        -454.59
-      ],
-      "scale": [
-        56.33289051926173,
-        56.33289051926173,
-        56.33289051926173
-      ],
-      "physics": {
-        "mass": 563.3289051926173,
-        "velocity": [
-          2.67,
-          -3.46,
-          1.54
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/3.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 2.2604505185512904
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.1,
               0.05,
-              0.03
+              0.04,
+              -0.06
             ]
           }
         }
@@ -871,396 +876,21 @@
       "tag": "planet",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        613.68,
-        330.16,
-        458.54
+        19.9,
+        -497.49,
+        -661.23
       ],
       "scale": [
-        95.00764022418196,
-        95.00764022418196,
-        95.00764022418196
+        61.993741320403984,
+        61.993741320403984,
+        61.993741320403984
       ],
       "physics": {
-        "mass": 950.0764022418196,
+        "mass": 619.9374132040398,
         "velocity": [
-          -4.16,
-          0.72,
-          3.64
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/7.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    0,
-                    255
-                  ],
-                  "intensity": 3.5223163625790908
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.03,
-              0.02,
-              -0.0
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_6",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        910.73,
-        -319.72,
-        -656.81
-      ],
-      "scale": [
-        274.17144654165503,
-        274.17144654165503,
-        274.17144654165503
-      ],
-      "physics": {
-        "mass": 2741.7144654165504,
-        "velocity": [
-          -4.93,
-          3.81,
-          -0.12
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/1.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 2.612851437168257
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.06,
-              -0.09,
-              -0.08
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_7",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        325.73,
-        382.64,
-        833.66
-      ],
-      "scale": [
-        276.6969851911846,
-        276.6969851911846,
-        276.6969851911846
-      ],
-      "physics": {
-        "mass": 2766.9698519118456,
-        "velocity": [
-          -0.41,
-          0.13,
-          -1.68
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/1.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 3.690265187272569
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.07,
-              0.02,
-              0.09
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_8",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        923.78,
-        421.52,
-        -674.31
-      ],
-      "scale": [
-        375.9096758247358,
-        375.9096758247358,
-        375.9096758247358
-      ],
-      "physics": {
-        "mass": 3759.096758247358,
-        "velocity": [
-          -1.43,
-          -2.93,
-          2.75
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/5.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 1.00887647921655
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.08,
-              0.05,
-              -0.1
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_9",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -199.04,
-        363.46,
-        -228.19
-      ],
-      "scale": [
-        130.001148982291,
-        130.001148982291,
-        130.001148982291
-      ],
-      "physics": {
-        "mass": 1300.0114898229099,
-        "velocity": [
-          0.58,
-          -3.55,
-          2.53
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/3.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "intensity": 2.243684896992379
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.09,
-              -0.01,
-              -0.09
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_10",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        663.94,
-        -255.04,
-        -753.28
-      ],
-      "scale": [
-        262.22831416820316,
-        262.22831416820316,
-        262.22831416820316
-      ],
-      "physics": {
-        "mass": 2622.283141682032,
-        "velocity": [
-          4.26,
-          -3.32,
-          1.93
+          2.83,
+          2.77,
+          -2.54
         ]
       },
       "render": {
@@ -1297,7 +927,7 @@
                     255,
                     128
                   ],
-                  "intensity": 3.106464731286967
+                  "intensity": 3.9349895201763934
                 }
               }
             ]
@@ -1308,703 +938,36 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -0.0,
+              -0.04,
               0.04,
-              0.09
+              0.04
             ]
           }
         }
       ]
     },
     {
-      "name": "cyber_planet_11",
+      "name": "cyber_planet_6",
       "tag": "planet",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -889.54,
-        989.96,
-        873.99
+        -771.34,
+        -445.06,
+        695.78
       ],
       "scale": [
-        309.79413787879355,
-        309.79413787879355,
-        309.79413787879355
+        426.8720429857224,
+        426.8720429857224,
+        426.8720429857224
       ],
       "physics": {
-        "mass": 3097.9413787879357,
+        "mass": 4268.720429857223,
         "velocity": [
-          4.21,
-          -3.39,
-          -1.47
+          -2.35,
+          -2.21,
+          -3.96
         ]
       },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/4.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 1.4659977985432762
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.06,
-              -0.06,
-              -0.0
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_12",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -387.8,
-        849.43,
-        -846.73
-      ],
-      "scale": [
-        255.80018525366162,
-        255.80018525366162,
-        255.80018525366162
-      ],
-      "physics": {
-        "mass": 2558.0018525366163,
-        "velocity": [
-          2.99,
-          2.42,
-          -2.5
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/6.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    0,
-                    255
-                  ],
-                  "intensity": 2.5897453748692625
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.01,
-              -0.09,
-              0.1
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_13",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        964.99,
-        -282.47,
-        50.83
-      ],
-      "scale": [
-        42.8762009772688,
-        42.8762009772688,
-        42.8762009772688
-      ],
-      "physics": {
-        "mass": 428.76200977268803,
-        "velocity": [
-          3.46,
-          4.07,
-          3.63
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    6
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    180,
-                    150,
-                    255
-                  ],
-                  "intensity": 2.65463676863849
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.01,
-              0.0,
-              -0.06
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_14",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -170.45,
-        -205.67,
-        -417.77
-      ],
-      "scale": [
-        54.166843653307254,
-        54.166843653307254,
-        54.166843653307254
-      ],
-      "physics": {
-        "mass": 541.6684365330725,
-        "velocity": [
-          3.61,
-          -0.43,
-          -0.91
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/2.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 1.4483475312566005
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.05,
-              -0.07,
-              0.07
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_15",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -511.51,
-        -733.61,
-        545.97
-      ],
-      "scale": [
-        131.05142585242152,
-        131.05142585242152,
-        131.05142585242152
-      ],
-      "physics": {
-        "mass": 1310.5142585242152,
-        "velocity": [
-          -0.72,
-          -1.67,
-          -0.11
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/2.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    0,
-                    255
-                  ],
-                  "intensity": 2.217594784153828
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.03,
-              -0.06,
-              0.08
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_16",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -621.24,
-        -180.86,
-        882.33
-      ],
-      "scale": [
-        181.4417817532482,
-        181.4417817532482,
-        181.4417817532482
-      ],
-      "physics": {
-        "mass": 1814.4178175324819,
-        "velocity": [
-          1.72,
-          -2.43,
-          -2.92
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    15
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 2.857061276409376
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.02,
-              -0.01,
-              0.06
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_17",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -47.77,
-        -873.14,
-        -88.03
-      ],
-      "scale": [
-        361.7535147699923,
-        361.7535147699923,
-        361.7535147699923
-      ],
-      "physics": {
-        "mass": 3617.535147699923,
-        "velocity": [
-          -2.09,
-          -3.24,
-          4.31
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/3.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "intensity": 3.379738706907099
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.1,
-              0.03,
-              -0.01
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_18",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        -168.78,
-        -919.92,
-        52.7
-      ],
-      "scale": [
-        67.63190986758455,
-        67.63190986758455,
-        67.63190986758455
-      ],
-      "physics": {
-        "mass": 676.3190986758456,
-        "velocity": [
-          -4.84,
-          -0.03,
-          -2.83
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/5.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "intensity": 3.796521446191648
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.09,
-              0.04,
-              0.01
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "cyber_planet_19",
-      "tag": "planet",
-      "prefab": "assets/prefabs/light_sphere.json",
-      "position": [
-        157.14,
-        888.87,
-        -344.37
-      ],
-      "scale": [
-        311.05652632468224,
-        311.05652632468224,
-        311.05652632468224
-      ],
-      "physics": {
-        "mass": 3110.5652632468223,
-        "velocity": [
-          -2.37,
-          4.97,
-          1.47
-        ]
-      },
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/6.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "intensity": 2.825254132538698
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.08,
-              0.09,
-              -0.07
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_0",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        -985.95,
-        619.93,
-        -946.43
-      ],
-      "scale": [
-        44.991615644123755,
-        44.991615644123755,
-        44.991615644123755
-      ],
       "render": {
         "renderScale": [
           1,
@@ -2035,53 +998,51 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    255,
                     0,
+                    128,
                     255
                   ],
-                  "intensity": 2.0
+                  "intensity": 2.747854150132858
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -1.99,
-              1.39,
-              1.4
+              0.05,
+              0.02,
+              -0.05
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_1",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_7",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -161.3,
-        250.77,
-        -225.21
+        -1183.0,
+        -1184.88,
+        -508.46
       ],
       "scale": [
-        40.5409692679448,
-        40.5409692679448,
-        40.5409692679448
+        508.6728168867245,
+        508.6728168867245,
+        508.6728168867245
       ],
+      "physics": {
+        "mass": 5086.728168867245,
+        "velocity": [
+          3.3,
+          -3.85,
+          3.91
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -2101,7 +1062,7 @@
                 "name": "main_pass",
                 "textures": {
                   "u_diffuseMap": [
-                    "assets/textures/random/3.png",
+                    "assets/textures/random/4.png",
                     1
                   ]
                 },
@@ -2114,51 +1075,49 @@
                   "color": [
                     255,
                     0,
-                    255
+                    170
                   ],
-                  "intensity": 2.0
+                  "intensity": 2.9067407842614736
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -0.17,
-              1.17,
-              -0.23
+              0.07,
+              -0.06,
+              0.06
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_2",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_8",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -306.67,
-        -699.42,
-        176.17
+        -417.88,
+        967.26,
+        993.27
       ],
       "scale": [
-        14.695740741202,
-        14.695740741202,
-        14.695740741202
+        84.48180634364209,
+        84.48180634364209,
+        84.48180634364209
       ],
+      "physics": {
+        "mass": 844.818063436421,
+        "velocity": [
+          0.64,
+          4.91,
+          -2.98
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -2179,7 +1138,7 @@
                 "textures": {
                   "u_diffuseMap": [
                     "assets/textures/gif/1.gif",
-                    15
+                    9
                   ]
                 },
                 "vs": "assets/shaders/default.vs",
@@ -2189,438 +1148,51 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    0,
                     255,
-                    255
+                    85,
+                    0
                   ],
-                  "intensity": 2.0
+                  "intensity": 1.6187560402161862
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.88,
-              1.97,
-              1.38
+              -0.07,
+              0.08,
+              0.04
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_3",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_9",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        225.81,
-        -947.38,
-        -129.37
+        298.2,
+        -772.96,
+        -34.22
       ],
       "scale": [
-        1.845942286122573,
-        1.845942286122573,
-        1.845942286122573
+        489.63323250800585,
+        489.63323250800585,
+        489.63323250800585
       ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    15
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
+      "physics": {
+        "mass": 4896.332325080059,
+        "velocity": [
+          0.69,
+          2.12,
+          -2.88
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.69,
-              -1.43,
-              1.69
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_4",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        -785.39,
-        -895.31,
-        581.04
-      ],
-      "scale": [
-        31.532124024658213,
-        31.532124024658213,
-        31.532124024658213
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/5.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -1.94,
-              -0.78,
-              -1.81
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_5",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        235.4,
-        146.42,
-        -73.81
-      ],
-      "scale": [
-        2.3541374184357755,
-        2.3541374184357755,
-        2.3541374184357755
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    15
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -1.79,
-              1.39,
-              -1.96
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_6",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        -50.93,
-        -847.04,
-        -652.0
-      ],
-      "scale": [
-        40.004869562039474,
-        40.004869562039474,
-        40.004869562039474
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    6
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    255
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -0.21,
-              -1.62,
-              -0.08
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_7",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        -741.77,
-        863.3,
-        -17.54
-      ],
-      "scale": [
-        42.99185302717513,
-        42.99185302717513,
-        42.99185302717513
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/1.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    0,
-                    255,
-                    128
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.49,
-              -1.92,
-              1.52
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_8",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        -125.06,
-        690.51,
-        -593.56
-      ],
-      "scale": [
-        43.30676017137214,
-        43.30676017137214,
-        43.30676017137214
-      ],
       "render": {
         "renderScale": [
           1,
@@ -2653,51 +1225,199 @@
                   "color": [
                     0,
                     255,
-                    255
+                    0
                   ],
-                  "intensity": 2.0
+                  "intensity": 3.8877497212203345
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -1.07,
-              -0.49,
-              0.78
+              0.05,
+              0.04,
+              -0.08
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_9",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_10",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        331.42,
-        843.52,
-        -868.21
+        457.62,
+        -329.74,
+        -416.51
       ],
       "scale": [
-        5.53408126561213,
-        5.53408126561213,
-        5.53408126561213
+        128.97216767713283,
+        128.97216767713283,
+        128.97216767713283
       ],
+      "physics": {
+        "mass": 1289.7216767713282,
+        "velocity": [
+          1.27,
+          -2.03,
+          -3.37
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/7.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    85,
+                    0
+                  ],
+                  "intensity": 3.29062498270637
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.03,
+              -0.09,
+              0.08
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_11",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -348.92,
+        -1109.93,
+        692.33
+      ],
+      "scale": [
+        476.58462197443794,
+        476.58462197443794,
+        476.58462197443794
+      ],
+      "physics": {
+        "mass": 4765.84621974438,
+        "velocity": [
+          2.7,
+          1.84,
+          4.16
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/2.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    0
+                  ],
+                  "intensity": 1.2203380987777006
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.05,
+              0.02,
+              -0.0
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_12",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -1083.66,
+        1155.14,
+        -1265.37
+      ],
+      "scale": [
+        304.0473706164505,
+        304.0473706164505,
+        304.0473706164505
+      ],
+      "physics": {
+        "mass": 3040.473706164505,
+        "velocity": [
+          4.24,
+          4.8,
+          3.26
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -2732,49 +1452,47 @@
                     255,
                     255
                   ],
-                  "intensity": 2.0
+                  "intensity": 1.3992432722196915
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -1.23,
-              0.97,
-              0.09
+              -0.02,
+              0.03,
+              0.01
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_10",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_13",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -268.2,
-        -275.05,
-        -170.19
+        -626.45,
+        865.86,
+        -859.8
       ],
       "scale": [
-        13.844431418220843,
-        13.844431418220843,
-        13.844431418220843
+        305.0280512747443,
+        305.0280512747443,
+        305.0280512747443
       ],
+      "physics": {
+        "mass": 3050.280512747443,
+        "velocity": [
+          3.68,
+          -1.27,
+          -0.76
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -2794,7 +1512,157 @@
                 "name": "main_pass",
                 "textures": {
                   "u_diffuseMap": [
-                    "assets/textures/random/6.png",
+                    "assets/textures/random/2.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    255
+                  ],
+                  "intensity": 3.0240222197577538
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.0,
+              -0.01,
+              0.02
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_14",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -651.46,
+        -815.31,
+        463.61
+      ],
+      "scale": [
+        319.1468064362344,
+        319.1468064362344,
+        319.1468064362344
+      ],
+      "physics": {
+        "mass": 3191.4680643623437,
+        "velocity": [
+          1.05,
+          4.85,
+          -4.29
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/3.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    85,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.9773914647870092
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.02,
+              -0.06,
+              -0.1
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "cyber_planet_15",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -1265.21,
+        93.08,
+        980.44
+      ],
+      "scale": [
+        175.058227998836,
+        175.058227998836,
+        175.058227998836
+      ],
+      "physics": {
+        "mass": 1750.58227998836,
+        "velocity": [
+          2.08,
+          0.42,
+          3.8
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/1.png",
                     1
                   ]
                 },
@@ -2807,128 +1675,49 @@
                   "color": [
                     0,
                     255,
-                    128
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              -1.49,
-              1.42,
-              1.21
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_11",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        988.42,
-        -973.58,
-        -984.19
-      ],
-      "scale": [
-        8.826443609438325,
-        8.826443609438325,
-        8.826443609438325
-      ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/gif/1.gif",
-                    14
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    180,
-                    150,
                     255
                   ],
-                  "intensity": 2.0
+                  "intensity": 2.991004138854051
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              -0.43,
-              -1.26,
-              1.57
+              -0.02,
+              -0.01,
+              0.06
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_12",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_16",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -590.73,
-        946.51,
-        -368.07
+        619.45,
+        242.89,
+        1126.65
       ],
       "scale": [
-        39.75469417014533,
-        39.75469417014533,
-        39.75469417014533
+        584.1811539637541,
+        584.1811539637541,
+        584.1811539637541
       ],
+      "physics": {
+        "mass": 5841.8115396375415,
+        "velocity": [
+          -0.19,
+          -3.14,
+          4.61
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -2960,52 +1749,50 @@
                 "emissive": {
                   "color": [
                     255,
-                    255,
-                    0
+                    0,
+                    128
                   ],
-                  "intensity": 2.0
+                  "intensity": 2.27301760443992
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.39,
-              0.26,
-              1.83
+              0.09,
+              -0.03,
+              0.07
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_13",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_17",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        -298.72,
-        -300.76,
-        773.87
+        759.71,
+        -1022.41,
+        1137.83
       ],
       "scale": [
-        36.8960486486877,
-        36.8960486486877,
-        36.8960486486877
+        239.48288918647825,
+        239.48288918647825,
+        239.48288918647825
       ],
+      "physics": {
+        "mass": 2394.8288918647822,
+        "velocity": [
+          -1.34,
+          -2.19,
+          -2.99
+        ]
+      },
       "render": {
         "renderScale": [
           1,
@@ -3025,7 +1812,7 @@
                 "name": "main_pass",
                 "textures": {
                   "u_diffuseMap": [
-                    "assets/textures/random/6.png",
+                    "assets/textures/random/2.png",
                     1
                   ]
                 },
@@ -3036,130 +1823,51 @@
                 "depthTest": true,
                 "emissive": {
                   "color": [
-                    180,
-                    150,
+                    255,
+                    0,
                     255
                   ],
-                  "intensity": 2.0
+                  "intensity": 2.85660289211873
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.14,
-              -0.67,
-              0.41
+              -0.09,
+              0.05,
+              0.06
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_14",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
+      "name": "cyber_planet_18",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
       "position": [
-        660.58,
-        -620.88,
-        245.97
+        -1284.15,
+        848.24,
+        -219.24
       ],
       "scale": [
-        15.739524230732085,
-        15.739524230732085,
-        15.739524230732085
+        92.69708900171298,
+        92.69708900171298,
+        92.69708900171298
       ],
-      "render": {
-        "renderScale": [
-          1,
-          1,
-          1
-        ],
-        "isVisible": true,
-        "defaultMaterial": {
-          "fs": "assets/shaders/default.fs"
-        },
-        "meshPasses": [
-          {
-            "meshIndex": 0,
-            "name": "Mesh_0",
-            "passes": [
-              {
-                "name": "main_pass",
-                "textures": {
-                  "u_diffuseMap": [
-                    "assets/textures/random/6.png",
-                    1
-                  ]
-                },
-                "vs": "assets/shaders/default.vs",
-                "fs": "assets/shaders/lighting/lighting.fs",
-                "blendMode": "NONE",
-                "depthWrite": true,
-                "depthTest": true,
-                "emissive": {
-                  "color": [
-                    255,
-                    255,
-                    0
-                  ],
-                  "intensity": 2.0
-                }
-              }
-            ]
-          }
+      "physics": {
+        "mass": 926.9708900171298,
+        "velocity": [
+          -1.0,
+          -4.18,
+          -3.39
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
-      "scripts": [
-        {
-          "RotatorScript": {
-            "angluarVelocity": [
-              0.61,
-              -0.22,
-              -0.19
-            ]
-          }
-        }
-      ]
-    },
-    {
-      "name": "debris_15",
-      "tag": "debris",
-      "prefab": "assets/prefabs/light_cube.json",
-      "position": [
-        975.14,
-        776.76,
-        843.14
-      ],
-      "scale": [
-        15.596815177692402,
-        15.596815177692402,
-        15.596815177692402
-      ],
       "render": {
         "renderScale": [
           1,
@@ -3180,7 +1888,7 @@
                 "textures": {
                   "u_diffuseMap": [
                     "assets/textures/gif/1.gif",
-                    14
+                    5
                   ]
                 },
                 "vs": "assets/shaders/default.vs",
@@ -3192,50 +1900,115 @@
                   "color": [
                     255,
                     0,
-                    255
+                    0
                   ],
-                  "intensity": 2.0
+                  "intensity": 1.6136682865374326
                 }
               }
             ]
           }
         ]
       },
-      "physics": {
-        "mass": 10,
-        "elasticity": 1.0,
-        "velocity": [
-          -1,
-          0,
-          0
-        ],
-        "collidable": false
-      },
       "scripts": [
         {
           "RotatorScript": {
             "angluarVelocity": [
-              1.35,
-              -0.2,
-              1.24
+              -0.06,
+              -0.06,
+              0.0
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_16",
+      "name": "cyber_planet_19",
+      "tag": "planet",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        -443.15,
+        166.81,
+        -866.46
+      ],
+      "scale": [
+        589.8956644067965,
+        589.8956644067965,
+        589.8956644067965
+      ],
+      "physics": {
+        "mass": 5898.9566440679655,
+        "velocity": [
+          -2.25,
+          4.31,
+          4.25
+        ]
+      },
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    13
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    180,
+                    150,
+                    255
+                  ],
+                  "intensity": 3.181209081782215
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.08,
+              0.08,
+              0.09
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_0",
       "tag": "debris",
       "prefab": "assets/prefabs/light_cube.json",
       "position": [
-        -464.49,
-        -813.58,
-        -825.67
+        -1252.46,
+        -97.48,
+        -1095.75
       ],
       "scale": [
-        35.60846016144317,
-        35.60846016144317,
-        35.60846016144317
+        3.215697680806784,
+        3.215697680806784,
+        3.215697680806784
       ],
       "render": {
         "renderScale": [
@@ -3268,8 +2041,8 @@
                 "emissive": {
                   "color": [
                     255,
-                    255,
-                    0
+                    0,
+                    170
                   ],
                   "intensity": 2.0
                 }
@@ -3292,27 +2065,27 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.02,
-              1.74,
-              -0.91
+              0.23,
+              1.03,
+              -1.28
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_17",
+      "name": "debris_1",
       "tag": "debris",
       "prefab": "assets/prefabs/light_cube.json",
       "position": [
-        -845.04,
-        965.36,
-        737.35
+        -540.41,
+        -1051.19,
+        -1214.54
       ],
       "scale": [
-        1.4720698453794538,
-        1.4720698453794538,
-        1.4720698453794538
+        17.891822502857686,
+        17.891822502857686,
+        17.891822502857686
       ],
       "render": {
         "renderScale": [
@@ -3369,27 +2142,104 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.63,
-              1.2,
-              -0.58
+              0.56,
+              -0.21,
+              -1.62
             ]
           }
         }
       ]
     },
     {
-      "name": "debris_18",
+      "name": "debris_2",
       "tag": "debris",
       "prefab": "assets/prefabs/light_cube.json",
       "position": [
-        -154.23,
-        -43.51,
-        -755.04
+        -163.68,
+        1045.74,
+        299.21
       ],
       "scale": [
-        26.992545915960605,
-        26.992545915960605,
-        26.992545915960605
+        24.492872342412266,
+        24.492872342412266,
+        24.492872342412266
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    9
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    180,
+                    150,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              1.84,
+              -0.57,
+              0.08
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_3",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -296.03,
+        444.79,
+        -1233.76
+      ],
+      "scale": [
+        10.082974989187234,
+        10.082974989187234,
+        10.082974989187234
       ],
       "render": {
         "renderScale": [
@@ -3411,6 +2261,853 @@
                 "textures": {
                   "u_diffuseMap": [
                     "assets/textures/random/7.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    85,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.47,
+              1.31,
+              -1.46
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_4",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -264.11,
+        -174.62,
+        -92.33
+      ],
+      "scale": [
+        33.29846996330598,
+        33.29846996330598,
+        33.29846996330598
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/7.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    128,
+                    0
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -1.62,
+              -0.38,
+              0.88
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_5",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -376.44,
+        1204.34,
+        -330.62
+      ],
+      "scale": [
+        9.619412784387443,
+        9.619412784387443,
+        9.619412784387443
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/5.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    255,
+                    0
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.57,
+              -0.08,
+              -1.59
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_6",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        495.06,
+        -809.49,
+        -188.63
+      ],
+      "scale": [
+        15.652171577219304,
+        15.652171577219304,
+        15.652171577219304
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/6.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    180,
+                    150,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.47,
+              1.93,
+              0.59
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_7",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        846.46,
+        80.74,
+        -519.82
+      ],
+      "scale": [
+        13.171643651514703,
+        13.171643651514703,
+        13.171643651514703
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/6.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    170
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              1.95,
+              -1.96,
+              1.12
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_8",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -762.89,
+        -380.41,
+        884.36
+      ],
+      "scale": [
+        44.5080661173975,
+        44.5080661173975,
+        44.5080661173975
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/2.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    170
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              1.18,
+              0.47,
+              -1.91
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_9",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        1108.71,
+        837.84,
+        538.11
+      ],
+      "scale": [
+        29.875496982418337,
+        29.875496982418337,
+        29.875496982418337
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    7
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    0,
+                    255,
+                    128
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.22,
+              -0.77,
+              -1.29
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_10",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        521.13,
+        1131.86,
+        1180.77
+      ],
+      "scale": [
+        14.676015026834843,
+        14.676015026834843,
+        14.676015026834843
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/6.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    0,
+                    255,
+                    0
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.69,
+              -0.19,
+              0.45
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_11",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        981.69,
+        58.41,
+        -183.15
+      ],
+      "scale": [
+        16.5547824044569,
+        16.5547824044569,
+        16.5547824044569
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    13
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    128
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              1.0,
+              1.31,
+              0.5
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_12",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        673.84,
+        237.73,
+        -537.7
+      ],
+      "scale": [
+        49.35821508730635,
+        49.35821508730635,
+        49.35821508730635
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/3.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    128,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.2,
+              -0.11,
+              -1.09
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_13",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        171.34,
+        941.55,
+        -1117.35
+      ],
+      "scale": [
+        39.282243431662785,
+        39.282243431662785,
+        39.282243431662785
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/4.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    0,
+                    128,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              1.27,
+              0.4,
+              -0.22
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_14",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -844.7,
+        1230.16,
+        -1087.12
+      ],
+      "scale": [
+        15.674942202930255,
+        15.674942202930255,
+        15.674942202930255
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/1.png",
                     1
                   ]
                 },
@@ -3446,9 +3143,317 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.27,
-              -0.77,
-              0.31
+              1.26,
+              1.56,
+              -1.97
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_15",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        378.88,
+        -586.24,
+        -518.55
+      ],
+      "scale": [
+        42.53094602888532,
+        42.53094602888532,
+        42.53094602888532
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    9
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    85,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.55,
+              -1.26,
+              -0.08
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_16",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -862.75,
+        229.68,
+        -1202.54
+      ],
+      "scale": [
+        25.030818713970362,
+        25.030818713970362,
+        25.030818713970362
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/2.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    128,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -1.41,
+              1.69,
+              -1.49
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_17",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -1109.61,
+        1280.84,
+        718.61
+      ],
+      "scale": [
+        1.838968179004096,
+        1.838968179004096,
+        1.838968179004096
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/6.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    0,
+                    255,
+                    0
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.26,
+              -1.5,
+              -0.59
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "debris_18",
+      "tag": "debris",
+      "prefab": "assets/prefabs/light_cube.json",
+      "position": [
+        -412.79,
+        -1165.27,
+        -886.47
+      ],
+      "scale": [
+        24.60121466481227,
+        24.60121466481227,
+        24.60121466481227
+      ],
+      "render": {
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "isVisible": true,
+        "defaultMaterial": {
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "main_pass",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/random/5.png",
+                    1
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    0,
+                    255
+                  ],
+                  "intensity": 2.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "physics": {
+        "mass": 10,
+        "elasticity": 1.0,
+        "velocity": [
+          -1,
+          0,
+          0
+        ],
+        "collidable": false
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              -0.79,
+              -1.68,
+              0.69
             ]
           }
         }
@@ -3459,14 +3464,14 @@
       "tag": "debris",
       "prefab": "assets/prefabs/light_cube.json",
       "position": [
-        -312.44,
-        68.85,
-        519.51
+        -876.23,
+        -757.95,
+        151.13
       ],
       "scale": [
-        28.942706039254816,
-        28.942706039254816,
-        28.942706039254816
+        21.422714392891304,
+        21.422714392891304,
+        21.422714392891304
       ],
       "render": {
         "renderScale": [
@@ -3523,9 +3528,9 @@
         {
           "RotatorScript": {
             "angluarVelocity": [
-              0.28,
-              -1.31,
-              0.26
+              -1.15,
+              1.4,
+              0.58
             ]
           }
         }
