@@ -82,15 +82,15 @@ void AttitudeHud::Draw()
         DrawLineEx({reticleX + 5, reticleY}, {reticleX + lineLen + 5, reticleY}, 2.0f, RED);
     }
 
-    DrawRing({screenX, screenY}, 0.3f * (speedFactor * 30.0f + 1.0f), 1.0f * (speedFactor * 20.0f + 1.0f), 0, 360, 0, Fade(LIME, 0.8f));
-    DrawLineEx({(screenX - 5 * (speedFactor * 20.0f + 1.0f)), screenY}, {(screenX - 2), screenY}, 2.0f, LIME);
-    DrawLineEx({(screenX + 2), screenY}, {(screenX + 5 * (speedFactor * 20.0f + 1.0f)), screenY}, 2.0f, LIME);
+    DrawRing({screenX, screenY}, 0.3f * (speedFactor * 30.0f + 1.0f), 1.0f * (speedFactor * 20.0f + 1.0f), 0, 360, 0, Fade(YELLOW, 0.8f));
+    DrawLineEx({(screenX - 5 * (speedFactor * 20.0f + 1.0f)), screenY}, {(screenX - 2), screenY}, 2.0f, YELLOW);
+    DrawLineEx({(screenX + 2), screenY}, {(screenX + 5 * (speedFactor * 20.0f + 1.0f)), screenY}, 2.0f, YELLOW);
 
     int centerStep = static_cast<int>(pitchDeg / dynamicLadderGap) * static_cast<int>(dynamicLadderGap);
     int dynamicFovLimit = static_cast<int>(m_fovLimit * (1.0f + speedFactor * 10.5f));
 
     float horizonWidth = dynamicLadderWidth * 6.0f;
-    DrawHorizonLine(pitchDeg, rollRad, screenX, screenY, horizonWidth, GREEN, dynamicPixelsPerDegree);
+    DrawHorizonLine(pitchDeg, rollRad, screenX, screenY, horizonWidth, YELLOW, dynamicPixelsPerDegree);
 
     for (int step = centerStep - dynamicFovLimit; step <= centerStep + dynamicFovLimit; step += (int)m_ladderGap)
     {
@@ -99,7 +99,7 @@ void AttitudeHud::Draw()
         if (step == 0)
             continue;
         float width = dynamicLadderWidth;
-        Color color = Fade(LIME, 0.7f);
+        Color color = Fade(YELLOW, 0.7f);
         DrawPitchLine(pitchDeg, rollRad, (float)step, screenX, screenY, width, color, dynamicPixelsPerDegree);
     }
 }

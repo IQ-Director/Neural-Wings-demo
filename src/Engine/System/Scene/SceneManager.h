@@ -23,4 +23,5 @@ private:
     void AddParticle(GameWorld &gameWorld, GameObject &gameObject, const json &particleData);
     void AddShaders(GameObject &gameObject, const json &matData, GameWorld &gameWorld);
     void AddRigidbody(GameObject &gameObject, const json &rigidData);
+    void AddLight(GameObject &gameObject, const json &renderData, GameWorld &gameWorld);
 };

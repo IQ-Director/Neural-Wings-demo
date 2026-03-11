@@ -1,0 +1,169 @@
+{
+  "name": "test_scene",
+  "physics": {
+    "physicsStage": {
+      "CollisionStage": {
+        "enable": true
+      },
+      "GravityStage": {
+        "gravity": [
+          0,
+          -9.8,
+          0
+        ],
+        "ground": -20.0,
+        "e_ground": 0.5,
+        "mu": 0.09,
+        "enable": true
+      }
+    }
+  },
+  "skybox": {
+    "texture": "assets/textures/skybox_1.hdr",
+    "tint": [
+      255,
+      255,
+      255,
+      255
+    ]
+  },
+  "hints": "用来预生成大量物体（子弹等）",
+  "objectsPools": [],
+  "entities": [
+    {
+      "name": "david",
+      "tag": "david",
+      "prefab": "assets/prefabs/david.json",
+      "position": [
+        -40,
+        100,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        10,
+        10,
+        10
+      ],
+      "physics": {
+        "mass": 500,
+        "elasticity": 1.0
+      },
+      "render": {
+        "baseColor": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "defaultMaterial": {
+          "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    10
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    255,
+                    100
+                  ],
+                  "intensity": 0.5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "HealthScript": {
+            "maxHP": 1000,
+            "flashDuration": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "name": "dirLight",
+      "tag": "dirLight",
+      "prefab": "assets/prefabs/dirLight.json",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "light": {
+        "type": "DIRECTIONAL",
+        "color": [
+          0,
+          255,
+          100
+        ],
+        "direction": [
+          -1,
+          -2,
+          -1
+        ],
+        "intensity": 2.0,
+        "range": 100.0,
+        "attenuation": 1.0,
+        "shadows": true,
+        "shadowBias": 0.0001
+      }
+    },
+    {
+      "name": "dirLight",
+      "tag": "dirLight",
+      "prefab": "assets/prefabs/dirLight.json",
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "light": {
+        "type": "DIRECTIONAL",
+        "color": [
+          255,
+          0,
+          0
+        ],
+        "direction": [
+          1,
+          -2,
+          0.1
+        ],
+        "intensity": 1.0,
+        "range": 100.0,
+        "attenuation": 1.0,
+        "shadows": true,
+        "shadowBias": 0.0001
+      }
+    }
+  ]
+}

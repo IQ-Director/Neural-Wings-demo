@@ -1,10 +1,9 @@
 #include "GameplayScreen.h"
 #include "raylib.h"
 #include "Game/Screen/MyScreenState.h"
-#include "Game/HUD/ChatHud.h"
-#include "Game/HUD/EntityPlateHud.h"
-#include "Game/HUD/AttitudeHud.h"
-#include "Game/HUD/MyHudState.h"
+
+#include "Game/HUD/HUD.h"
+
 #include "Game/Systems/Physics/SolarStage.h"
 #include "Game/Systems/Physics/NetworkVerifyStage.h"
 #include "Game/Systems/Particles/Initializers/RandomLife.h"
@@ -50,6 +49,8 @@ GameplayScreen::GameplayScreen(ScreenManager *sm)
                          { return std::make_unique<ChatHud>(screenManager, &m_world->GetInputManager()); });
     hudFactory->Register(ATTITUDE_HUD, [this]()
                          { return std::make_unique<AttitudeHud>(m_world.get()); });
+    hudFactory->Register((int)WEAPON_HUD, [this]()
+                         { return std::make_unique<WeaponHud>(m_world.get()); });
     m_hudManager = std::make_unique<HudManager>(std::move(hudFactory));
 }
 GameplayScreen::~GameplayScreen()
@@ -142,6 +143,7 @@ void GameplayScreen::OnEnter()
         m_hudManager->AddHud(ENTITY_PLATE_HUD);
         m_hudManager->AddHud(CHAT_HUD);
         m_hudManager->AddHud(ATTITUDE_HUD);
+        m_hudManager->AddHud(WEAPON_HUD);
     }
 
     // 监听事件
@@ -174,7 +176,7 @@ void GameplayScreen::OnEnter()
 
                                                              //  m_world->GetAudioManager().PlaySpatial("explosion", e.hitpoint, 5.0f, 50.0f, e.relativeVelocity.Length() / 4, randomPitch);
                                                          });
-    m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
+    // m_world->GetParticleSystem().Spawn("SPH", Vector3f(0.0f, 3.0f, 0.0f));
 }
 
 // 当离开游戏场景时调用

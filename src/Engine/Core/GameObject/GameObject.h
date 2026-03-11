@@ -37,6 +37,7 @@ public:
 
     unsigned int GetID() const;
     AABB GetWorldAABB(Vector3f (*outCorners)[8] = nullptr) const;
+    renderAABB GetWorldRenderAABB() const;
 
     void SetName(const std::string &name);
     void SetTag(const std::string &tag);

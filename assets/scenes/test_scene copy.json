@@ -7,10 +7,21 @@
       },
       "SolarStage": {
         "G": 0.1,
-        "enable": true
+        "enable": false
       },
       "NetworkVerifyStage": {
         "enable": false
+      },
+      "GravityStage": {
+        "gravity": [
+          0,
+          -9.8,
+          0
+        ],
+        "ground": -20.0,
+        "e_ground": 0.5,
+        "mu": 0.09,
+        "enable": true
       }
     }
   },
@@ -27,18 +38,203 @@
   "objectsPools": [
     {
       "name": "bullet",
+      "tag": "bullet",
       "prefab": "assets/prefabs/bullet.json",
+      "count": 1
+    },
+    {
+      "name": "missile",
+      "tag": "bullet",
+      "prefab": "assets/prefabs/tracking_bullet.json",
+      "count": 1
+    },
+    {
+      "name": "mine",
+      "tag": "mine",
+      "prefab": "assets/prefabs/mine_bullet.json",
       "count": 1
     }
   ],
   "entities": [
+    {
+      "name": "david",
+      "tag": "david",
+      "prefab": "assets/prefabs/david.json",
+      "position": [
+        -40,
+        100,
+        0
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        20,
+        20,
+        20
+      ],
+      "physics": {
+        "mass": 100000,
+        "elasticity": 0.2
+      },
+      "render": {
+        "baseColor": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "defaultMaterial": {
+          "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    10
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    255,
+                    255,
+                    100
+                  ],
+                  "intensity": 0.5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "HealthScript": {
+            "maxHP": 1000,
+            "flashDuration": 0.1
+          }
+        }
+      ]
+    },
+    {
+      "name": "texture_sphere",
+      "tag": "sphere",
+      "prefab": "assets/prefabs/light_sphere.json",
+      "position": [
+        100,
+        150,
+        100
+      ],
+      "rotation": [
+        0,
+        0,
+        0
+      ],
+      "scale": [
+        80,
+        80,
+        80
+      ],
+      "physics": {
+        "mass": 500,
+        "elasticity": 1.0,
+        "velocity": [
+          0,
+          0,
+          50
+        ]
+      },
+      "render": {
+        "baseColor": [
+          255,
+          255,
+          255,
+          255
+        ],
+        "renderScale": [
+          1,
+          1,
+          1
+        ],
+        "defaultMaterial": {
+          "name": "baseColor(若无vs.默认使用assets/shaders/default.vs)",
+          "fs": "assets/shaders/default.fs"
+        },
+        "meshPasses": [
+          {
+            "meshIndex": 0,
+            "name": "Mesh_0",
+            "passes": [
+              {
+                "name": "texture(若无fs.默认使用assets/shaders/texture.fs)",
+                "textures": {
+                  "u_diffuseMap": [
+                    "assets/textures/gif/1.gif",
+                    10
+                  ]
+                },
+                "vs": "assets/shaders/default.vs",
+                "fs": "assets/shaders/lighting/lighting.fs",
+                "blendMode": "NONE",
+                "depthWrite": true,
+                "depthTest": true,
+                "emissive": {
+                  "color": [
+                    100,
+                    255,
+                    100
+                  ],
+                  "intensity": 1.0
+                }
+              }
+            ]
+          }
+        ]
+      },
+      "scripts": [
+        {
+          "RotatorScript": {
+            "angluarVelocity": [
+              0.0,
+              0.0,
+              0.1
+            ]
+          }
+        },
+        {
+          "HealthScript": {
+            "maxHP": 1000,
+            "flashDuration": 0.1
+          }
+        }
+      ]
+    },
     {
       "name": "texture_sphere",
       "tag": "sphere",
       "prefab": "assets/prefabs/light_sphere.json",
       "position": [
         0,
-        0,
+        5,
         0
       ],
       "rotation": [
@@ -52,7 +248,7 @@
         3
       ],
       "physics": {
-        "mass": 5000,
+        "mass": 500,
         "elasticity": 1.0
       },
       "render": {
@@ -105,6 +301,12 @@
               0.1
             ]
           }
+        },
+        {
+          "HealthScript": {
+            "maxHP": 100,
+            "flashDuration": 0.1
+          }
         }
       ]
     },
@@ -114,7 +316,7 @@
       "prefab": "assets/prefabs/plane.json",
       "position": [
         50,
-        -2,
+        60,
         0
       ],
       "rotation": [
@@ -137,7 +339,11 @@
         },
         {
           "WeaponScript": {
-            "velocity": 40
+            "velocity_0": 300,
+            "velocity_1": 30,
+            "fireRate_0": 0.05,
+            "fireRate_1": 0.3,
+            "fireRate_2": 0.5
           }
         },
         {
@@ -146,6 +352,22 @@
         {
           "LocalPlayerSyncScript": {
             "netObjectID": 1
+          }
+        },
+        {
+          "PlayerControlScript": {
+            "Thrust": 4000,
+            "LiftCoefficient": 0.01,
+            "DragCoefficient": 0.1,
+            "PitchPower": 300,
+            "YawPower": 200,
+            "RollPower": 200,
+            "ZoomSpeed": 0.1,
+            "MinCamDist": 0.1,
+            "MaxCamDist": 20,
+            "AlignmentStrength": 200,
+            "AlignmentTheta": 45,
+            "AlignmentDamping": 0.5
           }
         }
       ]
@@ -157,7 +379,7 @@
       "position": [
         10,
         2,
-        0
+        5
       ],
       "rotation": [
         0,
@@ -173,10 +395,11 @@
         "mass": 100,
         "elasticity": 1.0,
         "velocity": [
-          0,
+          -1,
           0,
           0
-        ]
+        ],
+        "collidable": false
       },
       "scripts": [
         {
@@ -196,13 +419,18 @@
       "prefab": "assets/prefabs/ground.json",
       "position": [
         0,
-        -40,
+        -20,
         0
       ],
       "rotation": [
         0,
         0,
         0
+      ],
+      "scale": [
+        10,
+        1,
+        10
       ]
     },
     {
@@ -246,6 +474,16 @@
       ],
       "rotation": [
         -90,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "dirLight",
+      "tag": "dirLight",
+      "prefab": "assets/prefabs/dirLight.json",
+      "rotation": [
+        0,
         0,
         0
       ]

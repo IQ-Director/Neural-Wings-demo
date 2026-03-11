@@ -11,6 +11,7 @@ struct RenderView
     Rectangle viewport;            // 渲染到屏幕的目标区域
     bool clearBackground = false;  // 是否清理背景
     Color backgroundColor = BLACK; // 如果清理，后使用的背景颜色
+    bool enable = false;           // 是否启用
 };
 
 class RenderViewer

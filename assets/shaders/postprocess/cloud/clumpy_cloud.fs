@@ -19,6 +19,7 @@ uniform float u_windSpeed;
 uniform float u_stretch;
 uniform float u_distVar;
 uniform float u_density;
+uniform vec3 u_color;
 
 uniform float MAX_STEPS;
 uniform float MAX_DIST;
@@ -87,7 +88,7 @@ void main() {
 
         density *= u_density;
         if(density > 0.001f) {
-            vec3 localColor = mix(vec3(1.0f, 1.0f, 1.1f), vec3(0.8f, 0.9f, 1.0f), density * 2.0f);
+            vec3 localColor = mix(u_color, vec3(0.8f, 0.9f, 1.0f), density * 2.0f);
             float transparency = exp(-density * STEP_SIZE);
             scatteredLight += localColor * (transmittance * (1.0f - transparency));
             transmittance *= transparency;

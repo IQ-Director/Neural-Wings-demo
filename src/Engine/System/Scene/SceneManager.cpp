@@ -114,6 +114,11 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
             // rb.SetHitbox(rb.Get tf.GetLocalScale());
             rb.scaleHitboxBox(tf.GetLocalScale());
         }
+        // if (obj.HasComponent<RenderComponent>())
+        // {
+        //     auto &render = obj.GetComponent<RenderComponent>();
+        //     render.scale = render.scale & tf.GetLocalScale();
+        // }
     }
 
     if (entityData.contains("physics"))
@@ -132,6 +137,10 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
     {
         AddParticle(gameWorld, obj, entityData["particles"]);
     }
+    if (entityData.contains("light"))
+    {
+        AddLight(obj, entityData["light"], gameWorld);
+    }
 
     if (parent != nullptr)
     {
@@ -146,6 +155,38 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
         }
     }
     obj.SetActive(entityData.value("isActive", true));
+}
+void SceneManager::AddLight(GameObject &gameObject, const json &lightData, GameWorld &gameWorld)
+{
+    if (!gameObject.HasComponent<LightComponent>())
+        gameObject.AddComponent<LightComponent>();
+    auto &light = gameObject.GetComponent<LightComponent>();
+    light.owner = &gameObject;
+    std::string typeStr = lightData.value("type", "Directional");
+    if (typeStr == "POINT")
+    {
+        light.type = LightType::Point;
+    }
+    else if (typeStr == "DIRECTIONAL")
+    {
+        light.type = LightType::Directional;
+    }
+
+    if (lightData.contains("color"))
+        light.color = JsonParser::ToVector3f(lightData["color"]);
+    light.intensity = lightData.value("intensity", 1.0f);
+
+    // direction属性
+    if (lightData.contains("direction"))
+    {
+        light.direction = JsonParser::ToVector3f(lightData["direction"]);
+    }
+    // point属性
+    light.range = lightData.value("range", 10.0f);
+    light.attenuation = lightData.value("attenuation", 1.0f);
+
+    light.castShadows = lightData.value("shadows", false);
+    light.shadowBias = lightData.value("shadowBias", 0.005f);
 }
 void SceneManager::AddShaders(GameObject &gameObject, const json &renderData, GameWorld &gameWorld)
 {
@@ -204,7 +245,7 @@ void SceneManager::AddRigidbody(GameObject &gameObject, const json &rigidData)
     rb.drag = rigidData.value("drag", rb.drag);
     rb.angularDrag = rigidData.value("angularDrag", rb.angularDrag);
     rb.elasticity = rigidData.value("elasticity", rb.elasticity);
-
+    rb.Collidable = rigidData.value("collidable", rb.Collidable);
     if (rigidData.contains("velocity"))
         rb.velocity = JsonParser::ToVector3f(rigidData["velocity"]);
     if (rigidData.contains("angularVelocity"))
