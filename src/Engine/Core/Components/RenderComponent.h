@@ -4,6 +4,7 @@
 #include "Engine/Math/Math.h"
 #include "Engine/Graphics/RenderMaterial.h"
 #include <unordered_map>
+#include <cfloat>
 
 struct renderAABB
 {

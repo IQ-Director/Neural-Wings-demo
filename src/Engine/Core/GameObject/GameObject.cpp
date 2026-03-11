@@ -1,7 +1,7 @@
 #include "GameObject.h"
 #include <iostream>
 #include <string>
-
+#include <cfloat>
 GameObject::GameObject(unsigned int s_nextID, std::string name, std::string tag)
     : m_id(s_nextID), m_name(name), m_tag(tag), m_isWaitingDestroy(false), m_isDestroyed(false)
 {

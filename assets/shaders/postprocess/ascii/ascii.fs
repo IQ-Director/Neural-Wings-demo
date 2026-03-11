@@ -67,12 +67,12 @@ void main() {
     float finalMask;
     vec3 charColor = centerCol.rgb;
 
-    if(edgeStrength > u_edgeThreshold && centerDepth < 150.0f) {
+    if(edgeStrength > u_edgeThreshold * max(centerDepth / 50.0f, 1.0f)) {
         float lineMask = drawEdgeLine(localUV, grad);
         float edgeAlpha = clamp(edgeStrength * 0.5f, 0.0f, 1.0f);
         finalMask = mix(charMask, lineMask, edgeAlpha);
 
-        charColor *= 1.5f;
+        charColor *= 0.9f;
     } else {
         finalMask = charMask;
     }

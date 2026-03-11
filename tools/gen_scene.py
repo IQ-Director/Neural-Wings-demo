@@ -28,6 +28,7 @@ def rand_david_color():
         [0, 255, 255, 255],     # 激光青 (Laser Cyan)
         [127, 255, 212, 255],   # 电子绿松石 (Electric Turquoise)
         [0, 255, 150, 255],     # 薄荷荧光 (Cyber Mint)
+        [255, 255, 100, 255],
         [170, 255, 255, 255],   # 冰晶白 (Ice Blue White)
     ]
     return random.choice(colors)
@@ -58,6 +59,12 @@ def get_random_texture_config():
 def get_render_config(fs_path, emissive_color, intensity):
     tex_info = get_random_texture_config()
     return {
+        "baseColor": [
+            255,
+            255,
+            255,
+            255
+        ],
         "renderScale": [1, 1, 1],
         "isVisible": True,
         "defaultMaterial": {
@@ -192,59 +199,6 @@ def generate_scene():
         }
     })
 
-    # # 2. 随机石膏像 (David Statues)
-    # for i in range(5):
-    #     color = rand_color()
-    #     if (random.random() > 0.3):
-    #         scene["entities"].append({
-    #             "name": f"statue_david_{i}",
-    #             "tag": "obstacle",
-    #             "prefab": "assets/prefabs/david.json",
-    #             "position": rand_vec3(-scene_range, scene_range),
-    #             "rotation": rand_vec3(0, 360),
-    #             "scale": [random.uniform(10, 300)] * 3,
-    #             "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.6, 1.5)),
-    #             "scripts": [{"HealthScript": {"maxHP": 2000,  "flashDuration": 0.1}},
-    #                         {"RotatorScript": {
-    #                             "angluarVelocity": [
-    #                                 rand_vec3(-0.01, 0.01)
-    #                             ]}
-    #                          }
-    #                         ]
-    #         })
-    #     else:
-    #         scene["entities"].append({
-    #             "name": f"statue_david_{i}",
-    #             "tag": "obstacle",
-    #             "prefab": "assets/prefabs/david.json",
-    #             "position": rand_vec3(-scene_range, scene_range),
-    #             "rotation": rand_vec3(0, 360),
-    #             "scale": [random.uniform(10, 300)] * 3,
-    #             "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.3, 1.5)),
-    #             "scripts": [{"HealthScript": {"maxHP": 2000,  "flashDuration": 0.1}},
-    #                         {"RotatorScript": {
-    #                             "angluarVelocity": [
-    #                                 rand_vec3(-0.1, 0.1)
-    #                             ]}
-    #                          }
-    #                         ],
-    #             "light": {
-    #                 "type": "POINT",
-    #                 "color": color[:3],
-    #                 "direction": [
-    #                     0,
-    #                     0,
-    #                     1
-    #                 ],
-    #                 "intensity": 0.9,
-    #                 "range": 120.0,
-    #                 "attenuation": 1.0,
-    #                 "shadows": True,
-    #                 "shadowBias": 0.01
-    #             }
-    #         }
-    #         )
-
     # 3. 巨大赛博星体 (Planets)
     for i in range(60):
         color = rand_color()
@@ -268,7 +222,7 @@ def generate_scene():
             "tag": "debris",
             "prefab": "assets/prefabs/light_cube.json",
             "position": rand_vec3(-scene_range, scene_range),
-            "scale": [rand_scale_u_shape(1, 800)] * 3,
+            "scale": [rand_scale_u_shape(1, 800), rand_scale_u_shape(1, 800), rand_scale_u_shape(1, 800)],
             "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.0, 4.2)),
             "physics": {
                 "mass": 10,
@@ -281,6 +235,26 @@ def generate_scene():
             "scripts": [{"RotatorScript": {"angluarVelocity": rand_vec3(-2, 2)}}]
         })
 
+    for i in range(20):
+        color = rand_frag_color()
+        scene["entities"].append({
+            "name": f"debris_{i}",
+            "tag": "debris",
+            "prefab": "assets/prefabs/light_cube.json",
+            "position": rand_vec3(-scene_range, scene_range),
+            "scale": [rand_scale_u_shape(1, 400), rand_scale_u_shape(1, 400), rand_scale_u_shape(1, 400)],
+            "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.0, 0.2)),
+            "physics": {
+                "mass": 1000,
+                "elasticity": 1.0,
+                "velocity": [
+                   rand_vec3(-50, 50)
+                ],
+                "collidable": True
+            },
+            "scripts": [{"RotatorScript": {"angluarVelocity": rand_vec3(-2, 2)}}]
+        })
+
     for i in range(3):
         color = rand_david_color()
         scene["entities"].append({
@@ -288,10 +262,10 @@ def generate_scene():
             "tag": "debris",
             "prefab": "assets/prefabs/david.json",
             "position": rand_vec3(-scene_range, scene_range),
-            "scale": [random.uniform(400, 500)] * 3,
-            "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(1.0, 2.0)),
+            "scale": [random.uniform(40, 500)] * 3,
+            "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.5, 0.9)),
             "physics": {
-                "mass": 10,
+                "mass": 500,
                 "elasticity": 1.0,
                 "velocity": [
                    rand_vec3(-10, 10)
