@@ -68,12 +68,6 @@ struct RigidbodyComponent : public IComponent
         colliderType = ColliderType::BOX;
         Collidable = true;
     }
-    void scaleHitboxBox(const Vector3f &scale)
-    {
-        localAABB.min = localAABB.min & scale;
-        localAABB.max = localAABB.max & scale;
-        boudingRadius = boudingRadius * scale.x();
-    }
     void setHitboxBox(const Vector3f &size)
     {
         setHitboxBox(-size / 2.0f, size / 2.0f);
@@ -116,6 +110,19 @@ struct RigidbodyComponent : public IComponent
         else
             std::cerr << "No hitbox set" << std::endl;
     }
+    void ScaleHitbox(Vector3f scale)
+    {
+        // localAABB.min = localAABB.min & scale;
+        // localAABB.max = localAABB.max & scale;
+        // boudingRadius = boudingRadius * scale.x();
+        if (colliderType == ColliderType::BOX)
+            SetBox((localAABB.max - localAABB.min) & scale);
+        else if (colliderType == ColliderType::SPHERE)
+            SetSphere(boudingRadius * scale.x());
+        else
+            std::cerr << "No hitbox set" << std::endl;
+    }
+
     void SetBox(Vector3f size)
     {
         SetBoxInertia(size);

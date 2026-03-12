@@ -48,7 +48,10 @@ bool CameraManager::CreateCameraFromConfig(const json &configData)
     {
         SetMainCamera(name);
     }
-
+    if (configData.contains("enable"))
+    {
+        cam.SetEnable(configData["enable"]);
+    }
     if (configData.contains("mountTarget"))
     {
         std::string targetName = configData["mountTarget"];

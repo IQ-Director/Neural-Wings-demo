@@ -17,19 +17,27 @@ struct StepResult
 class AIEnvironment
 {
 public:
-    AIEnvironment();
+    AIEnvironment(GameWorld *gameWorld);
     ~AIEnvironment();
-    void Init(const std::string &scenePath);
+    void Init();
 
-    void Reset();
+    StepResult Reset();
     StepResult Step(const std::vector<float> &action);
+
+    RenderTexture2D &GetFbo();
 
 private:
     GameWorld *m_gameWorld;
-    RenderTexture2D m_aiFbo;
-    float m_currentTime = 0.0f;
 
-    float CalculateReward(GameObject *player, GameObject *target);
-    std::vector<float> GetSenesors();
+    RenderTexture2D m_aiFbo;
+    int width = 64;
+    int height = 64;
+
+    float m_currentTime = 0.0f;
+    float m_dt = 1.0f / 60.0f;
+
+    float CalculateReward();
+    std::vector<float> CaptureRGBD();
+    bool IsDone();
 };
 #endif

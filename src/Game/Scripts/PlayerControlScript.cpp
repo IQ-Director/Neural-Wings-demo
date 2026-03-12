@@ -116,9 +116,6 @@ void PlayerControlScript::CalculatePhysics(float dt)
 
     if (auto *camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("follow"))
     {
-
-        camera->setFovy(60.0f * (1.0f + speedFactor));
-
         float scrollDelta = input.GetAxisValue("Scale");
         if (abs(scrollDelta) > 0.001f)
         {
@@ -130,63 +127,104 @@ void PlayerControlScript::CalculatePhysics(float dt)
         float baseDist = m_minCamDist + (m_maxCamDist - m_minCamDist) * m_camDistRatio;
         float finalDist = baseDist * (1.0f + speedFactor * 1.4f);
 
-        Vector3f localPos = camera->getLocalPosition();
-        Vector3f newPos = localPos.Normalized() * finalDist;
-        Vector3f smoothedPos = Vector3f::Lerp(localPos, newPos, 0.1f);
-        camera->setLocalPosition(smoothedPos);
+        if (camera->IsEnable())
+        {
+            camera->setFovy(60.0f * (1.0f + speedFactor));
 
+            Vector3f localPos = camera->getLocalPosition();
+            Vector3f newPos = localPos.Normalized() * finalDist;
+            Vector3f smoothedPos = Vector3f::Lerp(localPos, newPos, 0.1f);
+            camera->setLocalPosition(smoothedPos);
+        }
         // camera_2
 
         if ((camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("follow_2")))
         {
+            if (camera->IsEnable())
+            {
+                auto &planeTf = owner->GetComponent<TransformComponent>();
+                Vector3f planePos = planeTf.GetWorldPosition();
+
+                if (!m_isCamInit)
+                {
+                    m_camDir = planeTf.GetForward();
+                    m_focusPos = planePos;
+                    m_smoothedDist = finalDist;
+                    m_isCamInit = true;
+                }
+
+                float lookH = input.GetAxisValue("LookHorizontal") * 0.01f;
+                float lookV = input.GetAxisValue("LookVertical") * 0.01f;
+                m_camDir.RotateByAxixAngle(Vector3f::UP, -lookH);
+                Vector3f camRight = (m_camDir ^ Vector3f::UP).Normalized();
+                Vector3f nextDir = m_camDir;
+                nextDir.RotateByAxixAngle(camRight, lookV);
+                if (abs(nextDir * Vector3f::UP) < 0.98f)
+                {
+                    m_camDir = nextDir;
+                }
+                m_camDir.Normalize();
+                float focusLag = 1.0f - expf(-15.0f * dt);
+                Vector3f targetFocus = planePos + Vector3f(0, 5.5f, 0);
+                m_focusPos = Vector3f::Lerp(m_focusPos, targetFocus, focusLag);
+
+                float zoomSmoothFactor = 1.0f - expf(-8.0f * dt);
+                m_smoothedDist = Lerp(m_smoothedDist, finalDist, 0.1f);
+                Vector3f finalCamPos = m_focusPos - (m_camDir * m_smoothedDist);
+
+                if (input.IsActionDown("MainView"))
+                {
+                    Vector3f tarCamDir = planeTf.GetForward();
+                    m_camDir = Vector3f::Lerp(m_camDir, tarCamDir, 0.1f);
+                }
+                camera->UpdateFromDirection(finalCamPos, m_camDir, Vector3f::UP);
+                camera->setFovy(60.0f * (1.0f + speedFactor));
+
+                // 鼠标微操
+                float dot = m_camDir * forward;
+                float alignThreshold = std::cosf(m_alignmentTheta * 3.1415926535f / 180.0f);
+                if (dot > alignThreshold)
+                {
+                    Vector3f rotationError = (forward ^ m_camDir);
+                    Vector3f dampingTorque = rb.angularVelocity * m_alignmentDamping;
+                    Vector3f autoTorque = (rotationError * m_alignmentStrength - dampingTorque) * speedFactor;
+                    rb.AddTorque(autoTorque);
+                }
+            }
+        }
+    }
+
+    if (auto *camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("AIView"))
+    {
+        if (camera->IsEnable())
+        {
             auto &planeTf = owner->GetComponent<TransformComponent>();
             Vector3f planePos = planeTf.GetWorldPosition();
 
-            if (!m_isCamInit)
+            Vector3f dir = camera->getLocalLookAtOffset();
+            Vector3f up = Vector3f::UP;
+            float lookHorizontal = -input.GetAxisValue("LookHorizontal") * PI / 180;
+            float lookVertical = input.GetAxisValue("LookVertical") * PI / 180;
+            camera->Rotate(lookHorizontal, lookVertical);
+            m_camDir = camera->getDirection();
+
+            camera->setFovy(60.0f);
+
+            float scrollDelta = input.GetAxisValue("Scale");
+            if (abs(scrollDelta) > 0.001f)
             {
-                m_camDir = planeTf.GetForward();
-                m_focusPos = planePos;
-                m_smoothedDist = finalDist;
-                m_isCamInit = true;
+                float zoomChange = (scrollDelta * m_zoomSpeed);
+                m_camDistRatio += zoomChange;
+                m_camDistRatio = std::clamp(m_camDistRatio, 0.0f, 1.0f);
             }
 
-            float lookH = input.GetAxisValue("LookHorizontal") * 0.01f;
-            float lookV = input.GetAxisValue("LookVertical") * 0.01f;
-            m_camDir.RotateByAxixAngle(Vector3f::UP, -lookH);
-            Vector3f camRight = (m_camDir ^ Vector3f::UP).Normalized();
-            Vector3f nextDir = m_camDir;
-            nextDir.RotateByAxixAngle(camRight, lookV);
-            if (abs(nextDir * Vector3f::UP) < 0.98f)
-            {
-                m_camDir = nextDir;
-            }
-            m_camDir.Normalize();
-            float focusLag = 1.0f - expf(-15.0f * dt);
-            Vector3f targetFocus = planePos + Vector3f(0, 5.5f, 0);
-            m_focusPos = Vector3f::Lerp(m_focusPos, targetFocus, focusLag);
+            float baseDist = m_minCamDist + (m_maxCamDist - m_minCamDist) * m_camDistRatio;
+            float finalDist = baseDist;
 
-            float zoomSmoothFactor = 1.0f - expf(-8.0f * dt);
-            m_smoothedDist = Lerp(m_smoothedDist, finalDist, 0.1f);
-            Vector3f finalCamPos = m_focusPos - (m_camDir * m_smoothedDist);
-
-            if (input.IsActionDown("MainView"))
-            {
-                Vector3f tarCamDir = planeTf.GetForward();
-                m_camDir = Vector3f::Lerp(m_camDir, tarCamDir, 0.1f);
-            }
-            camera->UpdateFromDirection(finalCamPos, m_camDir, Vector3f::UP);
-            camera->setFovy(60.0f * (1.0f + speedFactor));
-
-            // 鼠标微操
-            float dot = m_camDir * forward;
-            float alignThreshold = std::cosf(m_alignmentTheta * 3.1415926535f / 180.0f);
-            if (dot > alignThreshold)
-            {
-                Vector3f rotationError = (forward ^ m_camDir);
-                Vector3f dampingTorque = rb.angularVelocity * m_alignmentDamping;
-                Vector3f autoTorque = (rotationError * m_alignmentStrength - dampingTorque) * speedFactor;
-                rb.AddTorque(autoTorque);
-            }
+            Vector3f localPos = camera->getLocalPosition();
+            Vector3f newPos = localPos.Normalized() * finalDist;
+            Vector3f smoothedPos = Vector3f::Lerp(localPos, newPos, 0.1f);
+            camera->setLocalPosition(smoothedPos);
         }
     }
 }

@@ -2,6 +2,7 @@
 #include "Engine/System/System.h"
 #include "Engine/Core/GameWorld.h"
 #include "Engine/Graphics/Graphics.h"
+#include "Engine/AI/AIEnvironment.h"
 #include "MyScreenState.h"
 
 class HudManager;
@@ -28,4 +29,8 @@ private:
     void ConfigCallback(ScriptingFactory &scriptingFactory,
                         PhysicsStageFactory &physicsStageFactory,
                         ParticleFactory &particleFactory);
+
+    // AI环境
+    std::unique_ptr<AIEnvironment> m_aiEnvironment;
+    bool m_AITrain = false;
 };

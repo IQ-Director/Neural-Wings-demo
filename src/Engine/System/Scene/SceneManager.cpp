@@ -107,12 +107,12 @@ void SceneManager::ParseEntity(const json &entityData, GameWorld &gameWorld, Gam
     if (entityData.contains("scale"))
     {
         // 逐分量相乘
-        tf.SetLocalScale(tf.GetLocalScale() & JsonParser::ToVector3f(entityData["scale"]));
+        Vector3f scale = JsonParser::ToVector3f(entityData["scale"]);
+        tf.SetLocalScale(tf.GetLocalScale() & scale);
         if (obj.HasComponent<RigidbodyComponent>())
         {
             auto &rb = obj.GetComponent<RigidbodyComponent>();
-            // rb.SetHitbox(rb.Get tf.GetLocalScale());
-            rb.scaleHitboxBox(tf.GetLocalScale());
+            rb.ScaleHitbox(scale);
         }
         // if (obj.HasComponent<RenderComponent>())
         // {
@@ -241,6 +241,8 @@ void SceneManager::AddRigidbody(GameObject &gameObject, const json &rigidData)
         return;
     }
     auto &rb = gameObject.GetComponent<RigidbodyComponent>();
+    auto &tf = gameObject.GetComponent<TransformComponent>();
+
     rb.mass = rigidData.value("mass", rb.mass);
     rb.drag = rigidData.value("drag", rb.drag);
     rb.angularDrag = rigidData.value("angularDrag", rb.angularDrag);
@@ -250,6 +252,9 @@ void SceneManager::AddRigidbody(GameObject &gameObject, const json &rigidData)
         rb.velocity = JsonParser::ToVector3f(rigidData["velocity"]);
     if (rigidData.contains("angularVelocity"))
         rb.angularVelocity = JsonParser::ToVector3f(rigidData["angularVelocity"]);
+
+    if (rigidData.contains("hitBox"))
+        rb.SetHitbox(JsonParser::ToVector3f(rigidData["hitBox"]));
 }
 
 void SceneManager::AddScripts(GameWorld &gameWorld, GameObject &gameObject, const json &scripts)

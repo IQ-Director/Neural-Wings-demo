@@ -21,6 +21,9 @@
 #include "raymath.h"
 #include "Engine/Engine.h"
 #include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 GameplayScreen::GameplayScreen(ScreenManager *sm)
     : m_nextScreenState(SCREEN_STATE_NONE), IGameScreen(sm)
@@ -52,6 +55,17 @@ GameplayScreen::GameplayScreen(ScreenManager *sm)
     hudFactory->Register((int)WEAPON_HUD, [this]()
                          { return std::make_unique<WeaponHud>(m_world.get()); });
     m_hudManager = std::make_unique<HudManager>(std::move(hudFactory));
+
+    std::ifstream file(sceneConfigPath);
+    if (!file.is_open())
+    {
+        std::cerr << "[SceneManager]: Failed to open scene file: " << sceneConfigPath << std::endl;
+        return;
+    }
+    json sceneData = json::parse(file);
+    m_AITrain = sceneData.value("AITrain", false);
+    if (m_AITrain)
+        m_aiEnvironment = std::make_unique<AIEnvironment>(m_world.get());
 }
 GameplayScreen::~GameplayScreen()
 {
@@ -211,15 +225,31 @@ void GameplayScreen::FixedUpdate(float fixedDeltaTime)
 
     // auto &m_inputManager = m_world->GetInputManager();
     // m_inputManager.Update();
-    if (m_hudManager)
+
+    if (!m_AITrain)
     {
-        m_hudManager->FixedUpdate(fixedDeltaTime);
+        if (m_hudManager)
+        {
+            m_hudManager->FixedUpdate(fixedDeltaTime);
+        }
+        m_world->FixedUpdate(fixedDeltaTime);
     }
-    m_world->FixedUpdate(fixedDeltaTime);
 }
 
 void GameplayScreen::Update(float deltaTime)
 {
+
+    if (!m_AITrain)
+    {
+        if (!m_world->Update(deltaTime))
+            m_nextScreenState = MAIN_MENU;
+    }
+    else
+    {
+        // TODO: 替换为AI输入
+        std::vector<float> mockActions = {0, 0, 0, 1, 0, 1};
+        m_aiEnvironment->Step(mockActions);
+    }
     m_nextScreenState = SCREEN_STATE_NONE;
 
     auto &m_inputManager = m_world->GetInputManager();
@@ -235,8 +265,6 @@ void GameplayScreen::Update(float deltaTime)
     {
         std::cout << "Fire" << std::endl;
     }
-    if (!m_world->Update(deltaTime))
-        m_nextScreenState = MAIN_MENU;
 
     const bool chatBlocksInput = (m_hudManager && m_hudManager->BlocksGameplayInput());
     const bool suppressExit = (m_hudManager && m_hudManager->ConsumeExitSuppressRequest());
@@ -285,12 +313,15 @@ void GameplayScreen::Update(float deltaTime)
     }
     if (auto *follow = m_cameraManager.GetCamera("follow"))
     {
-        Vector3f dir = follow->getLocalLookAtOffset();
-        Vector3f up = Vector3f::UP;
-        float lookHorizontal = -m_inputManager.GetAxisValue("LookHorizontal") * PI / 180;
-        float lookVertical = m_inputManager.GetAxisValue("LookVertical") * PI / 180;
-        follow->Rotate(lookHorizontal, lookVertical);
-        // follow->UpdateFixed(dir, up);
+        if (follow->IsEnable())
+        {
+            Vector3f dir = follow->getLocalLookAtOffset();
+            Vector3f up = Vector3f::UP;
+            float lookHorizontal = -m_inputManager.GetAxisValue("LookHorizontal") * PI / 180;
+            float lookVertical = m_inputManager.GetAxisValue("LookVertical") * PI / 180;
+            follow->Rotate(lookHorizontal, lookVertical);
+            // follow->UpdateFixed(dir, up);
+        }
     }
 
     if (!chatBlocksInput && !suppressExit &&
@@ -303,32 +334,43 @@ void GameplayScreen::Update(float deltaTime)
 void GameplayScreen::Draw()
 {
     ClearBackground(RAYWHITE); // 设置一个浅灰色背景
-
-    m_world->Render();
-    // 在3D内容之上绘制一些2D的调试信息
-    if (m_hudManager && m_hudManager->BlocksGameplayInput())
+    if (!m_AITrain)
     {
-        DrawText("Chat active: ENTER send, ESC close chat", 10, GetScreenHeight() - 30, 20, DARKGRAY);
+        m_world->Render();
+        // 在3D内容之上绘制一些2D的调试信息
+        if (m_hudManager && m_hudManager->BlocksGameplayInput())
+        {
+            DrawText("Chat active: ENTER send, ESC close chat", 10, GetScreenHeight() - 30, 20, DARKGRAY);
+        }
+        else
+        {
+            DrawText("Press ENTER to chat, ESC to return.", 10, GetScreenHeight() - 30, 20, DARKGRAY);
+        }
+        int total = (int)m_world->GetGameObjects().size();
+        int active = (int)m_world->GetActivateGameObjects().size();
+        DrawText(TextFormat("Total Entities: %d", total), 10, 50, 20, WHITE);
+        DrawText(TextFormat("Active Entities: %d", active), 10, 80, 20, GREEN);
+
+        if (m_hudManager)
+        {
+            m_hudManager->Draw();
+        }
+
+        // Always draw UILayer in gameplay so new chat messages are visible
+        // even when chat input is not active.
+        if (screenManager && screenManager->GetUILayer())
+        {
+            screenManager->GetUILayer()->Draw();
+        }
     }
     else
     {
-        DrawText("Press ENTER to chat, ESC to return.", 10, GetScreenHeight() - 30, 20, DARKGRAY);
-    }
-    int total = (int)m_world->GetGameObjects().size();
-    int active = (int)m_world->GetActivateGameObjects().size();
-    DrawText(TextFormat("Total Entities: %d", total), 10, 50, 20, WHITE);
-    DrawText(TextFormat("Active Entities: %d", active), 10, 80, 20, GREEN);
+        Texture2D aiTex = m_aiEnvironment->GetFbo().texture;
+        Rectangle destRec = {GetScreenWidth() / 2.0f - 400, 20, 800, 800};
+        Rectangle srcRec = {0, 0, (float)aiTex.width, (float)-aiTex.height};
+        DrawTexturePro(aiTex, srcRec, destRec, {0, 0}, 0.0f, WHITE);
 
-    if (m_hudManager)
-    {
-        m_hudManager->Draw();
-    }
-
-    // Always draw UILayer in gameplay so new chat messages are visible
-    // even when chat input is not active.
-    if (screenManager && screenManager->GetUILayer())
-    {
-        screenManager->GetUILayer()->Draw();
+        DrawText("AI SENSOR VIEW (64x64)", 25, 25, 10, GREEN);
     }
 }
 

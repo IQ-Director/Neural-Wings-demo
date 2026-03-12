@@ -296,3 +296,12 @@ void mCamera::Rotate(float lookHorizontal, float lookVertical, Vector3f fixedUp)
     }
     UpdateFromDirection(m_position, m_direction, m_up);
 }
+
+void mCamera::SetEnable(bool enable)
+{
+    m_enable = enable;
+}
+bool mCamera::IsEnable() const
+{
+    return m_enable;
+}

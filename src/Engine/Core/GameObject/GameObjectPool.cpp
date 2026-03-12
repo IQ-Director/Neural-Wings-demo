@@ -58,6 +58,7 @@ void GameObjectPool::Recycle(GameObject *obj)
         auto &rb = obj->GetComponent<RigidbodyComponent>();
         rb.velocity = Vector3f::ZERO;
         rb.angularVelocity = Vector3f::ZERO;
+        rb.angularMomentum = Vector3f::ZERO;
         rb.ClearForces();
     }
     if (obj->HasComponent<ScriptComponent>())

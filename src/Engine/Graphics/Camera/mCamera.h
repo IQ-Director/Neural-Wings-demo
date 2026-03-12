@@ -35,6 +35,9 @@ public:
     void setNearPlane(float nearPlane);
     void setFarPlane(float farPlane);
 
+    void SetEnable(bool enable);
+    bool IsEnable() const;
+
     Vector3f getPosition() const;
     Vector3f getDirection() const;
     Vector3f getLocalLookAtOffset() const;
@@ -73,4 +76,6 @@ private:
     Vector3f m_up = Vector3f(0, 1, 0);
     float m_fovy = 45;
     int m_projection = 0; // 0:透视 1:正交
+
+    bool m_enable = true;
 };

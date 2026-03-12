@@ -25,26 +25,16 @@
             "GTAO",
             "GTAO_Blur_1",
             "GTAO_Blur_2",
-            "accuracy_raw_Fluid_Depth",
-            "accuracy_FluidBlur_1",
-            "accuracy_FluidBlur_2",
-            "accuracy_raw_Normal",
-            "accuracy_raw_Fluid_Thickness",
-            "accuracy_rawScreen",
-            "outScreen",
             "Screen1",
             "Screen2",
             "Screen3",
-            "Screen4"
+            "Screen4",
+            "outScreen"
         ],
         "depthLinks": [
             {
                 "source": "inScreen",
                 "targets": [
-                    "rawScreen",
-                    "raw_Fluid_Depth",
-                    "raw_Fluid_Thickness",
-                    "raw_Normal",
                     "Screen1",
                     "Screen2",
                     "Screen3",
@@ -126,89 +116,7 @@
                         "GTAO_Blur_2"
                     ]
                 ],
-                "output": "rawScreen"
-            },
-            {
-                "name": "DepthBlur",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "raw_Fluid_Depth"
-                    ]
-                ],
-                "output": "FluidBlur_1",
-                "uniforms": {
-                    "u_dir": [
-                        1,
-                        0
-                    ],
-                    "u_radius": 20
-                }
-            },
-            {
-                "name": "New DepthBlur",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/bilateral_blur.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_1"
-                    ]
-                ],
-                "output": "FluidBlur_2",
-                "uniforms": {
-                    "u_dir": [
-                        0,
-                        1
-                    ],
-                    "u_radius": 20
-                }
-            },
-            {
-                "name": "NormalBuild",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/normalBuild.fs",
-                "inputs": [
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_2"
-                    ]
-                ],
-                "output": "raw_Normal",
-                "uniforms": {}
-            },
-            {
-                "name": "Shading",
-                "vs": "assets/shaders/postprocess/default.vs",
-                "fs": "assets/shaders/postprocess/sph_ssf.fs",
-                "inputs": [
-                    [
-                        "u_sceneTex",
-                        "rawScreen"
-                    ],
-                    [
-                        "u_fluidDepth",
-                        "FluidBlur_2"
-                    ],
-                    [
-                        "u_thickness",
-                        "raw_Fluid_Thickness"
-                    ],
-                    [
-                        "u_normal",
-                        "raw_Normal"
-                    ]
-                ],
-                "output": "Screen1",
-                "uniforms": {
-                    "lightDir": [
-                        -0.5,
-                        -1.0,
-                        -0.5
-                    ]
-                }
+                "output": "Screen1"
             },
             {
                 "name": "Foggy",
@@ -221,7 +129,7 @@
                 ],
                 "output": "Screen2",
                 "uniforms": {
-                    "u_density": 0.0001,
+                    "u_density": 0.00000,
                     "u_dustColor": [
                         1.0,
                         1.0,
@@ -240,8 +148,8 @@
                 ],
                 "output": "Screen3",
                 "uniforms": {
-                    "u_cloudFrequency": 0.05,
-                    "u_cloudSize": 0.7,
+                    "u_cloudFrequency": 0.02,
+                    "u_cloudSize": 0.6,
                     "u_cloudThickness": 0.1,
                     "u_windDir": [
                         1,
@@ -255,8 +163,8 @@
                     ],
                     "u_windSpeed": 30.0,
                     "u_stretch": 1.0,
-                    "u_distVar": 1.2,
-                    "u_density": 0.03,
+                    "u_distVar": 2.0,
+                    "u_density": 0.005,
                     "MAX_STEPS": 24,
                     "MAX_DIST": 2000,
                     "STEP_SIZE": 30.0
