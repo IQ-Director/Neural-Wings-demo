@@ -73,8 +73,10 @@ void CameraManager::ResolveMounts(GameWorld &world)
             if (targetObj)
             {
                 cam.SetMountTarget(targetObj);
-                std::cout << "[CameraManager]: Camera '" << pair.first
-                          << "' mounted to '" << targetName << "'" << std::endl;
+
+                if (__SHOWINFO__)
+                    std::cout << "[CameraManager]: Camera '" << pair.first
+                              << "' mounted to '" << targetName << "'" << std::endl;
             }
         }
     }

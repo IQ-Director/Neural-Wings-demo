@@ -10,3 +10,5 @@ ui/dist/
 post-process-editor/node_modules/
 tools/.venv/
 ai_train/Debug/
+ai_train/Release/
+ai_train/checkpoints/

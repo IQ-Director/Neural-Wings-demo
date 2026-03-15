@@ -5,7 +5,7 @@ import sys
 import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-debug_path = os.path.join(current_dir, "Debug")
+debug_path = os.path.join(current_dir, "Release")
 sys.path.append(debug_path)
 
 try:
@@ -20,17 +20,19 @@ def test():
     print(f"Current Process ID (PID): {os.getpid()}")
     input("Press Enter after attaching C++ debugger...")
 
-    nw_engine.AIEnv.initContext()
-    env = nw_engine.AIEnv()
+    nw_engine.AIEnv.initContext(128, 128)
+    env = nw_engine.AIEnv(128, 128)
     # env.init()
     # obs = env.reset()
     while True:
-        action = [0.1, 0.0, 0.5, 1.0, 0.0, 1.0]
+        action = [0.1, 0.0, 0.5, 0.0, 0.0, 1.0]
         obs, reward, done = env.step(action)
+
         time = env.getTime()
         if (time > 10):
             env.reset()
             continue
+
         rgb = obs[:, :, :3]
         depth = obs[:, :, 3]
 

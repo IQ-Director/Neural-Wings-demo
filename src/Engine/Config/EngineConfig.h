@@ -7,7 +7,6 @@
 
 struct EngineConfig : public Config
 {
-    bool AITraining = false;
 
     int screenWidth = 1280;
     int screenHeight = 720;
@@ -26,7 +25,6 @@ struct EngineConfig : public Config
     void toJson(json &j) const
     {
         j = json{
-            {"AITraining", AITraining},
             {"window", {{"width", screenWidth}, {"height", screenHeight}, {"title", windowTitle}, {"fullscreen", fullScreen}}},
             {"performance", {{"targetFPS", targetFPS}}},
             {"network", {{"serverIP", serverIP}, {"serverPort", serverPort}}},
@@ -36,7 +34,6 @@ struct EngineConfig : public Config
 protected:
     void ParseJson(const json &configJson) override
     {
-        this->AITraining = configJson.value("AITraining", this->AITraining);
 
         this->screenWidth = configJson.at("window").value("width", this->screenWidth);
         this->screenHeight = configJson.at("window").value("height", this->screenHeight);

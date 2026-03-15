@@ -163,7 +163,8 @@ void GameplayScreen::OnEnter()
     // 监听事件
     m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
                                                          {
-                                                             std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
+                                                             if (__SHOWINFO__)
+                                                                 std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
                                                              //  e.hitpoint.print();
                                                              //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
                                                              if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)

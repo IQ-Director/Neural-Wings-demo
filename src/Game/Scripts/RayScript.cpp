@@ -16,11 +16,12 @@ void RayScript::OnFixedUpdate(float fixedDeltaTime)
             mRaycastHit hit = ray.Raycast(1000.0f, *owner->GetOwnerWorld(), owner);
             if (hit.hit)
             {
-                // 在控制台输出射线击中的对象名称和距离
-                std::cout << "Ray hit: " << (hit.entity ? hit.entity->GetName() : "Unknown") << " at distance: " << hit.distance << std::endl;
+
+                if (__SHOWINFO__)
+                    std::cout << "Ray hit: " << (hit.entity ? hit.entity->GetName() : "Unknown") << " at distance: " << hit.distance << std::endl;
             }
         }
-        }
+    }
     else
     {
         m_timer = 0.049f;

@@ -30,6 +30,8 @@ ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::string &fsPat
 #include "rlgl.h"
 #include <vector>
 #include <string>
+
+static bool __SHOWINFO__;
 ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::vector<std::string> &varyings)
 {
     m_shader.id = 0;
@@ -109,7 +111,7 @@ ShaderWrapper::ShaderWrapper(const std::string &vsPath, const std::vector<std::s
 #endif
         programId = 0;
     }
-    else
+    else if (__SHOWINFO__)
         std::cout << "[ShaderWrapper] TFB Program ID: " << programId << " linked successfully" << std::endl;
     glDeleteShader(vShaderId);
     m_shader.id = programId;

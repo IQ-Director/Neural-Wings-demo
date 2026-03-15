@@ -8,19 +8,22 @@
 
 using json = nlohmann::json;
 
+static bool __SHOWINFO__;
 // ── Public ─────────────────────────────────────────────────────────
 
 bool ClientIdentity::LoadOrGenerate(const std::string &filePath)
 {
     if (LoadFromFile(filePath))
     {
-        std::cout << "[ClientIdentity] Loaded UUID: " << GetUUIDString() << "\n";
+        if (__SHOWINFO__)
+            std::cout << "[ClientIdentity] Loaded UUID: " << GetUUIDString() << "\n";
         return true;
     }
 
     // First launch — generate and save
     Generate();
-    std::cout << "[ClientIdentity] Generated new UUID: " << GetUUIDString() << "\n";
+    if (__SHOWINFO__)
+        std::cout << "[ClientIdentity] Generated new UUID: " << GetUUIDString() << "\n";
 
     if (!SaveToFile(filePath))
     {

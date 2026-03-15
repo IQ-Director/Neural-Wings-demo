@@ -17,23 +17,27 @@
 #include "rlgl.h"
 #include <random>
 #include <fstream>
-
+#include <stdio.h>
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-void AIEnvironment::initContext()
+void AIEnvironment::initContext(int width, int height)
 {
+    __SHOWINFO__ = false;
+    SetTraceLogLevel(LOG_NONE);
     if (!IsWindowReady())
     {
         SetConfigFlags(FLAG_WINDOW_HIDDEN);
-        InitWindow(64, 64, "AI Context");
+        InitWindow(width, height, "AI Context");
         InitAudioDevice();
         SetTargetFPS(0);
         printf("[C++] GPU Context Initialized via Python\n");
     }
 }
-AIEnvironment::AIEnvironment()
+AIEnvironment::AIEnvironment(int width, int height)
 {
+    this->width = width;
+    this->height = height;
     const std::string &cameraConfigPath = "assets/config/cameras_config.json";
     const std::string &sceneConfigPath = "assets/scenes/test_scene.json";
     const std::string &inputConfigPath = "assets/config/input_config.json";
@@ -130,19 +134,13 @@ void AIEnvironment::Init()
 
     m_gameWorld->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
                                                              {
+                                                                
+        if (__SHOWINFO__)
 std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
 //  e.hitpoint.print();
 //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
 if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)
 return;
-auto &particleSys = m_gameWorld->GetParticleSystem();
-particleSys.Spawn("Collision",
-e.hitpoint,
-"relVel", e.relativeVelocity,
-"normal", e.normal,
-"impulse", e.impulse,
-"maxSpeed", e.relativeVelocity.Length() / 4);
-float randomPitch = 0.5f + (float)GetRandomValue(0, 100) / 100.0f;
 
 if (e.m_object2->GetTag() == "bullet" && e.m_object1->GetScript<HealthScript>())
 {
@@ -164,21 +162,21 @@ StepResult AIEnvironment::Reset()
 {
     m_currentTime = 0.0f;
     m_gameWorld->Reset();
-    auto *player = m_gameWorld->GetEntitiesByTag("player")[0];
-    std::vector<GameObject *> target = m_gameWorld->GetEntitiesByTag("enemy");
-    if (!target.empty())
-    {
-        auto *target = m_gameWorld->GetEntitiesByTag("enemy")[0];
+    // auto *player = m_gameWorld->GetEntitiesByTag("player")[0];
+    // std::vector<GameObject *> target = m_gameWorld->GetEntitiesByTag("enemy");
+    // if (!target.empty())
+    // {
+    //     auto *target = m_gameWorld->GetEntitiesByTag("enemy")[0];
 
-        static std::random_device rd;
-        static std::mt19937 gen(rd());
-        static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
-        player->GetComponent<TransformComponent>().SetWorldPosition(Vector3f(dis(gen) * 500 + 500, dis(gen) * 500 + 500, dis(gen) * 500 + 500));
-        target->GetComponent<TransformComponent>().SetWorldPosition(Vector3f(dis(gen) * 500 + 500, dis(gen) * 500 + 500, dis(gen) * 500 + 500));
+    //     static std::random_device rd;
+    //     static std::mt19937 gen(rd());
+    //     static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
+    //     player->GetComponent<TransformComponent>().SetWorldPosition(Vector3f(dis(gen) * 500 + 500, dis(gen) * 500 + 500, dis(gen) * 500 + 500));
+    //     target->GetComponent<TransformComponent>().SetWorldPosition(Vector3f(dis(gen) * 500 + 500, dis(gen) * 500 + 500, dis(gen) * 500 + 500));
 
-        player->GetComponent<RigidbodyComponent>().velocity = Vector3f(dis(gen) * 100, dis(gen) * 100, dis(gen) * 100);
-        m_gameWorld->UpdateTransforms();
-    }
+    //     player->GetComponent<RigidbodyComponent>().velocity = Vector3f(dis(gen) * 100, dis(gen) * 100, dis(gen) * 100);
+    //     m_gameWorld->UpdateTransforms();
+    // }
     return Step({0, 0, 0, 0, 0, 0});
 }
 StepResult AIEnvironment::Step(const std::vector<float> &actions)
@@ -232,6 +230,8 @@ std::vector<float> AIEnvironment::CaptureRGBD(const std::string &cameraName)
 
     glBindFramebuffer(GL_READ_FRAMEBUFFER, m_aiFbo.id);
 
+    glPixelStorei(GL_PACK_ALIGNMENT, 1);
+
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, rgb.data());
     glReadPixels(0, 0, width, height, GL_DEPTH_COMPONENT, GL_FLOAT, depth.data());
 
@@ -263,9 +263,33 @@ float AIEnvironment::CalculateReward()
         return 0.0f;
     auto *enemy = enemys[0];
     auto &pTf = player->GetComponent<TransformComponent>();
-    Vector3f toEnemy = (enemy->GetComponent<TransformComponent>().GetWorldPosition() - pTf.GetWorldPosition()).Normalized();
-    float alignment = pTf.GetForward() * toEnemy;
-    return alignment - 0.01f;
-}
+    auto &eTf = enemy->GetComponent<TransformComponent>();
 
+    Vector3f playerPos = pTf.GetWorldPosition();
+    Vector3f enemyPos = eTf.GetWorldPosition();
+    Vector3f followPoint = enemyPos - eTf.GetForward() * 20.0f;
+    Vector3f diff = followPoint - playerPos;
+
+    float distance = diff.Length();
+    Vector3f toEnemy = diff.Normalized();
+
+    float alignment = pTf.GetForward() * toEnemy;
+    float distReward = std::exp(-0.002f * distance);
+
+    float reward = 0.0f;
+
+    if (alignment > 0)
+        reward = alignment * distReward;
+    else
+        reward = alignment * 0.2f;
+
+    if (alignment > 0.95f && distance < 200.0f)
+    {
+        reward += 0.2f;
+        if (distance < 50.0f)
+            reward += 0.3f;
+    }
+    reward -= 0.001f;
+    return reward;
+}
 #endif

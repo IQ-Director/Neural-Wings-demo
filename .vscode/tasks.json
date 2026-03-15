@@ -73,7 +73,7 @@
         "--target",
         "nw_engine",
         "--config",
-        "Debug"
+        "Release"
       ],
       "group": "build",
       "dependsOn": "Ensure Build Dir",

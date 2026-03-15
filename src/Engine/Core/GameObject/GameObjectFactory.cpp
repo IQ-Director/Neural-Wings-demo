@@ -114,8 +114,8 @@ void GameObjectFactory::ParseAudioComponent(GameWorld &gameWorld, GameObject &ga
 renderAABB GameObjectFactory::GetMeshAABB(const Mesh &mesh)
 {
     renderAABB aabb;
-
-    std::cout << "[GameObjectFactory]:mesh vertex count: " << mesh.vertexCount << std::endl;
+    if (__SHOWINFO__)
+        std::cout << "[GameObjectFactory]:mesh vertex count: " << mesh.vertexCount << std::endl;
     if (mesh.vertices != NULL)
     {
         aabb.min = Vector3f::Min(aabb.min, Vector3f(mesh.vertices[0], mesh.vertices[1], mesh.vertices[2]));

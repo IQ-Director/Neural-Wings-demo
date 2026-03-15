@@ -9,7 +9,9 @@ GameObjectPool::GameObjectPool(std::string prefab_path, GameWorld &world) : m_pr
 GameObjectPool::~GameObjectPool()
 {
     m_pool.clear();
-    std::cout << "[ObjectPool]: Pool destroyed and objects marked for cleanup." << std::endl;
+
+    if (__SHOWINFO__)
+        std::cout << "[ObjectPool]: Pool destroyed and objects marked for cleanup." << std::endl;
 }
 void GameObjectPool::Preload(size_t count, const std::string name, const std::string &tag)
 {

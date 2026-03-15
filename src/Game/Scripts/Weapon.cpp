@@ -153,12 +153,15 @@ void WeaponScript::OnUpdate(float deltaTime)
     {
         bulletType = (bulletType + 1) % bulletTypeCount;
 
-        std::cout << "Bullet Type: " << bulletType << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Bullet Type: " << bulletType << std::endl;
     }
     else if (input.IsActionPressed("SwitchWeaponPrev"))
     {
         bulletType = (bulletType - 1 + bulletTypeCount) % bulletTypeCount;
-        std::cout << "Bullet Type: " << bulletType << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "Bullet Type: " << bulletType << std::endl;
     }
 
     m_fireTimer += deltaTime;
@@ -231,7 +234,9 @@ void WeaponScript::Bullet1(const InputManager &input)
                     if (hit.hit)
                     {
                         trackScript->SetTarget(hit.entity);
-                        std::cout << "[Weapon]: Missile Locked on " << hit.entity->GetName() << std::endl;
+
+                        if (__SHOWINFO__)
+                            std::cout << "[Weapon]: Missile Locked on " << hit.entity->GetName() << std::endl;
                     }
                 }
                 // TODO: audio

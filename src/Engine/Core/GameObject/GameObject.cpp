@@ -1,14 +1,18 @@
 #include "GameObject.h"
+#include "Engine/Config/Config.h"
 #include <iostream>
 #include <string>
 #include <cfloat>
+
 GameObject::GameObject(unsigned int s_nextID, std::string name, std::string tag)
     : m_id(s_nextID), m_name(name), m_tag(tag), m_isWaitingDestroy(false), m_isDestroyed(false)
 {
 }
 GameObject::~GameObject()
 {
-    std::cout << "[~]Destroying GameObject " << m_name << std::endl;
+
+    if (__SHOWINFO__)
+        std::cout << "[~]Destroying GameObject " << m_name << std::endl;
 }
 
 unsigned int GameObject::GetID() const
@@ -49,7 +53,8 @@ void GameObject::SetOwnerWorld(GameWorld *world)
 #include "Engine/Graphics/Particle/ParticleSystem.h"
 void GameObject::OnDestroy()
 {
-    std::cerr << "Destroying GameObject: " << m_name << std::endl;
+    if (__SHOWINFO__)
+        std::cout << "Destroying GameObject: " << m_name << std::endl;
     if (m_isDestroyed)
         return;
     m_isDestroyed = true;

@@ -636,7 +636,10 @@ RenderTexture2D Renderer::LoadRT(int width, int height, PixelFormat format)
 
         // Check if fbo is complete with attachments (valid)
         if (rlFramebufferComplete(target.id))
-            std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+        {
+            if (__SHOWINFO__)
+                std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+        }
         else
         {
             int err = glCheckFramebufferStatus(GL_FRAMEBUFFER);

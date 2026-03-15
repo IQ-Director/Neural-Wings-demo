@@ -16,7 +16,8 @@ void SolarStage::Execute(GameWorld &world, float fixedDeltaTime)
     auto &gameObjects = world.GetActivateGameObjects();
     if (gameObjects.empty())
     {
-        std::cout << "[SloarStage]:Empty Game World" << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[SloarStage]:Empty Game World" << std::endl;
         return;
     }
     for (auto &gameObject : gameObjects)

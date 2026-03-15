@@ -2,6 +2,13 @@
   "version": "0.1.0",
   "configurations": [
     {
+      "name": "Python 调试程序: 当前文件",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Debug Game",
       "type": "cppvsdbg",
       "request": "launch",
@@ -44,7 +51,7 @@
       "type": "python",
       "request": "launch",
       "justMyCode": false,
-      "program": "${workspaceFolder}/ai_train/visualize_sensors.py",
+      "program": "${workspaceFolder}/ai_train/ppo.py",
       "console": "integratedTerminal",
       "cwd": "${workspaceFolder}",
       "env": {

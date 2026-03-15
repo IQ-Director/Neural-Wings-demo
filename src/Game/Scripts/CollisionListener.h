@@ -15,11 +15,13 @@ public:
     }
     void OnCollision(const CollisionEvent &e)
     {
-        std::cout << "[CollisionListener]: I HEARD A COLLISION!!!" << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[CollisionListener]: I HEARD A COLLISION!!!" << std::endl;
     }
     void OnDestroy() override
     {
-        std::cout << "[CollisionListener]: I'm being destroyed!" << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[CollisionListener]: I'm being destroyed!" << std::endl;
         if (m_subID != 0)
         {
             // 绑定对象销毁后，取消订阅

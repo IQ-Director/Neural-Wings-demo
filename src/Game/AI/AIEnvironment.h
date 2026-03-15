@@ -16,8 +16,9 @@ struct StepResult
 class AIEnvironment
 {
 public:
-    static void initContext();
-    AIEnvironment();
+    static void initContext(int width, int height);
+    AIEnvironment(int width, int height);
+    AIEnvironment() = default;
     // AIEnvironment(GameWorld *gameWorld);
     ~AIEnvironment();
     void Init();
@@ -27,6 +28,8 @@ public:
 
     RenderTexture2D &GetFbo();
     float GetTime() const { return m_currentTime; }
+    int GetWidth() const { return width; }
+    int GetHeight() const { return height; }
 
 private:
     std::unique_ptr<GameWorld> m_gameWorld;
