@@ -183,6 +183,43 @@ void Renderer::RawRenderScene(GameWorld &gameWorld, CameraManager &cameraManager
     }
     EndTextureMode();
 }
+
+void Renderer::RenderAIView(const std::string &cameraName, GameWorld &world, RenderTexture2D &target)
+{
+
+    auto *cameraManager = &world.GetCameraManager();
+    auto *cam = cameraManager->GetCamera(cameraName);
+    if (!cam)
+        return;
+    BeginTextureMode(target);
+    {
+        rlEnableDepthTest();
+        rlEnableDepthMask();
+        ClearBackground(BLACK);
+
+        Camera3D rawCamera = cam->GetRawCamera();
+        rlViewport(0, 0, target.texture.width, target.texture.height);
+
+        BeginMode3D(rawCamera);
+        {
+            float aspect = 1.0f;
+            DrawWorldObjects(world, rawCamera, *cam, aspect);
+        }
+        EndMode3D();
+    }
+    EndTextureMode();
+}
+// std::vector<float> Renderer::CaptureFrame(RenderTexture2D &target)
+// {
+//     std::vector<float> frame;
+//     frame.resize(target.texture.width * target.texture.height * 3);
+
+//     glBindFramebuffer(GL_READ_FRAMEBUFFER, target.id);
+//     glReadPixels(0, 0, target.texture.width, target.texture.height, GL_RGB, GL_FLOAT, frame.data());
+//     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+
+//     return frame;
+// }
 void Renderer::RawRenderParticle(GameWorld &gameWorld, CameraManager &cameraManager)
 {
     // rlDisableDepthMask();
@@ -264,7 +301,7 @@ void Renderer::RenderScene(GameWorld &gameWorld, CameraManager &cameraManager)
     m_postProcesser->PostProcess(gameWorld, cameraManager);
 
     // debug
-    // DrawHitbox(gameWorld, cameraManager);
+    DrawHitbox(gameWorld, cameraManager);
     // DrawAABB(gameWorld, cameraManager);
     // DrawRenderAABB(gameWorld, cameraManager);
     //
@@ -385,10 +422,10 @@ void Renderer::DrawWorldObjects(GameWorld &world, Camera3D &rawCamera, mCamera &
             }
         }
     }
-    // TODO: debug
-    DrawGrid(20, 10.0f);
+    // debug
+    // DrawGrid(20, 10.0f);
 
-    DrawCoordinateAxes(Vector3f(0.0f), Quat4f::IDENTITY, 2.0f, 0.05f);
+    // DrawCoordinateAxes(Vector3f(0.0f), Quat4f::IDENTITY, 2.0f, 0.05f);
 }
 
 void Renderer::RenderSinglePass(const Mesh &mesh, const Model &model, const int &meshIdx, const RenderMaterial &pass,
@@ -599,7 +636,10 @@ RenderTexture2D Renderer::LoadRT(int width, int height, PixelFormat format)
 
         // Check if fbo is complete with attachments (valid)
         if (rlFramebufferComplete(target.id))
-            std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+        {
+            if (__SHOWINFO__)
+                std::cout << "[PostProcesser]: [ID " << target.id << "] Framebuffer object created successfully" << std::endl;
+        }
         else
         {
             int err = glCheckFramebufferStatus(GL_FRAMEBUFFER);

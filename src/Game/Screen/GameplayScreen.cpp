@@ -21,6 +21,9 @@
 #include "raymath.h"
 #include "Engine/Engine.h"
 #include <iostream>
+#include <fstream>
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
 
 GameplayScreen::GameplayScreen(ScreenManager *sm)
     : m_nextScreenState(SCREEN_STATE_NONE), IGameScreen(sm)
@@ -52,6 +55,17 @@ GameplayScreen::GameplayScreen(ScreenManager *sm)
     hudFactory->Register((int)WEAPON_HUD, [this]()
                          { return std::make_unique<WeaponHud>(m_world.get()); });
     m_hudManager = std::make_unique<HudManager>(std::move(hudFactory));
+
+    std::ifstream file(sceneConfigPath);
+    if (!file.is_open())
+    {
+        std::cerr << "[SceneManager]: Failed to open scene file: " << sceneConfigPath << std::endl;
+        return;
+    }
+    json sceneData = json::parse(file);
+    // m_AITrain = sceneData.value("AITrain", false);
+    // if (m_AITrain)
+    //     m_aiEnvironment = std::make_unique<AIEnvironment>(m_world.get());
 }
 GameplayScreen::~GameplayScreen()
 {
@@ -149,7 +163,8 @@ void GameplayScreen::OnEnter()
     // 监听事件
     m_world->GetEventManager().Subscribe<CollisionEvent>([this](const CollisionEvent &e)
                                                          {
-                                                             std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
+                                                             if (__SHOWINFO__)
+                                                                 std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
                                                              //  e.hitpoint.print();
                                                              //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
                                                              if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)
@@ -211,6 +226,7 @@ void GameplayScreen::FixedUpdate(float fixedDeltaTime)
 
     // auto &m_inputManager = m_world->GetInputManager();
     // m_inputManager.Update();
+
     if (m_hudManager)
     {
         m_hudManager->FixedUpdate(fixedDeltaTime);
@@ -220,6 +236,16 @@ void GameplayScreen::FixedUpdate(float fixedDeltaTime)
 
 void GameplayScreen::Update(float deltaTime)
 {
+
+    if (!m_world->Update(deltaTime))
+        m_nextScreenState = MAIN_MENU;
+
+    // else
+    // {
+    //     // TODO: 替换为AI输入
+    //     std::vector<float> mockActions = {0, 0, 0, 1, 0, 1};
+    //     m_aiEnvironment->Step(mockActions);
+    // }
     m_nextScreenState = SCREEN_STATE_NONE;
 
     auto &m_inputManager = m_world->GetInputManager();
@@ -235,8 +261,6 @@ void GameplayScreen::Update(float deltaTime)
     {
         std::cout << "Fire" << std::endl;
     }
-    if (!m_world->Update(deltaTime))
-        m_nextScreenState = MAIN_MENU;
 
     const bool chatBlocksInput = (m_hudManager && m_hudManager->BlocksGameplayInput());
     const bool suppressExit = (m_hudManager && m_hudManager->ConsumeExitSuppressRequest());
@@ -285,12 +309,21 @@ void GameplayScreen::Update(float deltaTime)
     }
     if (auto *follow = m_cameraManager.GetCamera("follow"))
     {
-        Vector3f dir = follow->getLocalLookAtOffset();
-        Vector3f up = Vector3f::UP;
-        float lookHorizontal = -m_inputManager.GetAxisValue("LookHorizontal") * PI / 180;
-        float lookVertical = m_inputManager.GetAxisValue("LookVertical") * PI / 180;
-        follow->Rotate(lookHorizontal, lookVertical);
-        // follow->UpdateFixed(dir, up);
+        if (follow->IsEnable())
+        {
+            Vector3f dir = follow->getLocalLookAtOffset();
+            Vector3f up = Vector3f::UP;
+            float lookHorizontal = -m_inputManager.GetAxisValue("LookHorizontal") * PI / 180;
+            float lookVertical = m_inputManager.GetAxisValue("LookVertical") * PI / 180;
+            follow->Rotate(lookHorizontal, lookVertical);
+            // follow->UpdateFixed(dir, up);
+        }
+    }
+
+    if (!chatBlocksInput && !suppressExit &&
+        m_inputManager.IsActionPressed("Reset"))
+    {
+        m_world->Reset();
     }
 }
 
@@ -324,6 +357,16 @@ void GameplayScreen::Draw()
     {
         screenManager->GetUILayer()->Draw();
     }
+
+    // else
+    // {
+    //     Texture2D aiTex = m_aiEnvironment->GetFbo().texture;
+    //     Rectangle destRec = {20, 20, 800, 800};
+    //     Rectangle srcRec = {0, 0, (float)aiTex.width, (float)-aiTex.height};
+    //     DrawTexturePro(aiTex, srcRec, destRec, {0, 0}, 0.0f, WHITE);
+
+    //     DrawText("AI SENSOR VIEW (64x64)", 25, 25, 10, GREEN);
+    // }
 }
 
 // 向 ScreenManager 报告下一个状态

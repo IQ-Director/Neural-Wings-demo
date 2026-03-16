@@ -24,6 +24,8 @@ class InputManager
 public:
     InputManager();
     ~InputManager() = default;
+    void SetKeyState(const std::string &keyName, float value);
+    void SetAxisValue(const std::string &axisName, float value);
 
     bool LoadBindings(const std::string &filePath);
 
@@ -47,6 +49,12 @@ public:
     Vector2 GetMousePosition() const;
     Vector2 GetMouseDelta() const;
 
+    void ClearMockStates()
+    {
+        m_mockKeyStates.clear();
+        m_mockAxisValues.clear();
+    }
+
 private:
     // 将字符串转换为 Raylib 的键盘/鼠标键码
     int KeyNameToKeyCode(const std::string &keyName) const;
@@ -60,4 +68,7 @@ private:
     std::unordered_map<std::string, float> m_axisValues;
     Vector2 m_lastMousePosition; // 用于计算 mouseDelta
     bool m_enabled = true;
+
+    std::unordered_map<int, float> m_mockKeyStates; // 用于模拟按键状态
+    std::unordered_map<std::string, float> m_mockAxisValues;
 };

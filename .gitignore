@@ -9,3 +9,6 @@ ui/dist/
 .vscode_copy/
 post-process-editor/node_modules/
 tools/.venv/
+ai_train/Debug/
+ai_train/Release/
+ai_train/checkpoints/

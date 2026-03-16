@@ -64,6 +64,7 @@ ResourceManager::~ResourceManager()
     UnloadAll();
 }
 
+static bool __SHOWINFO__;
 Sound ResourceManager::GetSound(const std::string &path)
 {
     auto it = m_sounds.find(path);
@@ -74,11 +75,15 @@ Sound ResourceManager::GetSound(const std::string &path)
     if (s.frameCount > 0)
     {
         m_sounds[path] = s;
-        std::cout << "[ResourceManager]: Sound loaded: " << path << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager]: Sound loaded: " << path << std::endl;
     }
     else
     {
-        std::cerr << "[ResourceManager]: Failed to load sound: " << path << std::endl;
+
+        if (__SHOWINFO__)
+            std::cerr << "[ResourceManager]: Failed to load sound: " << path << std::endl;
     }
     return s;
 }
@@ -92,7 +97,8 @@ Music ResourceManager::GetMusic(const std::string &path)
     if (m.frameCount > 0)
     {
         m_musics[path] = m;
-        std::cout << "[ResourceManager]: Music stream loaded: " << path << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager]: Music stream loaded: " << path << std::endl;
     }
     else
     {
@@ -159,7 +165,8 @@ Model ResourceManager::GetModel(const std::string &path)
     if (model.meshCount > 0)
     {
         m_models[path] = model;
-        std::cout << "[ResourceManager] Loaded model: " << path << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager] Loaded model: " << path << std::endl;
     }
     else
         std::cerr << "[ResourceManager] Failed to load model: " << path << std::endl;
@@ -185,7 +192,8 @@ Texture2D ResourceManager::GetTexture2D(const std::string &path, int *outFrameCo
             m_textureFrameCounts[preprocessed.id] = frameCount;
             if (outFrameCount)
                 *outFrameCount = frameCount;
-            std::cout << "[ResourceManager]: Loaded preprocessed GIF atlas: " << path << " (" << frameCount << " frames)" << std::endl;
+            if (__SHOWINFO__)
+                std::cout << "[ResourceManager]: Loaded preprocessed GIF atlas: " << path << " (" << frameCount << " frames)" << std::endl;
             return preprocessed;
         }
 
@@ -201,7 +209,8 @@ Texture2D ResourceManager::GetTexture2D(const std::string &path, int *outFrameCo
         m_textureFrameCounts[textures.id] = 1;
         if (outFrameCount)
             *outFrameCount = 1;
-        std::cout << "[ResourceManager] Loaded textures " << path << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager] Loaded textures " << path << std::endl;
     }
     else
         std::cerr << "[ResourceManager] Failed to load texture: " << path << std::endl;
@@ -242,7 +251,8 @@ TextureCubemap ResourceManager::GetCubemap(const std::string &path)
 
         UnloadTexture(panorama);
         UnloadShader(shdr);
-        std::cout << "[ResourceManager] Generated Cubemap from Panorama: " << path << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager] Generated Cubemap from Panorama: " << path << std::endl;
     }
     else
     {
@@ -254,7 +264,8 @@ TextureCubemap ResourceManager::GetCubemap(const std::string &path)
         SetTextureFilter(cubemap, TEXTURE_FILTER_BILINEAR);
 
         m_cubemaps[path] = cubemap;
-        std::cout << "[ResourceManager] Loaded Cubemap: " << path << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ResourceManager] Loaded Cubemap: " << path << std::endl;
     }
     else
     {
@@ -362,7 +373,8 @@ void ResourceManager::GameWorldUnloadAll()
     m_sounds.clear();
 
     m_shaders.clear();
-    std::cout << "[ResourceManager] Unloaded all resources" << std::endl;
+    if (__SHOWINFO__)
+        std::cout << "[ResourceManager] Unloaded all resources" << std::endl;
 }
 
 void ResourceManager::UnloadAll()
@@ -396,5 +408,6 @@ void ResourceManager::UnloadAll()
     m_sounds.clear();
 
     m_shaders.clear();
-    std::cout << "[ResourceManager] Unloaded all resources" << std::endl;
+    if (__SHOWINFO__)
+        std::cout << "[ResourceManager] Unloaded all resources" << std::endl;
 }

@@ -27,6 +27,9 @@ public:
     void SetSkybox(const std::string &skyboxPath, Vector4f tintColor, GameWorld &gameWorld);
     void RenderScene(GameWorld &world, CameraManager &cameraManager);
 
+    void RenderAIView(const std::string &cameraName, GameWorld &world, RenderTexture2D &target);
+    // std::vector<float> CaptureFrame(RenderTexture2D &target);
+
     Skybox *GetSkybox() { return m_skybox.get(); }
 
     void Update(GameWorld &gameworld);

@@ -28,7 +28,8 @@ GPUParticleBuffer *ParticleSystem::GetOrCreateBuffer(std::shared_ptr<ParticleEmi
 
     if (it->second->GetMaxParticles() != emitter->GetMaxParticles())
     {
-        std::cout << "[ParticleSystem]: Resize GPU Buffer: " << it->second->GetMaxParticles() << " -> " << emitter->GetMaxParticles() << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ParticleSystem]: Resize GPU Buffer: " << it->second->GetMaxParticles() << " -> " << emitter->GetMaxParticles() << std::endl;
         it->second = std::make_unique<GPUParticleBuffer>(emitter->GetMaxParticles(), emitter->GetRenderPasses());
         emitter->ResetInsertionIndex();
     }
@@ -171,7 +172,8 @@ void ParticleSystem::RegisterOrphan(std::shared_ptr<ParticleEmitter> emitter, co
 {
     if (GetOrphanCount() > MAX_ORPHAN_COUNT)
     {
-        std::cout << "[ParticleSystem]: Too many orphan particles!!!" << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[ParticleSystem]: Too many orphan particles!!!" << std::endl;
         return;
     }
     emitter->SetEmissionRate(0.0f);

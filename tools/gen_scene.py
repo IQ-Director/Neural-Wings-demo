@@ -104,10 +104,11 @@ def rand_scale_u_shape(min_val=1, max_val=800):
 
 
 def generate_scene():
-    scene_range = 3000  # 扩大范围增加宏大感
+    scene_range = 2800  # 扩大范围增加宏大感
 
     scene = {
         "name": "Cyber_Glitch_Void",
+        "AITrain": False,
         "physics": {
             "physicsStage": {
                 "CollisionStage": {"enable": True},
@@ -145,10 +146,10 @@ def generate_scene():
     # 1. 玩家 (Player)
     scene["entities"].append({
         "name": "plane",
-        "tag": "cube",
+        "tag": "player",
         "prefab": "assets/prefabs/plane.json",
-        "position": [0, 50, 0],
-        "rotation": [0, -90, 0],
+        "position": [0, 0, 0],
+        "rotation": [0, 0, 0],
         "physics": {
             "mass": 100,
             "elasticity": 1.0,
@@ -162,9 +163,9 @@ def generate_scene():
             {"PlayerControlScript": {"Thrust": 10000,
                                      "LiftCoefficient": 0.00,
                                      "DragCoefficient": 0.1,
-                                     "PitchPower": 300,
-                                     "YawPower": 200,
-                                     "RollPower": 200,
+                                     "PitchPower": 100,
+                                     "YawPower": 10,
+                                     "RollPower": 140,
                                      "ZoomSpeed": 0.1,
                                      "MinCamDist": 0.01,
                                      "MaxCamDist": 20,
@@ -200,9 +201,9 @@ def generate_scene():
     })
 
     # 3. 巨大赛博星体 (Planets)
-    for i in range(60):
+    for i in range(20):
         color = rand_color()
-        scale = rand_scale_u_shape(10, 800)
+        scale = rand_scale_u_shape(100, 300)
         scene["entities"].append({
             "name": f"cyber_planet_{i}",
             "tag": "planet",
@@ -215,7 +216,7 @@ def generate_scene():
         })
 
     # 4. 随机干扰碎片 (Glitch Cubes)
-    for i in range(60):
+    for i in range(10):
         color = rand_frag_color()
         scene["entities"].append({
             "name": f"debris_{i}",
@@ -242,17 +243,17 @@ def generate_scene():
             "tag": "debris",
             "prefab": "assets/prefabs/light_cube.json",
             "position": rand_vec3(-scene_range, scene_range),
-            "scale": [rand_scale_u_shape(1, 400), rand_scale_u_shape(1, 400), rand_scale_u_shape(1, 400)],
+            "scale": [rand_scale_u_shape(100, 400), rand_scale_u_shape(300, 400), rand_scale_u_shape(300, 400)],
             "render": get_render_config("assets/shaders/lighting/lighting.fs", color, random.uniform(0.0, 0.2)),
             "physics": {
-                "mass": 1000,
+                "mass": 100000,
                 "elasticity": 1.0,
                 "velocity": [
                    rand_vec3(-50, 50)
                 ],
                 "collidable": True
             },
-            "scripts": [{"RotatorScript": {"angluarVelocity": rand_vec3(-2, 2)}}]
+            "scripts": [{"RotatorScript": {"angluarVelocity": rand_vec3(-0, 0)}}]
         })
 
     for i in range(3):

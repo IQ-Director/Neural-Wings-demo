@@ -153,12 +153,15 @@ void WeaponScript::OnUpdate(float deltaTime)
     {
         bulletType = (bulletType + 1) % bulletTypeCount;
 
-        std::cout << "Bullet Type: " << bulletType << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Bullet Type: " << bulletType << std::endl;
     }
     else if (input.IsActionPressed("SwitchWeaponPrev"))
     {
         bulletType = (bulletType - 1 + bulletTypeCount) % bulletTypeCount;
-        std::cout << "Bullet Type: " << bulletType << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "Bullet Type: " << bulletType << std::endl;
     }
 
     m_fireTimer += deltaTime;
@@ -205,7 +208,7 @@ void WeaponScript::Bullet1(const InputManager &input)
 {
     if (input.IsActionDown("Fire"))
     {
-        auto *camera = owner->GetOwnerWorld()->GetCameraManager().GetCamera("follow_2");
+        auto *camera = owner->GetOwnerWorld()->GetCameraManager().GetMainCamera();
         static std::random_device rd;
         static std::mt19937 gen(rd());
         static std::uniform_real_distribution<float> dis(0.0f, 1.0f);
@@ -216,7 +219,7 @@ void WeaponScript::Bullet1(const InputManager &input)
             auto &tf = owner->GetComponent<TransformComponent>();
             Vector3f spawnPos = tf.GetWorldPosition() + tf.GetForward() * 3.0f - tf.GetUp() * 3.5f;
             mRay aimRay(camera->Position(), camera->Direction());
-            mRaycastHit hit = aimRay.Raycast(1000.0f, *owner->GetOwnerWorld(), owner);
+            mRaycastHit hit = aimRay.Raycast(3000.0f, *owner->GetOwnerWorld(), owner);
 
             std::string name = "missile_" + std::to_string(rand());
             GameObject *missile = owner->GetOwnerWorld()->GetPool("missile").Spawn(name, "missile", spawnPos, tf.GetWorldRotation());
@@ -231,7 +234,9 @@ void WeaponScript::Bullet1(const InputManager &input)
                     if (hit.hit)
                     {
                         trackScript->SetTarget(hit.entity);
-                        std::cout << "[Weapon]: Missile Locked on " << hit.entity->GetName() << std::endl;
+
+                        if (__SHOWINFO__)
+                            std::cout << "[Weapon]: Missile Locked on " << hit.entity->GetName() << std::endl;
                     }
                 }
                 // TODO: audio
@@ -256,14 +261,14 @@ void WeaponScript::Bullet0(const InputManager &input)
             float size = owner->GetComponent<RigidbodyComponent>().localAABB.max.z();
             float width = owner->GetComponent<RigidbodyComponent>().localAABB.max.x();
             Vector3f spawnVel = owner->GetComponent<RigidbodyComponent>().velocity;
-            Vector3f spawnPos = tf.GetWorldPosition() + tf.GetForward() * (size + 0.5f + dis(gen) * 0.5f) + tf.GetRight() * width;
+            Vector3f spawnPos = tf.GetWorldPosition() + tf.GetForward() * (dis(gen) * 0.5f) - tf.GetUp() * 0.5f + tf.GetRight() * width * 1.5f;
             // 修改名字以区分不同类型的子弹和owner
             std::string name = "bullet_" + std::to_string(rand());
             GameObject *bullet = owner->GetOwnerWorld()->GetPool("bullet").Spawn(name, "bullet", spawnPos, tf.GetWorldRotation());
             auto &rb = bullet->GetComponent<RigidbodyComponent>();
             rb.velocity = tf.GetForward() * m_bulletVelocity_0 + spawnVel;
 
-            spawnPos = tf.GetWorldPosition() + tf.GetForward() * (size + 0.5f + dis(gen) * 0.5f) - tf.GetRight() * width;
+            spawnPos = tf.GetWorldPosition() + tf.GetForward() * (dis(gen) * 0.5f) - tf.GetUp() * 0.5f - tf.GetRight() * width * 1.5f;
             name = "bullet_" + std::to_string(rand());
             GameObject *bullet2 = owner->GetOwnerWorld()->GetPool("bullet").Spawn(name, "bullet", spawnPos, tf.GetWorldRotation());
             auto &rb2 = bullet2->GetComponent<RigidbodyComponent>();

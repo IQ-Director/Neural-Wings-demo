@@ -4,13 +4,15 @@
 
 using json = nlohmann::json;
 
-class Config {
+bool __SHOWINFO__ = true;
+
+class Config
+{
 public:
     virtual ~Config() = default;
 
-    bool load(const std::string& filePath);
+    bool load(const std::string &filePath);
 
 protected:
-   
-    virtual void ParseJson(const json& configJson) = 0;
+    virtual void ParseJson(const json &configJson) = 0;
 };

@@ -111,6 +111,8 @@
     "xtree": "cpp",
     "xutility": "cpp",
     "*.m": "cpp",
-    "webrtc.h": "c"
+    "webrtc.h": "c",
+    "barrier": "cpp",
+    "stack": "cpp"
   }
 }

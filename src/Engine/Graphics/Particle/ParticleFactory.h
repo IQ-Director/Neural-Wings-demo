@@ -1,6 +1,7 @@
 #pragma once
 #include "IParticleInitializer.h"
 #include "Engine/Graphics/ShaderWrapper.h"
+#include "Engine/Config/Config.h"
 #include <functional>
 #include <unordered_map>
 #include <string>
@@ -23,7 +24,9 @@ public:
         {
             return it->second();
         }
-        std::cout << "[ParticleModuleFactory] Error: No initializer with name: " << name << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "[ParticleModuleFactory] Error: No initializer with name: " << name << std::endl;
         return nullptr;
     }
 

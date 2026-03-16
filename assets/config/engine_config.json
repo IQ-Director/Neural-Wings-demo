@@ -1,4 +1,5 @@
 {
+    "AITraining": true,
     "network": {
         "serverIP": "server.parityncsvt.top",
         "serverPort": 7777

@@ -10,7 +10,9 @@ void PostProcesser::AddPostProcessPass(const PostProcessPass &pass)
         return;
     }
     m_postProcessPasses.push_back(pass);
-    std::cout << "[PostProcesser]: Post process pass added: " << pass.name << " output target -> " << pass.outputTarget << std::endl;
+
+    if (__SHOWINFO__)
+        std::cout << "[PostProcesser]: Post process pass added: " << pass.name << " output target -> " << pass.outputTarget << std::endl;
 }
 void PostProcesser::DefaultSetup()
 {
@@ -50,7 +52,9 @@ void PostProcesser::SetUpRTPool(const std::vector<std::string> &names, int width
             std::cerr << "[PostProcesser]: Failed to create render texture: " << name << std::endl;
         }
     }
-    std::cout << "[PostProcesser]: Render texture pool set up with " << names.size() << " render targets" << std::endl;
+
+    if (__SHOWINFO__)
+        std::cout << "[PostProcesser]: Render texture pool set up with " << names.size() << " render targets" << std::endl;
 }
 void PostProcesser::UnloadRTPool()
 {
@@ -64,7 +68,9 @@ void PostProcesser::UnloadRTPool()
     m_RTPool.clear();
     m_postProcessPasses.clear();
     m_fboDepthTracking.clear();
-    std::cout << "[PostProcesser]: Unloaded " << count << " render targets" << std::endl;
+
+    if (__SHOWINFO__)
+        std::cout << "[PostProcesser]: Unloaded " << count << " render targets" << std::endl;
 }
 
 void PostProcesser::ParsePostProcessPasses(const json &data, GameWorld &gameWorld)

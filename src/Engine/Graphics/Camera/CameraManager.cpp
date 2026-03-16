@@ -48,7 +48,10 @@ bool CameraManager::CreateCameraFromConfig(const json &configData)
     {
         SetMainCamera(name);
     }
-
+    if (configData.contains("enable"))
+    {
+        cam.SetEnable(configData["enable"]);
+    }
     if (configData.contains("mountTarget"))
     {
         std::string targetName = configData["mountTarget"];
@@ -70,8 +73,10 @@ void CameraManager::ResolveMounts(GameWorld &world)
             if (targetObj)
             {
                 cam.SetMountTarget(targetObj);
-                std::cout << "[CameraManager]: Camera '" << pair.first
-                          << "' mounted to '" << targetName << "'" << std::endl;
+
+                if (__SHOWINFO__)
+                    std::cout << "[CameraManager]: Camera '" << pair.first
+                              << "' mounted to '" << targetName << "'" << std::endl;
             }
         }
     }

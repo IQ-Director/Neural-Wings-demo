@@ -2,6 +2,13 @@
   "version": "0.1.0",
   "configurations": [
     {
+      "name": "Python 调试程序: 当前文件",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Debug Game",
       "type": "cppvsdbg",
       "request": "launch",
@@ -38,6 +45,25 @@
       "webRoot": "${workspaceFolder}",
       "userDataDir": true,
       "preLaunchTask": "Start Web Server"
+    },
+    {
+      "name": "Train AI (PPO)",
+      "type": "python",
+      "request": "launch",
+      "justMyCode": false,
+      "program": "${workspaceFolder}/ai_train/ppo.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/ai_train"
+      },
+      "preLaunchTask": "Build AI Module"
+    },
+    {
+      "name": "C++: Attach to Python",
+      "type": "cppvsdbg",
+      "request": "attach",
+      "processId": "${command:pickProcess}"
     }
   ]
 }

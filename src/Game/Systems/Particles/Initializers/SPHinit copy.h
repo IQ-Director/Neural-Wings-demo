@@ -24,7 +24,8 @@ public:
     }
     virtual int BurstCount() override
     {
-        std::cout << "Collision Burst Count: " << 3 << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Collision Burst Count: " << 3 << std::endl;
         return 3;
     };
     void Initialize(std::vector<GPUParticle> &gpuParticles, size_t start, size_t count) override

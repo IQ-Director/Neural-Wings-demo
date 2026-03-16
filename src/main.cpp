@@ -7,10 +7,12 @@
 #endif
 
 static std::unique_ptr<ScreenManager> g_App = nullptr;
+
 void UpdateDrawFrame()
 {
     g_App->UpdateFrame();
 }
+
 int main()
 {
     EngineConfig config;

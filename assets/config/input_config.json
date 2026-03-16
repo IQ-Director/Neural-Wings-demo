@@ -1,6 +1,12 @@
 {
     "keybindings": [
         {
+            "action": "Reset",
+            "keys": [
+                "P"
+            ]
+        },
+        {
             "action": "Forward",
             "keys": [
                 "UP"
@@ -77,12 +83,12 @@
         {
             "axis": "LookHorizontal",
             "type": "MouseX",
-            "sensitivity": 0.2
+            "sensitivity": 0.1
         },
         {
             "axis": "LookVertical",
             "type": "MouseY",
-            "sensitivity": 0.2,
+            "sensitivity": 0.1,
             "invert": true
         },
         {

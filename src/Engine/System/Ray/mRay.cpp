@@ -61,7 +61,9 @@ mRaycastHit mRay::Raycast(float maxDistance, GameWorld &world, GameObject *ignor
 bool mRay::IntersectOBB(const TransformComponent &tf, const RigidbodyComponent &rb, float &outDist, Vector3f &outNormal) const
 {
     Matrix4f invWorld = tf.GetWorldMatrix().inverse();
-    Vector3f localOrigin = (invWorld * Vector4f(origin, 1.0f)).xyz();
+    Vector3f scale = tf.GetWorldScale();
+
+    Vector3f localOrigin = (invWorld * Vector4f(origin, 1.0f)).xyz() & scale;
     Vector3f localDir = ((invWorld * Vector4f(direction, 0.0f)).xyz()).Normalized();
 
     Vector3f boxMin = rb.localAABB.min;

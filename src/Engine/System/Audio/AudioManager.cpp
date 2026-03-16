@@ -136,7 +136,9 @@ void AudioManager::ClearOneShots()
 
     if (count > 0)
     {
-        std::cout << "[AudioManager]: Cleared " << count << " spatial one-shot aliases." << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "[AudioManager]: Cleared " << count << " spatial one-shot aliases." << std::endl;
     }
 }
 

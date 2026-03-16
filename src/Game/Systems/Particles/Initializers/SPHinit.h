@@ -20,7 +20,8 @@ public:
     }
     int BurstCount() override
     {
-        std::cout << "Collision Burst Count: " << (int)counts.x() * counts.y() * counts.z() << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Collision Burst Count: " << (int)counts.x() * counts.y() * counts.z() << std::endl;
         return (int)counts.x() * counts.y() * counts.z();
     };
     void Initialize(std::vector<GPUParticle> &gpuParticles, size_t start, size_t count) override

@@ -127,6 +127,12 @@ void InputManager::Update()
         const auto &keyCodes = m_bindings[actionName];
         for (int keyCode : keyCodes)
         {
+            // 模拟输入
+            if (m_mockKeyStates.count(keyCode) && m_mockKeyStates[keyCode] > 0.5f)
+            {
+                isCurrentlyDown = true;
+                break;
+            }
             // TODO:raylib检测按键是否按下，移动端重写此处
             if (IsKeyDown(keyCode) || IsMouseButtonDown(keyCode))
             {
@@ -153,6 +159,12 @@ void InputManager::Update()
 
         axisValue = 0.0f; // 每帧重置
 
+        if (m_mockAxisValues.count(axisName))
+        {
+            axisValue = m_mockAxisValues[axisName];
+            continue;
+        }
+
         if (binding.isMouse)
         {
             if (binding.mouseAxis == "X")
@@ -173,9 +185,7 @@ void InputManager::Update()
                 else if (binding.positiveKey == KEY_MW_DOWN && wheelMove < 0)
                     axisValue += -wheelMove * binding.sensitivity;
                 if (IsKeyDown(binding.positiveKey))
-                {
                     axisValue += 1.0f;
-                }
             }
             if (binding.negativeKey != -1)
             {
@@ -184,9 +194,7 @@ void InputManager::Update()
                 else if (binding.negativeKey == KEY_MW_DOWN && wheelMove < 0)
                     axisValue -= -wheelMove * binding.sensitivity;
                 if (IsKeyDown(binding.negativeKey))
-                {
                     axisValue -= 1.0f;
-                }
             }
         }
     }
@@ -194,6 +202,20 @@ void InputManager::Update()
     // 更新上一帧的鼠标位置
     m_lastMousePosition = GetMousePosition();
 }
+void InputManager::SetKeyState(const std::string &keyName, float value)
+{
+    int keyCode = KeyNameToKeyCode(keyName);
+    if (keyCode != -1)
+    {
+        // std::cout << "keyName: " << keyName << std::endl;
+        m_mockKeyStates[keyCode] = value;
+    }
+}
+void InputManager::SetAxisValue(const std::string &axisName, float value)
+{
+    m_mockAxisValues[axisName] = value;
+}
+
 float InputManager::GetAxisValue(const std::string &axisName) const
 {
     auto it = m_axisValues.find(axisName);

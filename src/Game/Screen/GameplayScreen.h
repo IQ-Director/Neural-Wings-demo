@@ -28,4 +28,8 @@ private:
     void ConfigCallback(ScriptingFactory &scriptingFactory,
                         PhysicsStageFactory &physicsStageFactory,
                         ParticleFactory &particleFactory);
+
+    // AI环境
+    // std::unique_ptr<AIEnvironment> m_aiEnvironment;
+    // bool m_AITrain = false;
 };

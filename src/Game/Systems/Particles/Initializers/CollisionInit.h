@@ -33,7 +33,8 @@ public:
     }
     virtual int BurstCount() override
     {
-        std::cout << "Collision Burst Count: " << burstCount << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Collision Burst Count: " << burstCount << std::endl;
         return burstCount;
     };
     float SmoothSpeed(float impluse)

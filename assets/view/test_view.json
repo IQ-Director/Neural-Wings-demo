@@ -1,7 +1,8 @@
 {
     "views": [
         {
-            "name": "follow_2",
+            "name": "AIView",
+            "enable": true,
             "viewport": [
                 0,
                 0,

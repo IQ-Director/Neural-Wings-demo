@@ -20,7 +20,8 @@ public:
     }
     int BurstCount() override
     {
-        std::cout << "Explosion Burst Count: " << counts << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "Explosion Burst Count: " << counts << std::endl;
         return counts;
     };
     void Initialize(std::vector<GPUParticle> &gpuParticles, size_t start, size_t count) override

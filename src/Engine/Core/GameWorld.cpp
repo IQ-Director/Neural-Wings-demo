@@ -51,6 +51,17 @@ GameWorld::~GameWorld()
 {
     OnDestroy();
 }
+
+void GameWorld::Reset(const std::string &sceneConfigPath, const std::string &renderView)
+{
+    OnDestroy();
+    m_pools.clear();
+
+    m_sceneManager->LoadScene(sceneConfigPath, *this);
+    m_renderer->Init(renderView, *this);
+    SyncActiveEntities();
+}
+
 void GameWorld::OnDestroy()
 {
     for (auto &obj : m_gameObjects)
@@ -245,7 +256,9 @@ GameObjectPool &GameWorld::GetOrCreatePool(const std::string &name, const std::s
         if (preloadCount > 0)
             pool->Preload(preloadCount, name, tag);
         m_pools[name] = std::move(pool);
-        std::cout << "[GameWorld]: Created pool: " << name << " using prefab: " << prefabPath << std::endl;
+
+        if (__SHOWINFO__)
+            std::cout << "[GameWorld]: Created pool: " << name << " using prefab: " << prefabPath << std::endl;
     }
     return *m_pools[name];
 }

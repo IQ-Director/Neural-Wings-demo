@@ -7,6 +7,7 @@
 
 struct EngineConfig : public Config
 {
+
     int screenWidth = 1280;
     int screenHeight = 720;
     std::string windowTitle = "Default Engine Window";
@@ -33,6 +34,7 @@ struct EngineConfig : public Config
 protected:
     void ParseJson(const json &configJson) override
     {
+
         this->screenWidth = configJson.at("window").value("width", this->screenWidth);
         this->screenHeight = configJson.at("window").value("height", this->screenHeight);
         this->windowTitle = configJson.at("window").value("title", this->windowTitle);

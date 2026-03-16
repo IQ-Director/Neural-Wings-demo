@@ -86,17 +86,21 @@ void NetworkSyncSystem::ReleaseLocalObjects(GameWorld &world, NetworkClient &cli
         {
             client.SendObjectRelease(sync.netObjectID);
             ++releasedCount;
-            std::cout << "[NetworkSyncSystem] Released local object " << sync.netObjectID << "\n";
+
+            if (__SHOWINFO__)
+                std::cout << "[NetworkSyncSystem] Released local object " << sync.netObjectID << "\n";
         }
     }
 
     if (!canSendRelease)
     {
-        std::cout << "[NetworkSyncSystem] Skip ObjectRelease: client not connected.\n";
+        if (__SHOWINFO__)
+            std::cout << "[NetworkSyncSystem] Skip ObjectRelease: client not connected.\n";
     }
     else if (releasedCount == 0)
     {
-        std::cout << "[NetworkSyncSystem] No local object to release.\n";
+        if (__SHOWINFO__)
+            std::cout << "[NetworkSyncSystem] No local object to release.\n";
     }
 
     Cleanup();
@@ -203,13 +207,15 @@ void NetworkSyncSystem::Update(GameWorld &world, NetworkClient &client, float de
     }
     if (!hasLocalSync && !s_loggedNoLocalSync)
     {
-        std::cout << "[NetworkSyncSystem] No local sync object found." << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[NetworkSyncSystem] No local sync object found." << std::endl;
         s_loggedNoLocalSync = true;
     }
     if (hasLocalSync && !s_loggedLocalSync)
     {
-        std::cout << "[NetworkSyncSystem] Local flight state upload active (sendHz="
-                  << sendHz << ")." << std::endl;
+        if (__SHOWINFO__)
+            std::cout << "[NetworkSyncSystem] Local flight state upload active (sendHz="
+                      << sendHz << ")." << std::endl;
         s_loggedLocalSync = true;
     }
 
@@ -446,8 +452,9 @@ GameObject *NetworkSyncSystem::FindOrSpawnRemoteObject(GameWorld &world, ClientI
 
     newObj.SetActive(true);
 
-    std::cout << "[NetworkSyncSystem] Spawned remote plane client="
-              << ownerClientID << " obj=" << objectID << "\n";
+    if (__SHOWINFO__)
+        std::cout << "[NetworkSyncSystem] Spawned remote plane client="
+                  << ownerClientID << " obj=" << objectID << "\n";
     return &newObj;
 }
 
@@ -482,8 +489,10 @@ void NetworkSyncSystem::ApplyRemoteDespawn(GameWorld &world, NetworkClient &clie
 
             obj->SetActive(false);
             obj->SetIsWaitingDestroy(true);
-            std::cout << "[NetworkSyncSystem] Despawn remote plane client="
-                      << despawn.ownerClientID << " obj=" << despawn.objectID << "\n";
+
+            if (__SHOWINFO__)
+                std::cout << "[NetworkSyncSystem] Despawn remote plane client="
+                          << despawn.ownerClientID << " obj=" << despawn.objectID << "\n";
             break;
         }
     }

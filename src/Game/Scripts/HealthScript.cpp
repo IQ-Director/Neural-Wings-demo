@@ -19,6 +19,8 @@ void HealthScript::OnCreate()
                                             {
                                                 this->currentHP -= e.amount;
                                                 this->m_hitFlashTimer = m_flashDuration;
+                                                
+                                                if (__SHOWINFO__)
                                                 std::cout << "HP: " << this->currentHP << std::endl;
                                                 // TODO: 粒子受伤特效
                                                 // auto &renderer = owner->GetComponent<RenderComponent>();

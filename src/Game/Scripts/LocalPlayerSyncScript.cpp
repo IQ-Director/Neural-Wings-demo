@@ -31,8 +31,9 @@ void LocalPlayerSyncScript::OnCreate()
         sync.ownerClientID = INVALID_CLIENT_ID;
     }
 
-    std::cout << "[LocalPlayerSyncScript] Ready on plane object="
-              << owner->GetName() << ", netObjectID=" << m_netObjectID << "\n";
+    if (__SHOWINFO__)
+        std::cout << "[LocalPlayerSyncScript] Ready on plane object="
+                  << owner->GetName() << ", netObjectID=" << m_netObjectID << "\n";
 }
 
 void LocalPlayerSyncScript::OnUpdate(float /*deltaTime*/)

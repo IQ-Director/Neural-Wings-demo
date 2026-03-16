@@ -14,6 +14,7 @@ NetworkClient::~NetworkClient()
     Disconnect();
 }
 
+static bool __SHOWINFO__;
 // ── Connect ────────────────────────────────────────────────────────
 bool NetworkClient::Connect(const std::string &host, uint16_t port)
 {
@@ -23,12 +24,15 @@ bool NetworkClient::Connect(const std::string &host, uint16_t port)
 
     m_transport->SetOnConnect([this]()
                               {
+        if (__SHOWINFO__)
         std::cout << "[NetworkClient] Connected – sending Hello with UUID\n";
         auto pkt = PacketSerializer::WriteClientHello(m_uuid);
         m_transport->Send(pkt, 0); });
 
     m_transport->SetOnDisconnect([this]()
                                  {
+                                
+    if (__SHOWINFO__)
         std::cout << "[NetworkClient] Disconnected from server\n";
         m_localClientID = INVALID_CLIENT_ID;
         if (!m_playerMeta.empty())
@@ -153,8 +157,10 @@ void NetworkClient::OnRawReceive(const uint8_t *data, size_t len,
     {
         auto msg = PacketSerializer::Read<MsgServerWelcome>(data, len);
         m_localClientID = msg.assignedClientID;
-        std::cout << "[NetworkClient] Received Welcome – my ClientID = "
-                  << m_localClientID << "\n";
+
+        if (__SHOWINFO__)
+            std::cout << "[NetworkClient] Received Welcome – my ClientID = "
+                      << m_localClientID << "\n";
         if (!m_desiredNickname.empty())
             SendNicknameUpdate(m_desiredNickname);
         break;

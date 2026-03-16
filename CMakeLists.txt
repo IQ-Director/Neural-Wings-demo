@@ -18,20 +18,12 @@ endif()
 
 
 include(FetchContent)
-FetchContent_Declare(
-    raylib
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-master"
-)
 
-FetchContent_Declare(
-    raygui
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raygui-master"
-)
+FetchContent_Declare(raylib SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raylib-master")
+FetchContent_Declare(raygui SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/raygui-master")
+FetchContent_Declare(nlohmann_json SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/json-develop")
+FetchContent_Declare(pybind11 SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/pybind11-3.0.0")
 
-FetchContent_Declare(
-    nlohmann_json
-    SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/third_party/json-develop"
-)
 
 set(ULTRALIGHT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/ultralight")
 set(NBNET_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/nbnet")
@@ -54,9 +46,20 @@ if(EMSCRIPTEN)
 else()
     set(OPENGL_VERSION "3.3" CACHE STRING "OpenGL version" FORCE)
 endif()
-FetchContent_MakeAvailable(raylib raygui nlohmann_json)
+
+FetchContent_MakeAvailable(raylib raygui nlohmann_json pybind11)
+
+
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
+
+file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp" MAIN_SOURCE_PATH)
+file(REAL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/src/Game/AI/PythonBridge.cpp" PYTHON_BRIDGE_PATH)
+
+set(CORE_SOURCES ${SOURCES})
+list(REMOVE_ITEM CORE_SOURCES ${MAIN_SOURCE_PATH} ${PYTHON_BRIDGE_PATH})
+
+
 
 if(EMSCRIPTEN)
     list(FILTER SOURCES EXCLUDE REGEX "src/Engine/UI/UltralightLayer.cpp")
@@ -64,7 +67,28 @@ else()
     list(FILTER SOURCES EXCLUDE REGEX "src/Engine/UI/WebLayer.cpp")
 endif()
 
-add_executable(${PROJECT_NAME} ${SOURCES})
+
+add_library(NW_Core STATIC ${CORE_SOURCES})
+set_target_properties(NW_Core PROPERTIES LINKER_LANGUAGE CXX
+    ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+
+target_include_directories(NW_Core PUBLIC
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${raygui_SOURCE_DIR}/src
+    ${NBNET_ROOT}
+)
+
+
+target_link_libraries(NW_Core PUBLIC
+    raylib
+    nlohmann_json::nlohmann_json
+)
+
+
+add_executable(${PROJECT_NAME} ${MAIN_SOURCE_PATH})
+target_link_libraries(${PROJECT_NAME} PRIVATE NW_Core)
 
 if(MSVC)
     # Ensure PDB is shared safely when cl.exe runs in parallel.
@@ -145,22 +169,38 @@ if(PLATFORM STREQUAL "Web")
     )
 
 else()
+    target_include_directories(NW_Core PUBLIC
+        "${ULTRALIGHT_ROOT}/include"
+    )
 
     target_include_directories(${PROJECT_NAME} PRIVATE
         ${ULTRALIGHT_ROOT}/include)
 
-    target_link_libraries(${PROJECT_NAME} PRIVATE
-        raylib
-        nlohmann_json::nlohmann_json
+    target_link_libraries(NW_Core PUBLIC
         "${ULTRALIGHT_ROOT}/lib/Ultralight.lib"
         "${ULTRALIGHT_ROOT}/lib/UltralightCore.lib"
         "${ULTRALIGHT_ROOT}/lib/WebCore.lib"
         "${ULTRALIGHT_ROOT}/lib/AppCore.lib"
+        raylib
+        nlohmann_json::nlohmann_json
+    )
+    # target_link_libraries(${PROJECT_NAME} PRIVATE
+    #     raylib
+    #     nlohmann_json::nlohmann_json
+    #     "${ULTRALIGHT_ROOT}/lib/Ultralight.lib"
+    #     "${ULTRALIGHT_ROOT}/lib/UltralightCore.lib"
+    #     "${ULTRALIGHT_ROOT}/lib/WebCore.lib"
+    #     "${ULTRALIGHT_ROOT}/lib/AppCore.lib"
+    # ) 
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        NW_Core
+        raylib
+        nlohmann_json::nlohmann_json
     )
 
     # nbnet UDP driver needs Winsock on Windows
     if(WIN32)
-        target_link_libraries(${PROJECT_NAME} PRIVATE ws2_32 winmm)
+        target_link_libraries(NW_Core PUBLIC ws2_32 winmm)
 
         # Build Windows Desktop Release as a GUI app to avoid opening a console window.
         if(MSVC)
@@ -171,6 +211,26 @@ else()
                 LINK_FLAGS_RELEASE "-mwindows")
         endif()
     endif()
+
+    target_link_libraries(${PROJECT_NAME} PRIVATE NW_Core)
+    pybind11_add_module(nw_engine
+        src/Game/AI/AIEnvironment.cpp
+        src/Game/AI/PythonBridge.cpp
+    )
+
+    target_include_directories(nw_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+    target_link_libraries(nw_engine PRIVATE NW_Core)
+
+    if(WIN32)
+        target_link_libraries(nw_engine PRIVATE ws2_32 winmm)
+        target_link_options(nw_engine PRIVATE /FORCE:MULTIPLE)
+    endif()
+
+
+    set_target_properties(nw_engine PROPERTIES
+        LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ai_train"
+    )
+    # target_link_directories(nw_engine PRIVATE "${CMAKE_BINARY_DIR}/lib/Debug")
 
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

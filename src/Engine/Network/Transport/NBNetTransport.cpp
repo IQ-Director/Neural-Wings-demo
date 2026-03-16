@@ -71,6 +71,7 @@ NBNetTransport::~NBNetTransport()
     Disconnect();
 }
 
+static bool __SHOWINFO__;
 bool NBNetTransport::Connect(const std::string &host, uint16_t port)
 {
     if (m_started)
@@ -81,7 +82,9 @@ bool NBNetTransport::Connect(const std::string &host, uint16_t port)
     targetHost = ResolveHostToIPv4(host);
     if (targetHost != host)
     {
-        std::cout << "[NBNetTransport] Resolved host " << host << " -> " << targetHost << "\n";
+
+        if (__SHOWINFO__)
+            std::cout << "[NBNetTransport] Resolved host " << host << " -> " << targetHost << "\n";
     }
 #endif
 
@@ -114,7 +117,9 @@ bool NBNetTransport::Connect(const std::string &host, uint16_t port)
 
     m_started = true;
     m_state = ConnectionState::Connecting;
-    std::cout << "[NBNetTransport] Connecting to " << targetHost << ":" << port << " ...\n";
+
+    if (__SHOWINFO__)
+        std::cout << "[NBNetTransport] Connecting to " << targetHost << ":" << port << " ...\n";
     return true;
 }
 
@@ -151,14 +156,18 @@ void NBNetTransport::Poll(uint32_t /*timeoutMs*/)
         {
         case NBN_CONNECTED:
             m_state = ConnectionState::Connected;
-            std::cout << "[NBNetTransport] Connected\n";
+
+            if (__SHOWINFO__)
+                std::cout << "[NBNetTransport] Connected\n";
             if (m_onConnect)
                 m_onConnect();
             break;
 
         case NBN_DISCONNECTED:
             m_state = ConnectionState::Disconnected;
-            std::cout << "[NBNetTransport] Disconnected\n";
+
+            if (__SHOWINFO__)
+                std::cout << "[NBNetTransport] Disconnected\n";
             if (m_onDisconnect)
                 m_onDisconnect();
             break;

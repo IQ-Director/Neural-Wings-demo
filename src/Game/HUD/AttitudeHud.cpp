@@ -55,7 +55,7 @@ void AttitudeHud::Draw()
     float screenY = GetScreenHeight() / 2.0f;
 
     mRay aimRay(nosePos, forward);
-    mRaycastHit hit = aimRay.Raycast(100.0f, *m_world, player);
+    mRaycastHit hit = aimRay.Raycast(3000.0f, *m_world, player);
     Vector3f worldAimPoint;
     if (hit.hit)
     {
@@ -63,7 +63,7 @@ void AttitudeHud::Draw()
     }
     else
     {
-        worldAimPoint = nosePos + forward * 500.0f;
+        worldAimPoint = nosePos + forward * 3000.0f;
     }
     Vector3f toPoint = (worldAimPoint - mainCam->Position()).Normalized();
     float dotProduct = toPoint * mainCam->Direction();
@@ -82,9 +82,16 @@ void AttitudeHud::Draw()
         DrawLineEx({reticleX + 5, reticleY}, {reticleX + lineLen + 5, reticleY}, 2.0f, RED);
     }
 
-    DrawRing({screenX, screenY}, 0.3f * (speedFactor * 30.0f + 1.0f), 1.0f * (speedFactor * 20.0f + 1.0f), 0, 360, 0, Fade(YELLOW, 0.8f));
-    DrawLineEx({(screenX - 5 * (speedFactor * 20.0f + 1.0f)), screenY}, {(screenX - 2), screenY}, 2.0f, YELLOW);
-    DrawLineEx({(screenX + 2), screenY}, {(screenX + 5 * (speedFactor * 20.0f + 1.0f)), screenY}, 2.0f, YELLOW);
+    mRay camRay(mainCam->getPosition(), mainCam->getDirection());
+    hit = camRay.Raycast(3000.0f, *m_world, player);
+    Color color = YELLOW;
+    if (hit.hit)
+    {
+        color = RED;
+    }
+    DrawRing({screenX, screenY}, 0.3f * (speedFactor * 30.0f + 1.0f), 1.0f * (speedFactor * 20.0f + 1.0f), 0, 360, 0, color);
+    DrawLineEx({(screenX - 5 * (speedFactor * 20.0f + 1.0f)), screenY}, {(screenX - 2), screenY}, 2.0f, color);
+    DrawLineEx({(screenX + 2), screenY}, {(screenX + 5 * (speedFactor * 20.0f + 1.0f)), screenY}, 2.0f, color);
 
     int centerStep = static_cast<int>(pitchDeg / dynamicLadderGap) * static_cast<int>(dynamicLadderGap);
     int dynamicFovLimit = static_cast<int>(m_fovLimit * (1.0f + speedFactor * 10.5f));
