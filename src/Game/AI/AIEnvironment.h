@@ -40,11 +40,11 @@ private:
 
     int width = 64;
     int height = 64;
-
+    float m_lastDistance = -1.0f;
     float m_currentTime = 0.0f;
     float m_dt = 1.0f / 60.0f;
 
-    float CalculateReward();
+    float CalculateReward(const std::vector<float> &actions);
     std::vector<float> CaptureRGBD(const std::string &cameraName);
     bool IsDone();
 
