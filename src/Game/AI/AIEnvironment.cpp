@@ -184,9 +184,17 @@ StepResult AIEnvironment::Step(const std::vector<float> &actions)
     auto &input = m_gameWorld->GetInputManager();
     auto &render = m_gameWorld->GetRenderer();
 
-    input.SetAxisValue("Pitch", actions[0]);
-    input.SetAxisValue("Yaw", actions[1]);
-    input.SetAxisValue("Roll", actions[2]);
+    // input.SetAxisValue("Pitch", actions[0]);
+    // input.SetAxisValue("Yaw", actions[1]);
+    // input.SetAxisValue("Roll", actions[2]);
+    input.SetKeyState("W", actions[0] > 0.5f ? 1.0f : 0.0f);
+    input.SetKeyState("S", actions[0] < -0.5f ? 1.0f : 0.0f);
+
+    input.SetKeyState("Q", actions[1] > 0.5f ? 1.0f : 0.0f);
+    input.SetKeyState("E", actions[1] < -0.5f ? 1.0f : 0.0f);
+
+    input.SetKeyState("A", actions[2] > 0.5f ? 1.0f : 0.0f);
+    input.SetKeyState("D", actions[2] < -0.5f ? 1.0f : 0.0f);
 
     input.SetKeyState("LEFT_SHIFT", actions[3] > 0.5f ? 1.0f : 0.0f);
     input.SetKeyState("LEFT_CONTROL", actions[4] > 0.5f ? 1.0f : 0.0f);
@@ -202,7 +210,7 @@ StepResult AIEnvironment::Step(const std::vector<float> &actions)
 
     StepResult out;
     out.image_data = CaptureRGBD("AIView");
-    out.reward = CalculateReward();
+    out.reward = CalculateReward(actions);
     out.done = IsDone();
     return out;
 }
@@ -250,12 +258,12 @@ std::vector<float> AIEnvironment::CaptureRGBD(const std::string &cameraName)
             float z_ndc = depth[source_idx] * 2.0f - 1.0f;
             float linearDepth = (2.0f * near * far) / (far + near - z_ndc * (far - near));
 
-            data[i * 4 + 3] = linearDepth;
+            data[i * 4 + 3] = linearDepth / far;
         }
     return data;
 }
 
-float AIEnvironment::CalculateReward()
+float AIEnvironment::CalculateReward(const std::vector<float> &actions)
 {
     auto *player = m_gameWorld->GetEntitiesByTag("player")[0];
     std::vector<GameObject *> enemys = m_gameWorld->GetEntitiesByTag("enemy");
@@ -276,20 +284,35 @@ float AIEnvironment::CalculateReward()
     float alignment = pTf.GetForward() * toEnemy;
     float distReward = std::exp(-0.002f * distance);
 
-    float reward = 0.0f;
-
-    if (alignment > 0)
-        reward = alignment * distReward;
-    else
-        reward = alignment * 0.2f;
-
-    if (alignment > 0.95f && distance < 200.0f)
+    float distanceChangeReward = 0.0f;
+    if (m_lastDistance > 0)
     {
-        reward += 0.2f;
-        if (distance < 50.0f)
-            reward += 0.3f;
+        distanceChangeReward = (m_lastDistance - distance) * 0.1f;
     }
-    reward -= 0.001f;
+
+    m_lastDistance = distance;
+
+    float reward = 0.0f;
+    if (alignment > 0.7f)
+    {
+        reward += alignment * 0.1f;
+        reward += distanceChangeReward;
+
+        if (actions[3] > 0.0f)
+        {
+            reward += 0.3f;
+        }
+    }
+    else
+    {
+        reward += alignment * 0.05f;
+    }
+    if (actions[5] > 0.5f && alignment < 0.7f)
+    {
+        reward -= 0.1f;
+    }
+    reward -= 0.01f;
+
     return reward;
 }
 #endif

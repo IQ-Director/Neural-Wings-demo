@@ -159,11 +159,11 @@ void InputManager::Update()
 
         axisValue = 0.0f; // 每帧重置
 
-        if (m_mockAxisValues.count(axisName))
-        {
-            axisValue = m_mockAxisValues[axisName];
-            continue;
-        }
+        // if (m_mockAxisValues.count(axisName))
+        // {
+        //     axisValue = m_mockAxisValues[axisName];
+        //     continue;
+        // }
 
         if (binding.isMouse)
         {
@@ -184,7 +184,7 @@ void InputManager::Update()
                     axisValue += wheelMove * binding.sensitivity;
                 else if (binding.positiveKey == KEY_MW_DOWN && wheelMove < 0)
                     axisValue += -wheelMove * binding.sensitivity;
-                if (IsKeyDown(binding.positiveKey))
+                if (IsKeyDown(binding.positiveKey) || m_mockKeyStates[binding.positiveKey] > 0.5f)
                     axisValue += 1.0f;
             }
             if (binding.negativeKey != -1)
@@ -193,7 +193,7 @@ void InputManager::Update()
                     axisValue -= wheelMove * binding.sensitivity;
                 else if (binding.negativeKey == KEY_MW_DOWN && wheelMove < 0)
                     axisValue -= -wheelMove * binding.sensitivity;
-                if (IsKeyDown(binding.negativeKey))
+                if (IsKeyDown(binding.negativeKey) || m_mockKeyStates[binding.negativeKey] > 0.5f)
                     axisValue -= 1.0f;
             }
         }

@@ -5,7 +5,7 @@ import sys
 import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-debug_path = os.path.join(current_dir, "Release")
+debug_path = os.path.join(current_dir, "Debug")
 sys.path.append(debug_path)
 
 try:
@@ -25,16 +25,16 @@ def test():
     # env.init()
     # obs = env.reset()
     while True:
-        action = [0.1, 0.0, 0.5, 0.0, 0.0, 1.0]
+        action = [0.0, 0.0, 1.0, 1.0, 0.0, 1.0]
         obs, reward, done = env.step(action)
 
         time = env.getTime()
-        if (time > 10):
+        if (time > 100):
             env.reset()
             continue
 
-        rgb = obs[:, :, :3]
-        depth = obs[:, :, 3]
+        rgb = (obs[:, :, :3] * 255).astype(np.uint8)
+        depth = (obs[:, :, 3] * 255).astype(np.uint8)
 
         rgb_view = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
         rgb_view = cv2.resize(rgb_view, (512, 512),
@@ -43,7 +43,7 @@ def test():
             depth, (512, 512), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow("AI RGB Eye", rgb_view)
-        cv2.imshow("AI Depth Eye", depth_view/4000)
+        cv2.imshow("AI Depth Eye", depth_view)
         print(f"Reward: {reward:.4f} | Done: {done} | Time: {time:.2f}")
 
         if cv2.waitKey(1) & 0xFF == ord('q') or done:

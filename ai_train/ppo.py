@@ -31,8 +31,8 @@ class ppoEnv(gym.Env):
         self.inner_env = nw_engine.AIEnv(width, height)
 
         # 动作空间
-        self.action_space = spaces.Box(
-            low=-1.0, high=1.0, shape=(6,), dtype=np.float32)
+        self.action_space = spaces.MultiDiscrete([3, 3, 3, 2, 2, 2])
+
         # 观测空间
         self.observation_space = spaces.Box(
             low=0, high=1.0, shape=(4, width, height), dtype=np.float32)
@@ -41,8 +41,6 @@ class ppoEnv(gym.Env):
 
     def process_obs(self, obs):
         obs = np.array(obs, dtype=np.float32)
-        if obs.max() > 1.0:
-            obs /= 255.0
         obs = np.transpose(obs, (2, 0, 1))
         return obs
 
@@ -57,36 +55,43 @@ class ppoEnv(gym.Env):
         return obs, {}
 
     def step(self, action):
-        raw_obs, reward, done = self.inner_env.step(action)
+        pitch = action[0] - 1
+        yaw = action[1] - 1
+        roll = action[2] - 1
+
+        forward = action[3]
+        back = action[4]
+        fire = action[5]
+        processed_action = [pitch, yaw, roll, forward, back, fire]
+
+        raw_obs, reward, done = self.inner_env.step(processed_action)
         curTime = self.inner_env.getTime()
-        truncated = curTime > 30.0
+        truncated = curTime > 120.0
         obs = self.process_obs(raw_obs)
 
         self.steps_in_episode += 1
         if (self.steps_in_episode % 100 == 0):
             print(
-                f"Reward: {reward:.4f} | Time: {curTime:.2f} | Action: {action}")
+                f"Reward: {reward: .4f} | Time: {curTime: .2f} | Action: {action}")
         return obs, reward, done, truncated, {}
 
     def render(self, obs, reward, done):
 
         render_obs = np.transpose(obs, (1, 2, 0))
-        rgb = render_obs[:, :, :3]
-        depth = render_obs[:, :, 3]
+        rgb = (render_obs[:, :, :3] * 255).astype(np.uint8)
+        depth = (render_obs[:, :, 3] * 255).astype(np.uint8)
+        # if rgb.max() > rgb.min():
+        #     rgb_view = cv2.normalize(
+        #         rgb, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
+        # else:
+        #     rgb_view = (rgb * 255).astype(np.uint8)
 
-        if rgb.max() > rgb.min():
-            rgb_view = cv2.normalize(
-                rgb, None, 0, 255, cv2.NORM_MINMAX, cv2.CV_8U)
-        else:
-            rgb_view = (rgb * 255).astype(np.uint8)
-
-        rgb_view = cv2.cvtColor(rgb_view, cv2.COLOR_RGB2BGR)
+        rgb_view = cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
         rgb_view = cv2.resize(rgb_view, (512, 512),
                               interpolation=cv2.INTER_NEAREST)
 
-        depth_normalized = (depth * 255.0) / 4000.0
         depth_view = cv2.resize(
-            depth_normalized, (512, 512), interpolation=cv2.INTER_NEAREST)
+            depth, (512, 512), interpolation=cv2.INTER_NEAREST)
 
         cv2.imshow("AI RGB Eye", rgb_view)
         cv2.imshow("AI Depth Eye", depth_view)
@@ -103,11 +108,11 @@ def train():
                 env,
                 policy_kwargs=policy_kwargs,
                 verbose=1,
-                learning_rate=1e-4,
-                n_steps=2048,
+                learning_rate=3e-4,
+                n_steps=4096,
                 batch_size=128,
                 n_epochs=5,
-                ent_coef=0.05,
+                ent_coef=0.02,
                 gamma=0.99,
                 target_kl=0.015,
                 device="cuda")
@@ -118,6 +123,25 @@ def train():
         save_freq=10000,
         save_path='./ai_train/checkpoints/',
         name_prefix='ppo_combat_model'
+    )
+    print("Starting Training...")
+
+    model.learn(total_timesteps=3000000,
+                callback=checkpoint_callback)
+    model.save("ppo_combat_model")
+    return model, env
+
+
+def train_continue(model_path):
+    env = ppoEnv()
+    model = PPO.load(model_path, env=env)
+
+    print(f"Model device: {model.device}")
+
+    checkpoint_callback = CheckpointCallback(
+        save_freq=50000,
+        save_path='./ai_train/checkpoints/',
+        name_prefix='ppo_combat_model_continue'
     )
     print("Starting Training...")
 
@@ -163,11 +187,13 @@ def eval(model_path):
 
 
 if (__name__ == "__main__"):
+    print(f"Current Process ID (PID): {os.getpid()}")
     if torch.cuda.is_available():
         print(f"GPU: {torch.cuda.get_device_name(0)} is ready.")
     else:
         print("CUDA is NOT available. Check your PyTorch installation.")
 
-    model, env = train()
-    # mode_path = "ai_train/checkpoints/ppo_combat_model_3000000_steps.zip"
+    # model, env = train()
+    mode_path = "ai_train/checkpoints/ppo_combat_model_1300000_steps.zip"
+    train_continue(mode_path)
     # eval(mode_path)

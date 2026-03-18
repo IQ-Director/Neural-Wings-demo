@@ -4,7 +4,7 @@
 
 using json = nlohmann::json;
 
-bool __SHOWINFO__ = true;
+inline bool __SHOWINFO__ = true;
 
 class Config
 {
