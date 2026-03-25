@@ -169,7 +169,7 @@ Vector3f Vector3f::RotateByAxixAngle(const Vector3f &axis, float angle)
 
     Vector3f wwv = w ^ wv;
 
-    wv *= cosf(angle) * 2;
+    wv *= cos(angle) * 2;
 
     wwv *= 2;
 

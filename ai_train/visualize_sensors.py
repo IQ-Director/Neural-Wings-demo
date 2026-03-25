@@ -5,8 +5,8 @@ import sys
 import os
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
-debug_path = os.path.join(current_dir, "Debug")
-sys.path.append(debug_path)
+# debug_path = os.path.join(current_dir, "Release")
+sys.path.append(current_dir)
 
 try:
     import nw_engine

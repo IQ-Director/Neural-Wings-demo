@@ -167,7 +167,7 @@ void GameplayScreen::OnEnter()
                                                                  std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
                                                              //  e.hitpoint.print();
                                                              //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
-                                                             if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)
+                                                             if (std::fabs(e.relativeVelocity.Length()) < 2.0f || std::fabs(e.impulse) < 10.0f)
                                                                  return;
                                                              auto &particleSys = m_world->GetParticleSystem();
                                                              particleSys.Spawn("Collision",

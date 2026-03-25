@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.11)
 
 project(Neural_Wings-demo)
 
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -15,7 +16,6 @@ if(MSVC)
     set(CMAKE_EXE_LINKER_FLAGS_DEBUG "/DEBUG")
     set(CMAKE_CXX_FLAGS_RELEASE "/MD /O2 /DNDEBUG /EHsc /FS")
 endif()
-
 
 include(FetchContent)
 
@@ -50,6 +50,7 @@ endif()
 FetchContent_MakeAvailable(raylib raygui nlohmann_json pybind11)
 
 
+find_package(OpenMP REQUIRED)
 
 file(GLOB_RECURSE SOURCES "src/*.cpp" "src/*.c")
 
@@ -84,6 +85,7 @@ target_include_directories(NW_Core PUBLIC
 target_link_libraries(NW_Core PUBLIC
     raylib
     nlohmann_json::nlohmann_json
+    OpenMP::OpenMP_CXX
 )
 
 
@@ -219,7 +221,7 @@ else()
     )
 
     target_include_directories(nw_engine PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src)
-    target_link_libraries(nw_engine PRIVATE NW_Core)
+    target_link_libraries(nw_engine PRIVATE NW_Core OpenMP::OpenMP_CXX)
 
     if(WIN32)
         target_link_libraries(nw_engine PRIVATE ws2_32 winmm)

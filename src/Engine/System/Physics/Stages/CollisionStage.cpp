@@ -46,7 +46,7 @@ void CollisionStage::Execute(GameWorld &world, float fixedDeltaTime)
         local_candidates.reserve(gameObjects.size() / omp_get_num_threads());
 
 #pragma omp for nowait
-        for (size_t i = 0; i < gameObjects.size(); ++i)
+        for (int i = 0; i < gameObjects.size(); ++i)
         {
             auto *go = gameObjects[i];
             auto &rb = go->GetComponent<RigidbodyComponent>();

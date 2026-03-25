@@ -11,7 +11,8 @@ GameWorld::GameWorld(std::function<void(ScriptingFactory &, PhysicsStageFactory 
                      const std::string &sceneConfigPath,
                      const std::string &inputConfigPath,
                      const std::string &renderView,
-                     const std::string &effectLibPath)
+                     const std::string &effectLibPath,
+                     bool headless)
     : m_resourceManager(resourceManager),
       m_audioManager(audioManager),
       m_nextObjectID(0)
@@ -101,7 +102,7 @@ bool GameWorld::FixedUpdate(float fixedDeltaTime)
     return true;
 }
 
-bool GameWorld::Update(float DeltaTime)
+bool GameWorld::Update(float DeltaTime, bool sound)
 {
     m_timeManager->Tick();
     m_timerManager->Update(DeltaTime);
@@ -113,7 +114,7 @@ bool GameWorld::Update(float DeltaTime)
     this->UpdateTransforms();
 
     mCamera *activeCam = m_cameraManager->GetMainCamera();
-    if (activeCam)
+    if (activeCam && sound)
     {
         m_audioManager->Update(*this, *activeCam);
     }

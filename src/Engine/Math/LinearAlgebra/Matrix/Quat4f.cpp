@@ -49,11 +49,11 @@ Quat4f &Quat4f::operator=(const Quat4f &rq)
 
 Quat4f::Quat4f(const Vector3f &v)
 {
-	float cx = cosf(v.x() * 0.5f);
+	float cx = cos(v.x() * 0.5f);
 	float sx = sinf(v.x() * 0.5f);
-	float cy = cosf(v.y() * 0.5f);
+	float cy = cos(v.y() * 0.5f);
 	float sy = sinf(v.y() * 0.5f);
-	float cz = cosf(v.z() * 0.5f);
+	float cz = cos(v.z() * 0.5f);
 	float sz = sinf(v.z() * 0.5f);
 	m_data[0] = cx * cy * cz + sx * sy * sz;
 	m_data[1] = sx * cy * cz - cx * sy * sz;

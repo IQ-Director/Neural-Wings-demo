@@ -1,5 +1,7 @@
 from stable_baselines3 import PPO
 from stable_baselines3.common.callbacks import CheckpointCallback
+from stable_baselines3.common.vec_env import SubprocVecEnv
+
 import numpy as np
 import cv2
 import sys
@@ -133,7 +135,8 @@ def train():
 
 
 def train_continue(model_path):
-    env = ppoEnv()
+    # env = ppoEnv()
+    env = SubprocVecEnv([make_env for _ in range(2)])
     model = PPO.load(model_path, env=env)
 
     print(f"Model device: {model.device}")
@@ -186,6 +189,10 @@ def eval(model_path):
         cv2.destroyAllWindows()
 
 
+def make_env():
+    return ppoEnv()
+
+
 if (__name__ == "__main__"):
     print(f"Current Process ID (PID): {os.getpid()}")
     if torch.cuda.is_available():
@@ -194,6 +201,6 @@ if (__name__ == "__main__"):
         print("CUDA is NOT available. Check your PyTorch installation.")
 
     # model, env = train()
-    mode_path = "ai_train/checkpoints/ppo_combat_model_1300000_steps.zip"
+    mode_path = "ai_train/checkpoints/ppo_combat_model_continue_350000_steps.zip"
     train_continue(mode_path)
     # eval(mode_path)

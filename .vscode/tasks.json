@@ -64,6 +64,26 @@
     },
     //ai train
     {
+      "label": "Conda - Configure AI Module",
+      "type": "shell",
+      "command": "conda",
+      "args": [
+        "run",
+        "-n",
+        "py311",
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
       "label": "Build AI Module",
       "type": "shell",
       "command": "cmake",
@@ -76,7 +96,52 @@
         "Release"
       ],
       "group": "build",
-      "dependsOn": "Ensure Build Dir",
+      "dependsOn": [
+        "Conda - Configure AI Module"
+      ],
+      "problemMatcher": "$msCompile"
+    },
+    {
+      "label": "Conda - Configure AI Module(win)",
+      "type": "shell",
+      "command": "conda",
+      "args": [
+        "run",
+        "-n",
+        "PINN",
+        "cmake",
+        "-S",
+        ".",
+        "-B",
+        "build",
+        "-G",
+        "Visual Studio 17 2022",
+        "-A",
+        "x64",
+        "-DCMAKE_BUILD_TYPE=Release"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build AI Module(win)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build",
+        "${workspaceFolder}/build",
+        "--target",
+        "nw_engine",
+        "--config",
+        "Release"
+      ],
+      "group": "build",
+      "dependsOn": [
+        "Ensure Build Dir",
+        "Conda - Configure AI Module(win)"
+      ],
       "problemMatcher": "$msCompile"
     },
     //web
