@@ -47,7 +47,7 @@
       "preLaunchTask": "Start Web Server"
     },
     {
-      "name": "Train AI (PPO)",
+      "name": "Train AI (linux)",
       "type": "python",
       "request": "launch",
       "justMyCode": false,
@@ -58,6 +58,19 @@
         "PYTHONPATH": "${workspaceFolder}/ai_train"
       },
       "preLaunchTask": "Build AI Module"
+    },
+    {
+      "name": "Train AI (win)",
+      "type": "python",
+      "request": "launch",
+      "justMyCode": false,
+      "program": "${workspaceFolder}/ai_train/ppo.py",
+      "console": "integratedTerminal",
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}/ai_train"
+      },
+      "preLaunchTask": "Build AI Module(win)"
     },
     {
       "name": "C++: Attach to Python",

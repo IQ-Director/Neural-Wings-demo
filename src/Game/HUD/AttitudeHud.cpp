@@ -121,7 +121,7 @@ void AttitudeHud::DrawHorizonLine(float currentPitchDeg, float rollRad, float cx
     Vector2 p1_local_R = {centerGap, yOffset};
     Vector2 p2_local_R = {halfW, yOffset};
 
-    float c = cosf(rollRad);
+    float c = cos(rollRad);
     float s = sinf(rollRad);
 
     auto Rotate = [&](Vector2 p) -> Vector2
@@ -145,7 +145,7 @@ void AttitudeHud::DrawPitchLine(float currentPitchDeg, float rollRad, float line
     Vector2 p1_local = {centerGap, yOffset};
     Vector2 p2_local = {centerGap + lineLength, yOffset};
 
-    float c = cosf(rollRad);
+    float c = cos(rollRad);
     float s = sinf(rollRad);
 
     auto Rotate = [&](Vector2 p) -> Vector2

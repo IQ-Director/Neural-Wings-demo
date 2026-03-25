@@ -28,7 +28,8 @@ public:
               const std::string &sceneConfigPath = "assets/scenes/test_scene.json",
               const std::string &inputConfigPath = "assets/config/input_config.json",
               const std::string &renderView = "assets/view/test_view.json",
-              const std::string &effectLibPath = "assets/Library/particle_effects.json");
+              const std::string &effectLibPath = "assets/Library/particle_effects.json",
+              bool headless = false);
     ~GameWorld();
     void Reset(const std::string &sceneConfigPath = "assets/scenes/test_scene.json",
                const std::string &renderView = "assets/view/test_view.json");
@@ -37,7 +38,7 @@ public:
 
     GameObject &CreateGameObject();
     bool FixedUpdate(float fexedDeltaTime);
-    bool Update(float deltaTime);
+    bool Update(float deltaTime, bool sound = true);
     void Render();
     void UpdateTransforms();
 

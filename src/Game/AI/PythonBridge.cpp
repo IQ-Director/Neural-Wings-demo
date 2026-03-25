@@ -18,6 +18,7 @@ PYBIND11_MODULE(nw_engine, m)
         
         std::vector<ssize_t> shape = { (ssize_t)self.GetHeight(), (ssize_t)self.GetWidth(), 4 };
         return py::array_t<float>(shape, res.image_data.data()); })
+
          .def("step", [](AIEnvironment &self, std::vector<float> actions)
               {
         StepResult res = self.Step(actions);

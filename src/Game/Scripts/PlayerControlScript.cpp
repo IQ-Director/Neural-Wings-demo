@@ -76,7 +76,7 @@ void PlayerControlScript::CalculatePhysics(float dt)
     Vector3f velDir = (airspeed > 0.01f) ? rb.velocity.Normalized() : forward;
 
     // Angle of Attack - AoA
-    float aoa = acosf(std::clamp(forward * velDir, -1.0f, 1.0f));
+    float aoa = acos(std::clamp(forward * velDir, -1.0f, 1.0f));
 
     // Lift:  L = 1/2 * p * v^2 * S * Cl
     float liftMag = airspeed * airspeed * m_wingArea * m_liftCoefficient;
@@ -182,7 +182,7 @@ void PlayerControlScript::CalculatePhysics(float dt)
 
                 // 鼠标微操
                 float dot = m_camDir * forward;
-                float alignThreshold = std::cosf(m_alignmentTheta * 3.1415926535f / 180.0f);
+                float alignThreshold = std::cos(m_alignmentTheta * 3.1415926535f / 180.0f);
                 if (dot > alignThreshold)
                 {
                     Vector3f rotationError = (forward ^ m_camDir);

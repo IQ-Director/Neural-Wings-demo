@@ -274,11 +274,11 @@ void WeaponScript::Bullet0(const InputManager &input)
             auto &rb2 = bullet2->GetComponent<RigidbodyComponent>();
             rb2.velocity = tf.GetForward() * m_bulletVelocity_0 + spawnVel;
 
-            auto &audio = owner->GetComponent<AudioComponent>();
+            // auto &audio = owner->GetComponent<AudioComponent>();
 
-            float randomPitch = 0.3f + dis(gen) * 1.5f;
-            float randomVol = 0.8f + dis(gen) * 0.2f;
-            audio.Play("Fire", randomVol, randomPitch);
+            // float randomPitch = 0.3f + dis(gen) * 1.5f;
+            // float randomVol = 0.8f + dis(gen) * 0.2f;
+            // audio.Play("Fire", randomVol, randomPitch);
 
             // world->GetParticleSystem().Spawn(...);
         }

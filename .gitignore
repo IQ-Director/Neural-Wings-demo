@@ -12,3 +12,6 @@ tools/.venv/
 ai_train/Debug/
 ai_train/Release/
 ai_train/checkpoints/
+.vscode/
+dreamerv3/
+ai_train/logdir

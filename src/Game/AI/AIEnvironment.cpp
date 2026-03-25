@@ -139,7 +139,7 @@ void AIEnvironment::Init()
 std::cout << "CollisionEvent, impluse: " << e.impulse << std::endl;
 //  e.hitpoint.print();
 //  std::cout << "relative velocity: " << e.relativeVelocity.Length() << std::endl;
-if (std::fabsf(e.relativeVelocity.Length()) < 2.0f || std::fabsf(e.impulse) < 10.0f)
+if (std::fabs(e.relativeVelocity.Length()) < 2.0f || std::fabs(e.impulse) < 10.0f)
 return;
 
 if (e.m_object2->GetTag() == "bullet" && e.m_object1->GetScript<HealthScript>())
@@ -204,7 +204,7 @@ StepResult AIEnvironment::Step(const std::vector<float> &actions)
     m_currentTime += m_dt;
 
     m_gameWorld->FixedUpdate(m_dt);
-    m_gameWorld->Update(m_dt);
+    m_gameWorld->Update(m_dt, false);
 
     render.RenderAIView("AIView", *m_gameWorld, m_aiFbo);
 

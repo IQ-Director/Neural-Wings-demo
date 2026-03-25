@@ -92,7 +92,7 @@ void GravityStage::Execute(GameWorld &world, float fixedDeltaTime)
                     if (nrV < -0.01f)
                     {
                         float invMass = 1.0f / rb.mass;
-                        float e = (fabsf(nrV) < 0.2f) ? 0.0f : rb.elasticity * e_ground;
+                        float e = (fabs(nrV) < 0.2f) ? 0.0f : rb.elasticity * e_ground;
                         float i = -(1.0f + e) * nrV;
                         auto raxn = cp.r ^ normal;
                         auto rot = tf.GetWorldRotation().toMatrix();

@@ -251,7 +251,7 @@ struct HitBox
     {
         float res = 0.0f;
         for (int i = 0; i < 3; i++)
-            res += a.halfExtents[i] * fabsf(a.axes[i] * axis);
+            res += a.halfExtents[i] * fabs(a.axes[i] * axis);
         return res;
     }
     static bool TestAxis(const HitBox &a, const HitBox &b, Vector3f axis,
@@ -261,7 +261,7 @@ struct HitBox
             return false;
         axis.Normalize();
 
-        float distProj = fabsf((b.center - a.center) * axis);
+        float distProj = fabs((b.center - a.center) * axis);
         float sumRadius = GetProjectionRadius(a, axis) + GetProjectionRadius(b, axis);
 
         float pen = sumRadius - distProj;
@@ -325,9 +325,9 @@ struct HitBox
             // 球心在 Box 内部
 
             // 计算到各个面的距离
-            float dX = box.halfExtents[0] - fabsf(localX);
-            float dY = box.halfExtents[1] - fabsf(localY);
-            float dZ = box.halfExtents[2] - fabsf(localZ);
+            float dX = box.halfExtents[0] - fabs(localX);
+            float dY = box.halfExtents[1] - fabs(localY);
+            float dZ = box.halfExtents[2] - fabs(localZ);
 
             if (dX < dY && dX < dZ)
             {
@@ -396,9 +396,9 @@ struct HitBox
             // 球心在 Box 内部
 
             // 计算到各个面的距离
-            float dX = box.halfExtents[0] - fabsf(localX);
-            float dY = box.halfExtents[1] - fabsf(localY);
-            float dZ = box.halfExtents[2] - fabsf(localZ);
+            float dX = box.halfExtents[0] - fabs(localX);
+            float dY = box.halfExtents[1] - fabs(localY);
+            float dZ = box.halfExtents[2] - fabs(localZ);
 
             if (dX < dY && dX < dZ)
             {
@@ -545,7 +545,7 @@ struct HitBox
         float denom = a * e - b * b;
 
         float t1, t2;
-        if (fabsf(denom) < 0.0001f)
+        if (fabs(denom) < 0.0001f)
         {
             t1 = 0.0f;
             t2 = f / e;
