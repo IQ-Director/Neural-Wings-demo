@@ -38,11 +38,11 @@ def main():
     config = elements.Config(configs['defaults'])
     config = config.update(configs['size1m'])
 
-    old_folder_name = '20260324T234951'
-    old_logdir = current_dir / 'logdir' / 'nw_engine_v1' / old_folder_name
+    old_folder_name = '20260328T152324'
+    old_logdir = current_dir / 'logdir' / 'nw_engine_v1_depth' / old_folder_name
 
     new_logdir_pattern = current_dir / \
-        'logdir' / 'nw_engine_v1' / '{timestamp}'
+        'logdir' / 'nw_engine_v1_depth' / '{timestamp}'
 
     config = config.update({
         'logdir': str(new_logdir_pattern),
@@ -118,7 +118,7 @@ def make_agent_dummy(config):
     from dreamerv3.agent import Agent
 
     obs_space = {
-        'image': elements.Space(np.uint8, (64, 64, 3)),
+        'image': elements.Space(np.uint8, (64, 128, 3)),
         'reward': elements.Space(np.float32),
         'is_first': elements.Space(bool),
         'is_last': elements.Space(bool),
@@ -161,7 +161,7 @@ def make_logger(config):
     outputs = [
         elements.logger.TerminalOutput(config.logger.filter),
         elements.logger.JSONLOutput(logdir, 'metrics.jsonl'),
-        # elements.logger.TensorBoardOutput(logdir, config.logger.fps),
+        elements.logger.TensorBoardOutput(logdir, config.logger.fps),
     ]
     return elements.Logger(step, outputs)
 

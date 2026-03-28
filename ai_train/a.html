@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Resume_SuShirui_Engine_Dev_GreyRed</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #1a1b1e;
+            /* 深灰背景，不致死黑 */
+            --card-bg: #25262b;
+            /* 模块背景稍亮 */
+            --text-main: #e5e5e5;
+            /* 主文字 */
+            --text-sub: #a1a1a1;
+            /* 副文字 */
+            --accent: #ff3e3e;
+            /* 核心战术红 */
+            --accent-dim: rgba(255, 62, 62, 0.1);
+            --border: #373a40;
+            /* 工业感边框线 */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'PingFang SC', sans-serif;
+            background-color: #2c2e33;
+            color: var(--text-main);
+            line-height: 1.45;
+            padding: 40px 0;
+        }
+
+        .resume-page {
+            width: 820px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 45px;
+            position: relative;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+        }
+
+        /* 顶部装饰细节 */
+        .resume-page::before {
+            content: "DEPT: ENGINE_R&D // CORE_RECRUITMENT // ID: RAIN_KOTSUZUI";
+            position: absolute;
+            top: 15px;
+            right: 45px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        @media print {
+            @page {
+                size: A4;
+                margin: 0;
+                /* 彻底消除 PDF 物理边距 */
+            }
+
+            body {
+                background-color: var(--bg-color) !important;
+            }
+
+            .resume-page {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+                min-height: 297mm;
+                /* 填满 A4 高度 */
+            }
+        }
+
+        header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .name-box h1 {
+            font-size: 34px;
+            letter-spacing: -1.2px;
+            text-transform: uppercase;
+            color: #ffffff;
+        }
+
+        .name-box p {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            color: var(--accent);
+            margin-top: 4px;
+            font-weight: 700;
+        }
+
+        .contact-box {
+            text-align: right;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        .contact-box a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px dashed var(--accent);
+        }
+
+        section {
+            margin-bottom: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 15px;
+            background: var(--accent);
+            color: #fff;
+            padding: 2px 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 800;
+        }
+
+        .section-header .line {
+            flex-grow: 1;
+            height: 1px;
+            background: var(--border);
+            margin-left: 10px;
+        }
+
+        .item {
+            margin-bottom: 18px;
+        }
+
+        .item-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 5px;
+        }
+
+        .item-head strong {
+            font-size: 16px;
+            color: #ffffff;
+        }
+
+        .item-head .date {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--accent);
+        }
+
+        .github-link {
+            display: inline-block;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            background: var(--accent-dim);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 2px;
+            text-decoration: none;
+            margin-bottom: 8px;
+            border-left: 3px solid var(--accent);
+        }
+
+        .tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            color: var(--text-sub);
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        li {
+            font-size: 13px;
+            margin-bottom: 5px;
+            padding-left: 16px;
+            position: relative;
+            color: var(--text-main);
+        }
+
+        li::before {
+            content: ">>";
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            top: 2px;
+        }
+
+        .score-highlight {
+            color: #ffffff;
+            font-weight: 700;
+            border-bottom: 1px solid var(--accent);
+        }
+
+        /* 分栏架构 */
+        .layout-grid {
+            display: grid;
+            grid-template-columns: 1.9fr 1fr;
+            gap: 35px;
+        }
+
+        .sidebar-box {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 20px;
+            margin-bottom: 20px;
+            border-right: 4px solid var(--accent);
+        }
+
+        .sidebar-box h3 {
+            font-size: 13px;
+            margin-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 5px;
+            color: var(--accent);
+            text-transform: uppercase;
+        }
+
+        .skill-section h4 {
+            font-size: 10px;
+            color: var(--text-sub);
+            text-transform: uppercase;
+            margin: 12px 0 6px 0;
+            letter-spacing: 0.5px;
+        }
+
+        .skill-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .skill-cloud span {
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            font-size: 11px;
+            padding: 2px 8px;
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-main);
+        }
+
+        .footer-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-sub);
+            margin-top: 20px;
+            line-height: 1.3;
+            opacity: 0.6;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: var(--bg-color);
+                -webkit-print-color-adjust: exact;
+            }
+
+            .resume-page {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="resume-page">
+        <header>
+            <div class="name-box">
+                <h1>苏世瑞 <span style="font-weight: 400; font-size: 24px; opacity: 0.7;">SU SHIRUI</span></h1>
+                <p>// TSINGHUA UNIVERSITY_XINGJIAN COLLEGE // SOPHOMORE</p>
+            </div>
+            <div class="contact-box">
+                <p>MAIL: <a href="mailto:ssr24@mails.tsinghua.edu.cn">ssr24@mails.tsinghua.edu.cn</a></p>
+                <p>GITHUB: <a href="https://github.com/Rain-Kotsuzui">github.com/Rain-Kotsuzui</a></p>
+                <p>WECHAT: AHXBXA</p>
+            </div>
+        </header>
+
+        <div class="layout-grid">
+            <div class="main-content">
+                <!-- 教育经历 -->
+                <section>
+                    <div class="section-header">
+                        <h2>教育背景 EDUCATION</h2>
+                        <div class="line"></div>
+                    </div>
+                    <div class="item">
+                        <div class="item-head">
+                            <strong>清华大学 // 行健书院</strong>
+                            <span class="date">2024.09 - PRESENT</span>
+                        </div>
+                        <p style="font-size: 13px; margin-bottom: 8px; color: var(--text-sub);">理论与应用力学 + 交叉工程 (双学位方向)
+                        </p>
+                        <ul>
+                            <li><strong>计算机图形学基础 (胡事民教授) : <span class="score-highlight">4.0 / 4.0</span></strong></li>
+                            <li>深入研究实时渲染管线、PBR 理论、光线追踪加速结构及物理模拟算法。</li>
+                            <li><strong>数学核心课: 数学分析、高等线性代数均为 <span class="score-highlight">4.0 / 4.0</span></strong>
+                            </li>
+                            <li>行健书院硬核数理训练，具备极强的物理推导、数值分析与几何功底。</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 核心项目 -->
+                <section>
+                    <div class="section-header">
+                        <h2>引擎项目 ENGINE PROJECT</h2>
+                        <div class="line"></div>
+                    </div>
+                    <div class="item">
+                        <div class="item-head">
+                            <strong>Neural Wings: 跨平台自研 3D 引擎系统</strong>
+                        </div>
+                        <a href="https://github.com/Rain-Kotsuzui/Neural_Wings-demo" class="github-link">
+                            SOURCE_REPO: github.com/Rain-Kotsuzui/Neural_Wings-demo</a>
+                        <div class="tags">
+                            <span class="tag">C++17</span><span class="tag">OPENGL</span><span
+                                class="tag">WASM</span><span class="tag">GPGPU</span><span class="tag">ECS</span><span
+                                class="tag">VUE 3</span>
+                        </div>
+                        <ul>
+                            <li><strong>高性能架构：</strong>自研 ECS 架构，使用对象池技术，解决 WebAssembly
+                                与原生环境下的内存抖动，支持多实体实时调度。</li>
+                            <li><strong>GPGPU 物理管线：</strong>针对 WebGL 2.0 硬件限制，利用 Transform Feedback 与
+                                双缓冲实现完全卸载至 GPU 的粒子物理模拟（如 SPH 流体、Boids 算法）。</li>
+                            <li><strong>混合渲染与 UI：</strong>支持视锥体剔除，构建 Render Graph 系统，支持非线性后处理（GTAO、体积云、双边滤波）。嵌入
+                                Ultralight WebView，实现 Vue 驱动的 HUD。</li>
+                            <li><strong>DCC 工具链：</strong>可视化帧合成编辑器，支持节点化配置渲染管线拓扑并实时生成
+                                JSON 配置文件，大幅优化生产流。</li>
+                            <li><strong>物理与脚本、事件系统：</strong>提供接口并内置刚体运动系统和碰撞系统，统一调度。</li>
+                        </ul>
+                    </div>
+
+                    <div class="item">
+                        <div class="item-head">
+                            <strong>前沿算法复现与 AI 集成</strong>
+                        </div>
+                        <ul>
+                            <li>复现 RenderFormer 架构，探索 Transformer 在像素级渲染与特征合成中的应用。</li>
+                            <li>在自研引擎的小游戏demo中集成 DreamerV3 强化学习算法，为引擎构建具备预测与自主决策能力的 AI Agent 敌人。</li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+
+            <div class="sidebar">
+                <section class="sidebar-box">
+                    <h3>技术栈 SKILLS</h3>
+                    <div class="skill-section">
+                        <h4>Programming</h4>
+                        <div class="skill-cloud">
+                            <span>C++</span><span>Python</span><span>C#</span><span>Unity</span>
+                        </div>
+                        <h4>Graphics / Engine</h4>
+                        <div class="skill-cloud">
+                            <span>OpenGL</span><span>Shader(GLSL)</span><span>PBR</span><span>WASM</span>
+                        </div>
+                        <h4>Mathematics</h4>
+                        <div class="skill-cloud">
+                            <span>Lin-Algebra</span><span>Calculus</span><span>Numerical</span>
+                        </div>
+                        <h4>AI / DL</h4>
+                        <div class="skill-cloud">
+                            <span>PyTorch</span><span>Transformer</span><span>RL</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="sidebar-box">
+                    <h3>更多 MORE</h3>
+                    <ul style="font-size: 11.5px; padding: 0; list-style: none;">
+                        <li style="margin-bottom: 12px;"><strong>[COURSE]</strong> 图形学及多门数理核心课满绩 (4.0)。</li>
+                        <li><strong>[AESTHETIC]</strong> 深度步行模拟器类游戏爱好者，喜欢风格化作品，具备 Live2D 制作经验。</li>
+                    </ul>
+                </section>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>
