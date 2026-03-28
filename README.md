@@ -115,6 +115,10 @@
 *   **导入支持**：支持导入已有的 `renderview.json` 文件，快速复现复杂的渲染效果。
 
 ![Frame Process Editor](./README/frameEditor.png)
+
+* **ascii后处理示例**：
+<img src="./README/test.png" alt="ascii_test" style="width: 100px;">
+
 ---
 
 ## 📂 详细文件层级结构
@@ -202,6 +206,7 @@ NeuralWings/
 *   **其他着色器**: 用于绘制物体时使用的着色器（如 `rim_light.fs`, `hologram.fs`）。
 
 ---
+
 
 ## 许可证 (License)
 本项目采用 MIT 许可证。部分底层窗口与音频接口参考了 Raylib 的跨平台实现思路。

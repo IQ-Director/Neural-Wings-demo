@@ -4,11 +4,9 @@ import elements
 import os
 import sys
 
-# 导入你的 C++ 模块
 try:
     import nw_engine
 except ImportError:
-    # 自动处理路径（如果模块在 Release 文件夹下）
     current_dir = os.path.dirname(os.path.abspath(__file__))
     sys.path.append(os.path.join(current_dir, "Release"))
     import nw_engine
@@ -19,20 +17,15 @@ class NWEngineDreamer(embodied.Env):
         self._width = width
         self._height = height
 
-        # 1. 初始化 GPU 上下文 (隐藏窗口)
-        # 注意：在多进程训练中，initContext 只能在子进程或确保唯一时调用
         nw_engine.AIEnv.initContext(width, height)
 
-        # 2. 实例化环境
         self._env = nw_engine.AIEnv(width, height)
-        self._env.init()  # 执行 C++ 中的 Init() 逻辑
+        self._env.init()
 
         self._done = True
 
-        # 3. 定义观测空间
-        # DreamerV3 的 CNN 编码器默认处理 uint8 的 3通道图像 [H, W, 3]
         self._obs_space = {
-            'image': elements.Space(np.uint8, (height, width, 3)),
+            'image': elements.Space(np.uint8, (height, width*2, 3)),
             'reward': elements.Space(np.float32),
             'is_first': elements.Space(bool),
             'is_last': elements.Space(bool),
@@ -81,12 +74,20 @@ class NWEngineDreamer(embodied.Env):
 
     def _obs(self, raw_obs, reward, is_first=False, is_last=False, is_terminal=False):
         rgb = (raw_obs[:, :, :3] * 255.0).clip(0, 255).astype(np.uint8)
-        image_uint8 = (rgb * 255.0).clip(0, 255).astype(np.uint8)
+        # image_uint8 = (rgb * 255.0).clip(0, 255).astype(np.uint8)
+        if raw_obs.shape[-1] >= 4:
+            depth_2d = (raw_obs[:, :, 3] * 255.0).clip(0, 255).astype(np.uint8)
+        else:
+            depth_2d = np.zeros((self._height, self._width), dtype=np.uint8)
+        depth_3d = np.stack([depth_2d] * 3, axis=-1)
+        combined_image = np.hstack([rgb, depth_3d])
 
-        return dict(
-            image=image_uint8,
+        obs_dict = dict(
+            image=combined_image,
             reward=np.float32(reward),
             is_first=is_first,
             is_last=is_last,
             is_terminal=is_terminal,
         )
+
+        return obs_dict

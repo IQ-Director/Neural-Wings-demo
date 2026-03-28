@@ -202,5 +202,5 @@ if (__name__ == "__main__"):
 
     # model, env = train()
     mode_path = "ai_train/checkpoints/ppo_combat_model_continue_350000_steps.zip"
-    train_continue(mode_path)
-    # eval(mode_path)
+    # train_continue(mode_path)
+    eval(mode_path)
